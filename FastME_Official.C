@@ -1,5 +1,4 @@
 //By Miquéias M. de Almeida 
-//On behalf CERN-CMS/UERJ-DFNAE
 
 #include <time.h> 
 #include <stdio.h>
@@ -15,8 +14,8 @@
 #include <TCanvas.h>
 #include <TMath.h>
 
-#define l 6					    //Number of particles (4l and 2jets)
-#define c 4					    //Number of variables (pT, eta, phi and E)
+#define l 6					//Number of particles (4l and 2jets)
+#define c 4		  			//Number of variables (pT, eta, phi and E)
 #define cut 0.5					//Threshold to separate events (ideal cut 0.5 - MC #Sig and #Bkg equals)
 
 /****************************************************************************************************
@@ -72,7 +71,7 @@ Float_t dr(Float_t Data[l][c], Float_t MC[l][c]){
 //====================================================================================================
 
 
-void FastME_Oficial(){
+void FastME_Official(){
   
 //---Timming process---
 time_t date;
