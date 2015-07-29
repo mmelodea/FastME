@@ -56,17 +56,13 @@ struct tm* time_info;
   printf("%s\n","---------------------------------------------------------");
 
   FME *teste = new FME();
-  //TTree *tfinal = new TTree("","");
-  TFile *FME_Results = new TFile("FME_Results.root","recreate");
-  (teste->launch_FME("4l","FastME",data,sig,bkg1,"RECO_PARTICLE"))->Write();
-  FME_Results->Close();
+  teste->launch_FME("4l","FastME",data,sig,bkg1,"RECO_PARTICLE");
   
   //Print on PC screen information about finish of processes
   time(&date);
   time_info = localtime(&date);
   printf("%s\n","_________________________________________________________");
   printf("%s\n","                 FastME Analysis Finished                ");
-  printf("%s\n","---------------------------------------------------------");
   printf("%s\n","---------------------------------------------------------");
   printf("\t\t%s",asctime(time_info));
   printf("%s\n","_________________________________________________________");

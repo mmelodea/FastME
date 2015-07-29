@@ -4,18 +4,21 @@
 #include <TTree.h>
 #include <TString.h>
 
+//private:
+  //double std_DR(const int comp, Float_t Data[comp][3][2], Float_t MC[comp][3][2]);
+
 class FME{
   
   public:
     FME(){}
     ~FME(){}
-    TTree* launch_FME(TString type, TString out_name, TTree *Data_tree, TTree *MC_Sig_tree, TTree *MC_Bkg_tree, TString Branch_Name);
+    int launchFME(TString Final_State, TString Out_Name, TString Data_Path, TString MC_Sig_Path, TString MC_Bkg_Path, TString Tree_Name, TString Branch_Name);
   
   private:
-    TTree* FS4l_DR(TString out_name, TTree *Data_tree, TTree *MC_Sig_tree, TTree *MC_Bkg_tree, TString Branch_Name);
-    //TTree* FS4l2j_DR(string out_name, TTree *Data_tree, TTree *MC_Sig_tree, TTree *MC_Bkg_tree, string Branch_Name);
-    //TTree* FSlv2j_DR(string out_name, TTree *Data_tree, TTree *MC_Sig_tree, TTree *MC_Bkg_tree, string Branch_Name);
-
+    int FS4l(TString Out_Name,TTree *Data_Tree, TTree *MC_Sig_Tree, TTree *MC_Bkg_Tree, TString Branch_Name);
+    int FS4l2j(TString Out_Name,TTree *Data_Tree, TTree *MC_Sig_Tree, TTree *MC_Bkg_Tree, TString Branch_Name);
+    int FSlv2j(TString Out_Name,TTree *Data_Tree, TTree *MC_Sig_Tree, TTree *MC_Bkg_Tree, TString Branch_Name);
+    
 };
 
 #endif
