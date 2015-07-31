@@ -33,9 +33,9 @@ Use Instructions:
    weight (there are 3 weight defined: one given by sig, one given by bkg and one given by the relation between the two first).
 
 4. At "interface/inputs" can be seen the way to pass the informations to FastME processing. Currently there are one final state completely implemented
-5. in which 4 models can be called to organize Data and MC matrix components to make the comparation. More two final states (4l+2j and lvjj) are been concluded.
-6. The models are (generally):
-7.   4.1. DR_Order_Res: organize matrix components by distance and constraining same ressonance for two related components;
-8.   4.2. DR_Order_noRes: the same first idea above, but without ressonance constraint;
-9.   4.3. PT_Order_Res: organize matrix components by transverse momentum value (from higher to smaller);
-10.  4.4. PT_Order_noRes: the same idea above, but without use ressonance constraint.
+   in which 4 models can be called to organize Data and MC matrix components to make the comparation. More two final states (4l+2j and lvjj) are been concluded.
+  The models are (generally):
+   4.1. DR_Order_Res: organize matrix components by distance and constraining same ressonance for two related components;
+   4.2. DR_Order_noRes: the same first idea above, but without ressonance constraint;
+   4.3. PT_Order_Res: organize matrix components by transverse momentum value (from higher to smaller);
+   4.4. PT_Order_noRes: the same idea above, but without use ressonance constraint.
