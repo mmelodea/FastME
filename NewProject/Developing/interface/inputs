@@ -1,14 +1,14 @@
 #OutName
-FastME
+FastME_Results
 
 #FinalState
 4l
 
 #Model
-%DR_Order_Res
+DR_Order_Res
 %DR_Order_noRes
 %PT_Order_Res
-PT_Order_noRes
+%PT_Order_noRes
 
 #DataPath
 /home/sabayon/temp/FastME/Descriminador/Higgs/prepare/new/higgs_data_formated.root

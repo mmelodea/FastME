@@ -1,6 +1,7 @@
 ///FastME Constructor
 ///Author: Miquéias M. de Almeida 
 
+#include "../PhsDrComputers/PHS_DRComputers.cxx"
 #include "FastME.h"
 #include <iostream>
 #include <ctime>
@@ -10,181 +11,11 @@
 #include <TTree.h>
 #include <TMath.h>
 
-#define pedestal -99					///Reset Value to Variables
-#define cut 	 0.5					///Threshold to Separate Events (Ideal Cut 0.5 - MC #Sig and #Bkg Equals)
-#define phs_radius 300
+#define pedestal 	-99					///Reset Value to Variables
+#define cut 	 	0.5					///Threshold to Separate Events (Ideal Cut 0.5 - MC #Sig and #Bkg Equals)
+#define phs_radius 	300					///DR Threshold Around Data Event (Need to change for user choice - to implement yet)
 
 using namespace std;
-
-
-///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-///:::::::: PHASE ESPACE DATA-MC DISTANCE COMPUTER FOR EQUAL RESSONANCE COMPONENTS :::::::::
-///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-///DISTANCE ORDERING + RESSONANCE CRITERY
-double std_DR(Float_t Data[4][3][2], Float_t MC[4][3][2]){
-  double fdpt2, fdeta2, fdphi2, sdpt2, sdeta2, sdphi2, sum_dr1, sum_dr2;
-  double sum_dpt2 = 0, sum_deta2 = 0, sum_dphi2 = 0, event_distance = -1;
-  int start = 0;
-  
-  do{
-      sum_dr1 = 0;
-      sum_dr2 = 0;
-      
-      fdpt2    = pow( (Data[start][0][0]-MC[start][0][0])/Data[start][0][1] ,2 );
-      fdeta2   = pow( (Data[start][1][0]-MC[start][1][0])/Data[start][1][1] ,2 );
-      fdphi2   = pow( (Data[start][2][0]-MC[start][2][0])/Data[start][2][1] ,2 );
-      sum_dr1 = sqrt(fdpt2 + fdeta2 + fdphi2);
-      
-      sdpt2    = pow( (Data[start][0][0]-MC[start+1][0][0])/Data[start][0][1] ,2 );
-      sdeta2   = pow( (Data[start][1][0]-MC[start+1][1][0])/Data[start][1][1] ,2 );
-      sdphi2   = pow( (Data[start][2][0]-MC[start+1][2][0])/Data[start][2][1] ,2 );
-      sum_dr2 = sqrt(sdpt2 + sdeta2 + sdphi2);
-      
-    if(sum_dr1 < sum_dr2){
-      sum_dpt2  += fdpt2;
-      sum_deta2 += fdeta2;
-      sum_dphi2 += fdphi2;
-  
-      sum_dpt2  += pow( (Data[start+1][0][0]-MC[start+1][0][0])/Data[start+1][0][1] ,2 );
-      sum_deta2 += pow( (Data[start+1][1][0]-MC[start+1][1][0])/Data[start+1][1][1] ,2 );
-      sum_dphi2 += pow( (Data[start+1][2][0]-MC[start+1][2][0])/Data[start+1][2][1] ,2 );
-    }
-      
-    if(sum_dr2 < sum_dr1){
-      sum_dpt2  += sdpt2;
-      sum_deta2 += sdeta2;
-      sum_dphi2 += sdphi2;
-
-      sum_dpt2  += pow( (Data[start+1][0][0]-MC[start][0][0])/Data[start+1][0][1] ,2 );
-      sum_deta2 += pow( (Data[start+1][1][0]-MC[start][1][0])/Data[start+1][1][1] ,2 );
-      sum_dphi2 += pow( (Data[start+1][2][0]-MC[start][2][0])/Data[start+1][2][1] ,2 );
-    }
-
-    start += 2; 
-  }while(start < 4);
-  event_distance = sqrt(sum_dpt2 + sum_deta2 + sum_dphi2);
-  
-  return event_distance;
-}
-
-
-///DISTANCE ORDERING + NO RESSONANCE CRITERY
-double noRes_DR(Float_t Data[4][3][2], Float_t MC[4][3][2]){
-  double dpt2, deta2, dphi2, sum_dr = 0, limiar;
-  double sum_dpt2 = 0, sum_deta2 = 0, sum_dphi2 = 0, event_distance = -1;
-  int chosen = -1, p[] = {-1,-1,-1,-1,-1,-1};
-  double vchosen[] = {-1,-1,-1};
-  
-  //Choose the l/j1-Data most close to l/j1-MC
-  for(int i=0; i<4; i++){
-    limiar = 1.E15;
-    for(int j=0; j<4; j++){
-      //if((j > 3 && i < 4) || (j < 4 && i > 3)) continue;       		                ///Avoid leptons/jets mixture
-      if(j == p[0] || j == p[1] || j == p[2]) continue;	///Avoid recounting
-      //if(j == p[0] || j == p[1] || j == p[2] || j == p[3] || j == p[4]) continue;	///Avoid recounting
-      
-      dpt2  = pow( (Data[i][0][0]-MC[j][0][0])/Data[i][0][1] ,2 );
-      deta2 = pow( (Data[i][1][0]-MC[j][1][0])/Data[i][1][1] ,2 );
-      dphi2 = pow( (Data[i][2][0]-MC[j][2][0])/Data[i][2][1] ,2 );
-      sum_dr = sqrt(dpt2 + deta2 + dphi2);
-      
-      if(sum_dr < limiar){
-	limiar     = sum_dr;
-	chosen     = j;
-	vchosen[0] = dpt2;
-	vchosen[1] = deta2;
-	vchosen[2] = dphi2;
-      }
-    }
-    p[i] = chosen;
-    
-    //Makes the sum of deltapT2, deta2 and dphi2 to get the events distance
-    sum_dpt2  += vchosen[0];
-    sum_deta2 += vchosen[1];
-    sum_dphi2 += vchosen[2];
-  }
-  
-  event_distance = sqrt(sum_dpt2 + sum_deta2 + sum_dphi2);
-  return event_distance;
-}
-
-
-///PT ORDERING + RESSONANCE CRITERY
-double pt_Res_DR(Float_t Data[4][3][2], Float_t MC[4][3][2]){
-  double data_limiar, mc_limiar;
-  double sum_dpt2 = 0, sum_deta2 = 0, sum_dphi2 = 0, event_distance = -1;
-  int data_ch = -1, mc_ch = -1, data_p[] = {-1,-1,-1,-1,-1,-1}, mc_p[] = {-1,-1,-1,-1,-1,-1};
-  
-  //Organizing leptons by pT
-  for(int i=0; i<4; i++){
-    data_limiar = 0.;
-    mc_limiar   = 0.;
-        
-    for(int j=0; j<4; j++){
-      //if((j > 3 && i < 4) || (j < 4 && i > 3)) continue;       		        ///Avoid leptons/jets mixture
-      
-      if(j != data_p[0] && j != data_p[1] && j != data_p[2] && j != data_p[4]){         ///MC avoid recounting
-	if(Data[j][0][0] > data_limiar){
-	  data_limiar = Data[j][0][0];
-	  data_ch = j;
-	}
-      }
-      if(j != mc_p[0] && j != mc_p[1] && j != mc_p[2] && j != mc_p[4]){			///Data avoid recounting
-	if(MC[j][0][0] > mc_limiar){
-	  mc_limiar = MC[j][0][0];
-	  mc_ch = j;
-	}
-      }
-    }
-    data_p[i] = data_ch;
-    mc_p[i] = mc_ch;
-
-    //Makes the sum over all final state particles
-    sum_dpt2  += pow( (Data[data_ch][0][0]-MC[mc_ch][0][0])/Data[data_ch][0][1] ,2 );
-    sum_deta2 += pow( (Data[data_ch][1][0]-MC[mc_ch][1][0])/Data[data_ch][1][1] ,2 );
-    sum_dphi2 += pow( (Data[data_ch][2][0]-MC[mc_ch][2][0])/Data[data_ch][2][1] ,2 );
-  }
-  
-  event_distance = sqrt(sum_dpt2 + sum_deta2 + sum_dphi2);
-  return event_distance;
-}
-
-
-///PT ORDERING + NO RESSONANCE CRITERY
-double pt_noRes_DR(Float_t Data[4][3][2], Float_t MC[4][3][2]){
-  Float_t sum_dpt2 = 0, sum_deta2 = 0, sum_dphi2 = 0, event_distance = -1;
-  int data_st = -1, data_nd = -1, mc_st = -1, mc_nd = -1, start = 0;
- 
-  //Organizing leptons by pT
-  for(int i=0; i<2; i++){
-    
-    //Organizing data
-    if(Data[start][0][0] > Data[start+1][0][0]){ data_st = start; data_nd = start+1; }
-    if(Data[start][0][0] < Data[start+1][0][0]){ data_st = start+1; data_nd = start; }
-      
-    //Organizing MC
-    if(MC[start][0][0] > MC[start+1][0][0]){ mc_st = start; mc_nd = start+1; }
-    if(MC[start][0][0] < MC[start+1][0][0]){ mc_st = start+1; mc_nd = start; }
-
-    //Makes the sum over all final state particles
-    sum_dpt2  += pow( (Data[data_st][0][0]-MC[mc_st][0][0])/Data[data_st][0][1] ,2 );
-    sum_deta2 += pow( (Data[data_st][1][0]-MC[mc_st][1][0])/Data[data_st][1][1] ,2 );
-    sum_dphi2 += pow( (Data[data_st][2][0]-MC[mc_st][2][0])/Data[data_st][2][1] ,2 );
-    
-    sum_dpt2  += pow( (Data[data_nd][0][0]-MC[mc_nd][0][0])/Data[data_nd][0][1] ,2 );
-    sum_deta2 += pow( (Data[data_nd][1][0]-MC[mc_nd][1][0])/Data[data_nd][1][1] ,2 );
-    sum_dphi2 += pow( (Data[data_nd][2][0]-MC[mc_nd][2][0])/Data[data_nd][2][1] ,2 );
-    
-    start += 2;
-  }
-  
-  event_distance = sqrt(sum_dpt2 + sum_deta2 + sum_dphi2);
-  return event_distance;
-}
-///==========================================================================================
-
-
 
 
 ///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -293,10 +124,10 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
     for(int s=0; s<nsig; s++){
       MC_Sig_Tree->GetEntry(s);
       
-            if(Model == "DR_Order_Res")   dr_test = std_DR(Data,MC);
-       else if(Model == "DR_Order_noRes") dr_test = noRes_DR(Data,MC);
-       else if(Model == "PT_Order_Res")   dr_test = pt_Res_DR(Data,MC);
-       else if(Model == "PT_Order_noRes") dr_test = pt_noRes_DR(Data,MC);
+            if(Model == "DR_Order_Res")   dr_test = FS4l_Res_DrOrder(Data,MC);
+       else if(Model == "DR_Order_noRes") dr_test = FS4l_noRes_DrOrder(Data,MC);
+       else if(Model == "PT_Order_Res")   dr_test = FS4l_Res_PtOrder(Data,MC);
+       else if(Model == "PT_Order_noRes") dr_test = FS4l_noRes_PtOrder(Data,MC);
        else{
 	 cout<<"Model '"<<Model<<"' is not defined!"<<endl;
 	 throw exception();
@@ -307,10 +138,10 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
     for(int b=0; b<nbkg; b++){
       MC_Bkg_Tree->GetEntry(b);
       
-            if(Model == "DR_Order_Res")   dr_test = std_DR(Data,MC);
-       else if(Model == "DR_Order_noRes") dr_test = noRes_DR(Data,MC);
-       else if(Model == "PT_Order_Res")   dr_test = pt_Res_DR(Data,MC);
-       else if(Model == "PT_Order_noRes") dr_test = pt_noRes_DR(Data,MC);
+            if(Model == "DR_Order_Res")   dr_test = FS4l_Res_DrOrder(Data,MC);
+       else if(Model == "DR_Order_noRes") dr_test = FS4l_noRes_DrOrder(Data,MC);
+       else if(Model == "PT_Order_Res")   dr_test = FS4l_Res_PtOrder(Data,MC);
+       else if(Model == "PT_Order_noRes") dr_test = FS4l_noRes_PtOrder(Data,MC);
        else{
 	 cout<<"Model '"<<Model<<"' is not defined!"<<endl;
 	 throw exception();
@@ -347,7 +178,8 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
       FME_out->Fill();
   }
   
-  TFile *FME_Results = new TFile(Out_Name+"_Results.root","recreate");
+  TString path = "../interface/";
+  TFile *FME_Results = new TFile(path+Out_Name+".root","recreate");
   FME_out->Write();
   FME_Results->Close();
   

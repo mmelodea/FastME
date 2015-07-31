@@ -1,9 +1,10 @@
-///Interface to FastME
-///Author: Miquéias M. Almeida
+///::::::::::::::::::::::::::	Interface to Fast Matrix Element	::::::::::::::::::::::::::::::::
+///:::::			  Author: Miquéias M. Almeida					::::::::
+///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//Fast Matrix Element modules
-#include "FastME.cxx"
-#include "FastME.h"
+///Fast Matrix Element modules
+#include "../FME_Module/FastME.cxx"
+#include "../FME_Module/FastME.h"
 
 #include <fstream>
 #include <TString.h>
