@@ -31,3 +31,11 @@ Use Instructions:
 3. The results of the analysis will be a ROOT file containing a Tree with quantities like minDR_ToSig/Bkg (minimum data-sig/bkg distances found),
    the P_SB discriminant value (indicating how much sig/bkg the data look like), the fraction (%) of event inputs like sig/bkg, and the event
    weight (there are 3 weight defined: one given by sig, one given by bkg and one given by the relation between the two first).
+
+4. At "interface/inputs" can be seen the way to pass the informations to FastME processing. Currently there are one final state completely implemented
+   in which 4 models can be called to organize Data and MC matrix components to make the comparation. More two final states (4l+2j and lvjj) are been concluded.
+  The models are (generally):
+   4.1. DR_Order_Res: organize matrix components by distance and constraining same ressonance for two related components;
+   4.2. DR_Order_noRes: the same first idea above, but without ressonance constraint;
+   4.3. PT_Order_Res: organize matrix components by transverse momentum value (from higher to smaller);
+   4.4. PT_Order_noRes: the same idea above, but without use ressonance constraint.
