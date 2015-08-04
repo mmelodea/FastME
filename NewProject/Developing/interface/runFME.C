@@ -6,13 +6,14 @@
 #include "../FME_Module/FastME.cxx"
 #include "../FME_Module/FastME.h"
 
+#include <iostream>
 #include <fstream>
 #include <TString.h>
 using namespace std;
 
 int runFME(ifstream &Input){
   
-  TString final_state, model, out_name, file_data_name, file_mcsig_name, file_mcbkg_name, tree_name, branch_name;
+  TString final_state, model, out_name, file_data_name, file_mcsig_name, file_mcbkg_name, tree_name, branch_name, resolution;
   TString info;
 
   Input >> info;
@@ -78,16 +79,24 @@ int runFME(ifstream &Input){
     else if(info == "#BranchName"){
       do{
 	 Input >> info;
-	 if(info == "#fim") break;
+	 if(info == "#SetResolution") break;
 	 if(info.First("%")==0) continue;
 	 branch_name = info;
+      }while(true);
+    }
+    else if(info == "#SetResolution"){
+      do{
+	 Input >> info;
+	 if(info == "#fim") break;
+	 if(info.First("%")==0) continue;
+	 resolution = info;
       }while(true);
     }
   }while(info != "#fim");
   
   ///Instatiating and activing FastME analysis
   FME *mFME = new FME();
-  mFME->launchFME(final_state,model,out_name,file_data_name,file_mcsig_name,file_mcbkg_name,tree_name,branch_name);
+  mFME->launchFME(final_state,model,out_name,file_data_name,file_mcsig_name,file_mcbkg_name,tree_name,branch_name,resolution);
 
   return 0;
 }

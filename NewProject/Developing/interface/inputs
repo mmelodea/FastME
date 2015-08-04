@@ -5,10 +5,12 @@ FastME_Results
 4l
 
 #Model
-DR_Order_Res
+%DR_Order_Res
 %DR_Order_noRes
 %PT_Order_Res
 %PT_Order_noRes
+Jet_DR_Order
+%Jet_PT_Order
 
 #DataPath
 /home/sabayon/temp/FastME/Descriminador/Higgs/prepare/new/higgs_data_formated.root
@@ -24,5 +26,9 @@ VBF
 
 #BranchName
 RECO_PARTICLE
+
+#SetResolution
+%True
+False
 
 #fim
