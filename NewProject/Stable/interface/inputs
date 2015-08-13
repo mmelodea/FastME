@@ -13,13 +13,13 @@ Jet_DR_Order
 %Jet_PT_Order
 
 #DataPath
-/home/sabayon/temp/FastME/Descriminador/Higgs/prepare/new/higgs_data_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_data_formated.root
 
 #SigPath
-/home/sabayon/temp/FastME/Descriminador/Higgs/prepare/new/higgs_sigfull_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_sigfull_formated.root
 
 #BkgPath
-/home/sabayon/temp/FastME/Descriminador/Higgs/prepare/new/higgs_bkgfull_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_bkgfull_formated.root
 
 #TreeName
 VBF
