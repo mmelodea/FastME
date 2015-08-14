@@ -6,20 +6,20 @@ FastME_Results
 
 #Model
 %DR_Order_Res
-%DR_Order_noRes
+DR_Order_noRes
 %PT_Order_Res
 %PT_Order_noRes
-Jet_DR_Order
+%Jet_DR_Order
 %Jet_PT_Order
 
 #DataPath
-/home/sabayon/GitHub/Ntuples/higgs_data_formated.root
+../../../Ntuples/higgs_data_formated.root
 
 #SigPath
-/home/sabayon/GitHub/Ntuples/higgs_sigfull_formated.root
+../../../Ntuples/higgs_sigfull_formated.root
 
 #BkgPath
-/home/sabayon/GitHub/Ntuples/higgs_bkgfull_formated.root
+../../../Ntuples/higgs_bkgfull_formated.root
 
 #TreeName
 VBF
