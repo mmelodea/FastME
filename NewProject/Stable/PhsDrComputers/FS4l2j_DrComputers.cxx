@@ -18,7 +18,7 @@ double FS4l2j_Res_DrOrder(Float_t Data[6][3][2], Float_t MC[6][3][2], TString Re
       return FS4l2j_Res_DrOrder_noReso(Data,MC);
       break;
     default:
-      return FS4l2j_Res_DrOrder_noReso(Data,MC);
+      return FS4l2j_Res_DrOrder_Reso(Data,MC);
       break;
   }
 }

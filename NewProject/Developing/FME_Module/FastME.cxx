@@ -1,7 +1,7 @@
 ///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ///::::::::::::::::::::::::::::::::::	FAST MATRIX ELEMENT CLASS MEMBERS DEFINITIONS	::::::::::::::::::::::::::::::::::
-///::::::::::::::::::::::::::::::::::          Author: Miquéias M. de Almeida 		:::::::::::::::::::::::::::::::
-///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::::          Author: Miquéias M. de Almeida 		::::::::::::::::::::::::::::::::::
+///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #include "../PhsDrComputers/FS4l_DrComputers.cxx"
 #include "../PhsDrComputers/FS4l2j_DrComputers.cxx"
@@ -18,7 +18,6 @@
 
 #define pedestal 	-99					///Reset Value to Variables
 #define cut 	 	0.5					///Threshold to Separate Events (Ideal Cut 0.5 - MC #Sig and #Bkg Equals)
-//#define phs_radius 	300					///DR Threshold Around Data Event (Need to change for user choice - to implement yet)
 
 using namespace std;
 

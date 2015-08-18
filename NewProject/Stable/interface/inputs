@@ -5,21 +5,21 @@ FastME_Results
 4l
 
 #Model
-%DR_Order_Res
-DR_Order_noRes
+DR_Order_Res
+%DR_Order_noRes
 %PT_Order_Res
 %PT_Order_noRes
 %Jet_DR_Order
 %Jet_PT_Order
 
 #DataPath
-../../../Ntuples/higgs_data_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_data_formated.root
 
 #SigPath
-../../../Ntuples/higgs_sigfull_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_sigfull_formated.root
 
 #BkgPath
-../../../Ntuples/higgs_bkgfull_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_bkgfull_formated.root
 
 #TreeName
 VBF
@@ -30,5 +30,8 @@ RECO_PARTICLE
 #SetResolution
 %True
 False
+
+#PHS_Radius
+300
 
 #fim
