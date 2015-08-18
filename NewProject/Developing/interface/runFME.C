@@ -13,7 +13,8 @@ using namespace std;
 
 int runFME(ifstream &Input){
   
-  TString final_state, model, out_name, file_data_name, file_mcsig_name, file_mcbkg_name, tree_name, branch_name, resolution;
+  TString final_state, model, out_name, file_data_name, file_mcsig_name;
+  TString file_mcbkg_name, tree_name, branch_name, resolution, phs_radius;
   TString info;
 
   Input >> info;
@@ -87,16 +88,24 @@ int runFME(ifstream &Input){
     else if(info == "#SetResolution"){
       do{
 	 Input >> info;
-	 if(info == "#fim") break;
+	 if(info == "#PHS_Radius") break;
 	 if(info.First("%")==0) continue;
 	 resolution = info;
+      }while(true);
+    }
+    else if(info == "#PHS_Radius"){
+      do{
+	 Input >> info;
+	 if(info == "#fim") break;
+	 if(info.First("%")==0) continue;
+	 phs_radius = info;
       }while(true);
     }
   }while(info != "#fim");
   
   ///Instatiating and activing FastME analysis
   FME *mFME = new FME();
-  mFME->launchFME(final_state,model,out_name,file_data_name,file_mcsig_name,file_mcbkg_name,tree_name,branch_name,resolution);
+  mFME->launchFME(final_state,model,out_name,file_data_name,file_mcsig_name,file_mcbkg_name,tree_name,branch_name,resolution,phs_radius);
 
   return 0;
 }

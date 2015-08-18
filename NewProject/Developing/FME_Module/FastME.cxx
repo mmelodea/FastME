@@ -8,6 +8,7 @@
 #include "../PhsDrComputers/FSlv2j_DrComputers.cxx"
 #include "FastME.h"
 #include <iostream>
+#include <string>
 #include <ctime>
 #include <exception>
 #include <TString.h>
@@ -17,12 +18,13 @@
 
 #define pedestal 	-99					///Reset Value to Variables
 #define cut 	 	0.5					///Threshold to Separate Events (Ideal Cut 0.5 - MC #Sig and #Bkg Equals)
-#define phs_radius 	300					///DR Threshold Around Data Event (Need to change for user choice - to implement yet)
+//#define phs_radius 	300					///DR Threshold Around Data Event (Need to change for user choice - to implement yet)
 
 using namespace std;
 
 
-int FME::launchFME(TString Final_State, TString Model, TString Out_Name, TString Data_Path, TString MC_Sig_Path, TString MC_Bkg_Path, TString Tree_Name, TString Branch_Name, TString Resolution){
+int FME::launchFME(TString Final_State, TString Model, TString Out_Name, TString Data_Path, TString MC_Sig_Path, 
+		   TString MC_Bkg_Path, TString Tree_Name, TString Branch_Name, TString Resolution, TString PHS_Radius){
   const int nFS = 3;
   int FS = -1;
   TString FState[nFS] = {"4l","4l2j","lv2j"};
@@ -34,6 +36,13 @@ int FME::launchFME(TString Final_State, TString Model, TString Out_Name, TString
     cout<<"Possible candidates are: ";
     for(int nM=0; nM<nFS; nM++) cout<<FState[nM]<<", ";
     cout<<endl;
+    throw exception();
+  }
+  
+  float PHS_radius = PHS_Radius.Atof();
+  if(PHS_radius < 0){
+    cout<<"[Error] Phase Space Radius threshold is negative!"<<endl;
+    throw exception();
   }
   
   ///Preparing Inputs
@@ -47,19 +56,19 @@ int FME::launchFME(TString Final_State, TString Model, TString Out_Name, TString
     
   switch(FS){
     case 0:
-      return FS_4l(Model,Out_Name,Data_Tree,MC_Sig_Tree,MC_Bkg_Tree,Branch_Name,Resolution);
+      return FS_4l(Model, Out_Name, Data_Tree, MC_Sig_Tree, MC_Bkg_Tree, Branch_Name, Resolution, PHS_radius);
       break;
       
     case 1:
-      return FS_4l2j(Model,Out_Name,Data_Tree,MC_Sig_Tree,MC_Bkg_Tree,Branch_Name,Resolution);
+      return FS_4l2j(Model, Out_Name, Data_Tree, MC_Sig_Tree, MC_Bkg_Tree, Branch_Name, Resolution, PHS_radius);
       break;
       
     case 2:
-      return FS_lv2j(Model,Out_Name,Data_Tree,MC_Sig_Tree,MC_Bkg_Tree,Branch_Name,Resolution);
+      return FS_lv2j(Model, Out_Name, Data_Tree, MC_Sig_Tree, MC_Bkg_Tree, Branch_Name, Resolution, PHS_radius);
       break;
     
     default:
-      return FS_4l(Model,Out_Name,Data_Tree,MC_Sig_Tree,MC_Bkg_Tree,Branch_Name,Resolution);
+      return FS_4l(Model, Out_Name, Data_Tree, MC_Sig_Tree, MC_Bkg_Tree, Branch_Name, Resolution, PHS_radius);
       break;
   }
   return 0;
@@ -67,7 +76,8 @@ int FME::launchFME(TString Final_State, TString Model, TString Out_Name, TString
 
 
 ///:::::::::::::::::::::	FULL LEPTONIC CASE	   :::::::::::::::::::::
-int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_Tree, TTree* MC_Bkg_Tree, TString Branch_Name, TString Resolution){
+int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_Tree, TTree* MC_Bkg_Tree,
+	       TString Branch_Name, TString Resolution, Double_t PHS_radius){
   ///For timming the process
   time_t start, stop;
   double seconds, elapsed_time;
@@ -78,6 +88,7 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
   cout<<"\n:::::: Starting FastME Processing ::::::"<<endl;
   cout<<":: Final State:   "<<"4l"<<endl;
   cout<<":: Model Chosen:  "<<Model<<endl;
+  cout<<":: PHS Radius:    "<<PHS_radius<<endl;
   cout<<"::--------------------------------------"<<endl;
   
   Float_t Data[4][3][2], MC[4][3][2];
@@ -132,7 +143,7 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
 	 throw exception();
       }
       if(dr_test < min_dr_sig) min_dr_sig = dr_test;
-      if(dr_test < phs_radius) sig_neighbors += 1;
+      if(dr_test < PHS_radius) sig_neighbors += 1;
     }
     for(int b=0; b<nbkg; b++){
       MC_Bkg_Tree->GetEntry(b);
@@ -147,7 +158,7 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
       }
       
       if(dr_test < min_dr_bkg) min_dr_bkg = dr_test;
-      if(dr_test < phs_radius) bkg_neighbors += 1;
+      if(dr_test < PHS_radius) bkg_neighbors += 1;
     }    
     
     ///Getting the discriminant value
@@ -209,7 +220,8 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
 
 
 ///:::::::::::::::::::::	FULL LEPTONIC + 2JETS	    :::::::::::::::::::::
-int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_Tree, TTree* MC_Bkg_Tree, TString Branch_Name, TString Resolution){
+int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_Tree, TTree* MC_Bkg_Tree,
+		 TString Branch_Name, TString Resolution, Double_t PHS_radius){
   ///For timming the process
   time_t start, stop;
   double seconds, elapsed_time;
@@ -219,6 +231,8 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   
   cout<<"\n:::::::::::::::: Starting FastME Processing ::::::::::::::::"<<endl;
   cout<<"Model Chosen:  4l2j"<<endl;
+  cout<<":: Model Chosen:  "<<Model<<endl;
+  cout<<":: PHS Radius:    "<<PHS_radius<<endl;
   cout<<"------------------------------------------------------------"<<endl;
   
   Float_t Data[6][3][2], MC[6][3][2];
@@ -273,7 +287,7 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
 	 throw exception();
       }
       if(dr_test < min_dr_sig) min_dr_sig = dr_test;
-      if(dr_test < phs_radius) sig_neighbors += 1;
+      if(dr_test < PHS_radius) sig_neighbors += 1;
     }
     for(int b=0; b<nbkg; b++){
       MC_Bkg_Tree->GetEntry(b);
@@ -288,7 +302,7 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
       }
       
       if(dr_test < min_dr_bkg) min_dr_bkg = dr_test;
-      if(dr_test < phs_radius) bkg_neighbors += 1;
+      if(dr_test < PHS_radius) bkg_neighbors += 1;
     }    
     
     ///Getting the discriminant value
@@ -318,7 +332,8 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
       FME_out->Fill();
   }
   
-  TFile *FME_Results = new TFile(Out_Name+"_Results.root","recreate");
+  TString path = "../interface/";
+  TFile *FME_Results = new TFile(path+Out_Name+".root","recreate");
   FME_out->Write();
   FME_Results->Close();
   
@@ -349,7 +364,8 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
 
 
 ///:::::::::::::::::::::	SEMI-LEPTONIC CASE	   :::::::::::::::::::::
-int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_Tree, TTree* MC_Bkg_Tree, TString Branch_Name, TString Resolution){
+int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_Tree, TTree* MC_Bkg_Tree,
+		 TString Branch_Name, TString Resolution, Double_t PHS_radius){
   ///For timming the process
   time_t start, stop;
   double seconds, elapsed_time;
@@ -359,6 +375,8 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
     
   cout<<"\n:::::::::::::::: Starting FastME Processing ::::::::::::::::"<<endl;
   cout<<"Model Chosen:  lv2j"<<endl;
+  cout<<":: Model Chosen:  "<<Model<<endl;
+  cout<<":: PHS Radius:    "<<PHS_radius<<endl;
   cout<<"------------------------------------------------------------"<<endl;
   
   Float_t Data[4][3][2], MC[4][3][2];
@@ -411,7 +429,7 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
 	 throw exception();
       }
       if(dr_test < min_dr_sig) min_dr_sig = dr_test;
-      if(dr_test < phs_radius) sig_neighbors += 1;
+      if(dr_test < PHS_radius) sig_neighbors += 1;
     }
     for(int b=0; b<nbkg; b++){
       MC_Bkg_Tree->GetEntry(b);
@@ -424,7 +442,7 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
       }
       
       if(dr_test < min_dr_bkg) min_dr_bkg = dr_test;
-      if(dr_test < phs_radius) bkg_neighbors += 1;
+      if(dr_test < PHS_radius) bkg_neighbors += 1;
     }    
     
     ///Getting the discriminant value
@@ -454,7 +472,8 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
       FME_out->Fill();
   }
   
-  TFile *FME_Results = new TFile(Out_Name+"_Results.root","recreate");
+  TString path = "../interface/";
+  TFile *FME_Results = new TFile(path+Out_Name+".root","recreate");
   FME_out->Write();
   FME_Results->Close();
   
