@@ -1,5 +1,5 @@
 #OutName
-FastME_Results
+Sig_FME_Results
 
 #FinalState
 4l
@@ -13,16 +13,16 @@ DR_Order_Res
 %Jet_PT_Order
 
 #DataPath
-/home/sabayon/GitHub/Ntuples/higgs_data_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_sig_formated_part2.root
 
 #SigPath
-/home/sabayon/GitHub/Ntuples/higgs_sigfull_formated.root
+/home/sabayon/GitHub/Ntuples/higgs_sig_formated_part1.root
 
 #BkgPath
-/home/sabayon/GitHub/Ntuples/higgs_bkgfull_formated.root
+/home/sabayon/GitHub/Ntuples/bkg_ggZZ_formated_part1.root
 
 #TreeName
-VBF
+Higgs
 
 #BranchName
 RECO_PARTICLE
