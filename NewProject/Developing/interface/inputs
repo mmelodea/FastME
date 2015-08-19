@@ -1,8 +1,10 @@
 #OutName
-FastME_Results
+Data_FME_Results
 
 #FinalState
-4l
+%4l
+4l2j
+%lv2j
 
 #Model
 DR_Order_Res
@@ -16,13 +18,13 @@ DR_Order_Res
 /home/sabayon/GitHub/Ntuples/higgs_data_formated.root
 
 #SigPath
-/home/sabayon/GitHub/Ntuples/higgs_sigfull_formated.root
+/home/sabayon/GitHub/Ntuples/VBF_QED4_QCD0_SIG1.root
 
 #BkgPath
-/home/sabayon/GitHub/Ntuples/higgs_bkgfull_formated.root
+/home/sabayon/GitHub/Ntuples/VBF_QED4_QCD0_BKG1.root
 
 #TreeName
-VBF
+Higgs
 
 #BranchName
 RECO_PARTICLE

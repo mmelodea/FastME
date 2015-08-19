@@ -85,9 +85,10 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
   ///-----------------------
   
   cout<<"\n:::::: Starting FastME Processing ::::::"<<endl;
-  cout<<":: Final State:   "<<"4l"<<endl;
-  cout<<":: Model Chosen:  "<<Model<<endl;
-  cout<<":: PHS Radius:    "<<PHS_radius<<endl;
+  cout<<":: Final State:    "<<"4l"<<endl;
+  cout<<":: Model Chosen:   "<<Model<<endl;
+  cout<<":: PHS Radius:     "<<PHS_radius<<endl;
+  cout<<":: Use Resolution: "<<Resolution<<endl;
   cout<<"::--------------------------------------"<<endl;
   
   Float_t Data[4][3][2], MC[4][3][2];
@@ -101,7 +102,7 @@ int FME::FS_4l(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Sig_
   double dr_test, minDR_toSig, minDR_toBkg, prob_sig_bkg, sig_frac, event_weight;
   double bkg_frac, min_dr_sig, min_dr_bkg, sig_event_weight, bkg_event_weight;
   int signal = 0, background = 0, sig_neighbors, bkg_neighbors;
-  TTree *FME_out = new TTree(Out_Name,"Fast Matrix Element Results");
+  TTree *FME_out = new TTree("FastME_Results","Fast Matrix Element Results");
   FME_out->SetDirectory(0);
   FME_out->Branch("minDR_toSig",&minDR_toSig);
   FME_out->Branch("minDR_toBkg",&minDR_toBkg);
@@ -229,10 +230,11 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   ///-----------------------
   
   cout<<"\n:::::::::::::::: Starting FastME Processing ::::::::::::::::"<<endl;
-  cout<<"Model Chosen:  4l2j"<<endl;
-  cout<<":: Model Chosen:  "<<Model<<endl;
-  cout<<":: PHS Radius:    "<<PHS_radius<<endl;
-  cout<<"------------------------------------------------------------"<<endl;
+  cout<<":: Final State:    "<<"4l2j"<<endl;
+  cout<<":: Model Chosen:   "<<Model<<endl;
+  cout<<":: PHS Radius:     "<<PHS_radius<<endl;
+  cout<<":: Use Resolution: "<<Resolution<<endl;
+  cout<<"::----------------------------------------------------------"<<endl;
   
   Float_t Data[6][3][2], MC[6][3][2];
   Data_Tree->SetBranchAddress(Branch_Name,&Data);
@@ -245,7 +247,7 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   double dr_test, minDR_toSig, minDR_toBkg, prob_sig_bkg, sig_frac, event_weight;
   double bkg_frac, min_dr_sig, min_dr_bkg, sig_event_weight, bkg_event_weight;
   int signal = 0, background = 0, sig_neighbors, bkg_neighbors;
-  TTree *FME_out = new TTree(Out_Name,"Fast Matrix Element Results");
+  TTree *FME_out = new TTree("FastME_Results","Fast Matrix Element Results");
   FME_out->SetDirectory(0);
   FME_out->Branch("minDR_toSig",&minDR_toSig);
   FME_out->Branch("minDR_toBkg",&minDR_toBkg);
@@ -258,7 +260,7 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
 
   
   for(int i=0; i<ndata; i++){
-    if(i % (ndata/10) == 0) cout<<"Remaining Data: "<<ndata-i<<endl;
+    if(i % (ndata/10) == 0) cout<<":: Remaining Data: "<<ndata-i<<endl;
     Data_Tree->GetEntry(i);
     
     //Reseting Variables
@@ -338,8 +340,8 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   
   time(&stop);
   cout<<"::::::::::::::::::::: Process Finished :::::::::::::::::::::"<<endl;
-  cout<<"SigFrac = "<<sig_frac<<"%"<<endl;
-  cout<<"BkgFrac = "<<bkg_frac<<"%"<<endl;
+  cout<<":: SigFrac = "<<sig_frac<<"%"<<endl;
+  cout<<":: BkgFrac = "<<bkg_frac<<"%"<<endl;
 
       
   seconds = difftime(stop,start);
@@ -352,8 +354,8 @@ int FME::FS_4l2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
     elapsed_time = seconds/3600.;
     unity = "h";
   }
-  cout<<" Time Consumed: "<<elapsed_time<<" "<<unity<<endl;
-  cout<<"------------------------------------------------------------"<<endl;
+  cout<<":: Time Consumed: "<<elapsed_time<<" "<<unity<<endl;
+  cout<<"::----------------------------------------------------------"<<endl;
   
   
   return 0; //if process well finished
@@ -373,10 +375,11 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   ///-----------------------
     
   cout<<"\n:::::::::::::::: Starting FastME Processing ::::::::::::::::"<<endl;
-  cout<<"Model Chosen:  lv2j"<<endl;
-  cout<<":: Model Chosen:  "<<Model<<endl;
-  cout<<":: PHS Radius:    "<<PHS_radius<<endl;
-  cout<<"------------------------------------------------------------"<<endl;
+  cout<<":: Final State:    "<<"lv2j"<<endl;
+  cout<<":: Model Chosen:   "<<Model<<endl;
+  cout<<":: PHS Radius:     "<<PHS_radius<<endl;
+  cout<<":: Use Resolution: "<<Resolution<<endl;
+  cout<<"::----------------------------------------------------------"<<endl;
   
   Float_t Data[4][3][2], MC[4][3][2];
   Data_Tree->SetBranchAddress(Branch_Name,&Data);
@@ -389,7 +392,7 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   double dr_test, minDR_toSig, minDR_toBkg, prob_sig_bkg, sig_frac, event_weight;
   double bkg_frac, min_dr_sig, min_dr_bkg, sig_event_weight, bkg_event_weight;
   int signal = 0, background = 0, sig_neighbors, bkg_neighbors;
-  TTree *FME_out = new TTree(Out_Name,"Fast Matrix Element Results");
+  TTree *FME_out = new TTree("FastME_Results","Fast Matrix Element Results");
   FME_out->SetDirectory(0);
   FME_out->Branch("minDR_toSig",&minDR_toSig);
   FME_out->Branch("minDR_toBkg",&minDR_toBkg);
@@ -402,7 +405,7 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
 
   
   for(int i=0; i<ndata; i++){
-    if(i % (ndata/10) == 0) cout<<"Remaining Data: "<<ndata-i<<endl;
+    if(i % (ndata/10) == 0) cout<<":: Remaining Data: "<<ndata-i<<endl;
     Data_Tree->GetEntry(i);
     
     //Reseting Variables
@@ -478,8 +481,8 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
   
   time(&stop);
   cout<<"::::::::::::::::::::: Process Finished :::::::::::::::::::::"<<endl;
-  cout<<"SigFrac = "<<sig_frac<<"%"<<endl;
-  cout<<"BkgFrac = "<<bkg_frac<<"%"<<endl;
+  cout<<":: SigFrac = "<<sig_frac<<"%"<<endl;
+  cout<<":: BkgFrac = "<<bkg_frac<<"%"<<endl;
 
       
   seconds = difftime(stop,start);
@@ -492,8 +495,8 @@ int FME::FS_lv2j(TString Model, TString Out_Name, TTree* Data_Tree, TTree* MC_Si
     elapsed_time = seconds/3600.;
     unity = "h";
   }
-  cout<<" Time Consumed: "<<elapsed_time<<" "<<unity<<endl;
-  cout<<"------------------------------------------------------------"<<endl;
+  cout<<":: Time Consumed: "<<elapsed_time<<" "<<unity<<endl;
+  cout<<"::----------------------------------------------------------"<<endl;
   
   
   return 0; //if process well finished
