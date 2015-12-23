@@ -38,8 +38,9 @@ void main_code(void){
   ///5. Number of final state particles;
   ///6. Number of cores to be used;
   ///7. Name of the output file to store FastME analysis results.
+  ///8. Verbose (0= quiet, 1= main info, 2= everything)
 
-  FastME(Data_Path, MCs, "Higgs", MC_Names, 4, 3, "fme_results_tmp");
+  FastME(Data_Path, MCs, "Higgs", MC_Names, 4, 3, "fme_results_tmp",2);
 
   ///FastME function will build a tree named "FastME" containing the discriminant value for each MC background 
   ///sample and the combined value when all background are considered. Also, it will store in the file 
