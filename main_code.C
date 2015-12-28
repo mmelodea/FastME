@@ -5,7 +5,7 @@
 
 #include <string>
 #include <vector>
-#include "FME_module/FastME.C"
+#include "FastME.C"
 
 void main_code(void){
   string path = "../CMS_Ntuples/FastME_format/";
@@ -25,7 +25,8 @@ void main_code(void){
   ///Parameters:
   ///1. Address to Data sample;
   ///2. Vector with address of MC samples;
-  FastME(Data_Path, MCs);
+  //FastME(Data_Path, MCs);
+  FastME();
 
   ///Here just these parameters are given. However there's a file called "fme_config.dat" at FME_module, in which 
   ///the user can specify many other configs (like samples info - tree name, branches - comparison method, MC names, name of output, etc). This is done
