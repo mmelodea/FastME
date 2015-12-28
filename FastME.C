@@ -71,6 +71,7 @@ vector<int> ksize = {
   9,
   14
 };
+vector<string> null = {""};
 ///-------------------------------------------------------
 
 
@@ -85,8 +86,8 @@ Double_t PsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
 
 
 ///######################################## Main FastME Function ######################################################
-int FastME(TString Data_Path, vector<string> MCs){
-//int FastME(string config){
+int FastME(TString Data_Path="", vector<string> MCs=null){
+
   
   ///_____________________________ For timming the process ________________________________________________________
   TStopwatch t;
@@ -108,8 +109,7 @@ int FastME(TString Data_Path, vector<string> MCs){
   ///______________________________________________________________________________________________________________
   
   ///Define variables used in the analysis
-  //TString Data_Path;
-  //vector<string> MCs;
+  if(MCs == null) MCs.clear();
   TString PhSDr_Method, FlavorConstraint, out_name, out_path;
   TString TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch;
   vector<TString> MC_Names;
@@ -134,8 +134,8 @@ int FastME(TString Data_Path, vector<string> MCs){
 	nkeys++;
         line.erase(line.begin(),line.begin()+ksize[k]);
 	cout <<":: "<< fme_keywords[k] <<"\t\t"<< line << endl;
-        //if(fme_keywords[k] == "data_path") Data_Path = line;
-	//if(fme_keywords[k] == "mc_path") MCs.push_back(line);
+        if(fme_keywords[k] == "data_path") Data_Path = line;
+	if(fme_keywords[k] == "mc_path") MCs.push_back(line);
 	if(fme_keywords[k] == "mc_name") MC_Names.push_back(line);
 	if(fme_keywords[k] == "tree_name") TreeName = line;
 	if(fme_keywords[k] == "mc_type_branch_name") McType_branch = line;
@@ -153,7 +153,7 @@ int FastME(TString Data_Path, vector<string> MCs){
       }
     }
   }
-  if(nkeys < (int)fme_keywords.size()){
+  if(nkeys < ((int)fme_keywords.size()-2)){
     cout<<"Missing key-word! Check your input file!";
     return -1;
   }
