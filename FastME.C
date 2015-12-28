@@ -119,7 +119,6 @@ int FastME(TString Data_Path, vector<string> MCs){
 
   ///______________ Extract the need info from txt file _______________________________________________________________
   ///Opens the config file to get the user configuration
-  //string config = "FME_module/fme_config.dat";
   string config = "fme_config.dat";
   ifstream inFile(config.c_str());
   if(!inFile){
