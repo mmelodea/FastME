@@ -1,5 +1,5 @@
 #############################################################
-################ Txt inputs for FastME ######################
+################# FastME config file ########################
 #############################################################
 --Left words are key-words;
 --Right sentences are the arguments (use only simple space between key-words and its arguments);
@@ -10,20 +10,19 @@
 
 
 ############# User config ############
+--This is an option. It's most fast compile code with ntuple pre-loaded in the memory. However, this can
+  require large space availability. If no such space available, user can pass samples path through here
+  and just call FastME() function (without arguments). In the main_code.C one can see how to do that. 
+  
 ### Path of samples
-#data_path ../../CMS_Ntuples/FastME_format/4l_ggZZ_plus_qqZZ.root
-#mc_path ../../CMS_Ntuples/FastME_format/4l_ggZZ_1.root
-#mc_path	../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
-#mc_path	../../CMS_Ntuples/FastME_format/4l_qqZZ_1.root
-#mc_path	../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
-#mc_path	../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_1.root
-#mc_path	../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
+data_path ../../cernbox/DevelopsOnFastME/FastME_format/4l_data.root
+mc_path ../../cernbox/DevelopsOnFastME/FastME_format/4l_SM_Higgs126_1.root
 
 
 ### Name of MC samples
 mc_name SM_Higgs126
-mc_name ggZZ
-mc_name qqZZ
+#mc_name ggZZ
+#mc_name qqZZ
 
 
 ### Tree info
@@ -47,6 +46,6 @@ outfile_path FME_results
 phs_dr_method mindr
 n_fs_particles 4
 flavor_constraint true
-n_cores 3
+n_cores 1
 mc_limit 0.1
 verbose_level 1
