@@ -15,14 +15,14 @@
   and just call FastME() function (without arguments). In the main_code.C one can see how to do that. 
   
 ### Path of samples
-data_path ../../cernbox/DevelopsOnFastME/FastME_format/4l_data.root
-mc_path ../../cernbox/DevelopsOnFastME/FastME_format/4l_SM_Higgs126_1.root
+#data_path ../../cernbox/DevelopsOnFastME/FastME_format/4l_data.root
+#mc_path ../../cernbox/DevelopsOnFastME/FastME_format/4l_SM_Higgs126_1.root
 
 
 ### Name of MC samples
 mc_name SM_Higgs126
-#mc_name ggZZ
-#mc_name qqZZ
+mc_name ggZZ
+mc_name qqZZ
 
 
 ### Tree info
@@ -46,6 +46,7 @@ outfile_path FME_results
 phs_dr_method mindr
 n_fs_particles 4
 flavor_constraint true
-n_cores 1
-mc_limit 0.1
+n_cores 3
+#data_limit 50
+#mc_limit 0.1
 verbose_level 1
