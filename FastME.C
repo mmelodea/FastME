@@ -17,6 +17,7 @@
 #include <TH2.h>
 #include <TCanvas.h>
 #include <TStopwatch.h>
+#include <TObjArray.h>
 
 ///Headers to TProcPool
 #include <TTreeReader.h>
@@ -50,6 +51,7 @@ vector<string> fme_keywords = {
   "n_fs_particles",
   "flavor_constraint",
   "n_cores",
+  "data_limit"
   "mc_limit",
   "verbose_level"
 };
@@ -68,6 +70,7 @@ vector<int> ksize = {
   15,
   18,
   8,
+  11,
   9,
   14
 };
@@ -113,7 +116,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   TString PhSDr_Method, FlavorConstraint, out_name, out_path;
   TString TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch;
   vector<TString> MC_Names;
-  Int_t N_FSParticles= 4, verbose= 1;
+  Int_t N_FSParticles= 4, verbose= 1, DT_Limit= -1;
   Float_t MC_Limit= -1;
   UInt_t N_Cores= 1;
 
@@ -148,7 +151,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	if(fme_keywords[k] == "n_fs_particles") N_FSParticles = stoi(line);
 	if(fme_keywords[k] == "flavor_constraint") FlavorConstraint = line;
 	if(fme_keywords[k] == "n_cores") N_Cores = stoi(line);
-        if(fme_keywords[k] == "mc_limit") MC_Limit = stof(line);
+	if(fme_keywords[k] == "data_limit") DT_Limit = stoi(line);
+	if(fme_keywords[k] == "mc_limit") MC_Limit = stof(line);
 	if(fme_keywords[k] == "verbose_level") verbose = stoi(line);
       }
     }
@@ -163,6 +167,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   TFile *fData = TFile::Open(Data_Path);
   TTreeReader tmpReader(TreeName,fData);
   Int_t nData = tmpReader.GetEntries(true);
+  if(DT_Limit != -1 && DT_Limit <= nData)
+    nData = DT_Limit;
 
   Int_t N_MCT = MC_Names.size();
   Int_t N_MC = MCs.size();
@@ -211,6 +217,10 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
     TH2D *mdists = new TH2D("mdists","Minimum Data-MC distances found",nData,0,nData,N_MCT,0,N_MCT);
     mdists->SetDirectory(0);    
 
+    ///Defines 2D histograms to stores indices
+    TH2I *indices = new TH2I("indices","Minimum Data-MC distances found",nData,0,nData,N_MCT,0,N_MCT);
+    indices->SetDirectory(0);    
+
     ///Addresses the MC branches to be used
     TTreeReaderValue<Int_t>    McType(tread, McType_branch); ///McType for Signal=0 and Background >0
     TTreeReaderArray<Int_t>    McId(tread, Id_branch);
@@ -235,6 +245,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
       refReader.SetEntry(dt); ///Move on Data loop
       Double_t min_distance_Min = 1.E15;
       Double_t min_distance_Med = 1.E15;
+      Int_t imc_min = -1;
       Int_t f_type=-99;
       Int_t nMonteCarlo = tread.GetEntries(true);
       if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
@@ -250,12 +261,10 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
       ///==============================================================================================================
 	Double_t event_distance_Min= -99, event_distance_Med= -99, event_distance= -99;
 	vector<Double_t> SumMed_dPt, SumMed_dEta, SumMin_dPt, SumMin_dEta;
+	
+	//stores flags to sinalize when a MC object is already selected
 	vector<int> vmin_imc;
-	SumMin_dPt.clear();
-	SumMin_dEta.clear();
-	SumMed_dPt.clear();
-	SumMed_dEta.clear();
-	vmin_imc.clear();
+	for(int sl=0; sl<N_FSParticles; sl++) vmin_imc.push_back(-1);
 	
 	for(int idt=0; idt<N_FSParticles; idt++){
 	  Double_t min_particles_distance = 1.E15;
@@ -271,19 +280,15 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	      if(abs(DataId[idt])== 13 && (abs(McId[imc])!= 11 || abs(McId[imc])!= 13)) continue;
 	      if(abs(McId[idt])== 11 && (abs(DataId[imc])!= 11 || abs(DataId[imc])!= 13)) continue;
 	      if(abs(McId[idt])== 13 && (abs(DataId[imc])!= 11 || abs(DataId[imc])!= 13)) continue;
-	    }	    
+	    }
+	    ///Compute preliminary particles distance
 	    Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
 	    Double_t dEta = (DataEta[idt]-McEta[imc])/(scale_dEta);
 	
 
 	  ///_______________________ For proximity comparison method __________________________________________________
-	    if( PhSDr_Method == "mindr"){
-	      bool mc_approved = true;
-	      if(int(vmin_imc.size()) > 0)
-		for(int g=0; g<int(vmin_imc.size()); g++)
-		  if(imc == vmin_imc[g]) mc_approved = false;
-	
-	      if(mc_approved == true){
+	    if( PhSDr_Method == "mindr")
+	      if(vmin_imc[imc] == -1){
 		particles_distance = sqrt(dPt*dPt + dEta*dEta);
 		if( verbose == 3 ) cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<"   part_dist: "<<particles_distance<<endl;
 		if(particles_distance < min_particles_distance){
@@ -291,7 +296,6 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 		  min_particles_distance = particles_distance;
 		}
 	      }
-	    }
 	  ///¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 	  
 	  
@@ -312,7 +316,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	      acept = false;
 	      break;
 	    }
-	    vmin_imc.push_back(min_imc);
+	    vmin_imc[min_imc] = 1;//changes the flag for current MC object
 	    if( verbose == 3 ) cout<<"Chosen->>  MCPos: "<<min_imc<<"   ID: "<<McId[min_imc]<<endl;
 	    ///For proximity comparison method
 	    SumMin_dPt.push_back( (DataPt[idt]-McPt[min_imc])/(scale_dPt) );
@@ -328,8 +332,11 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	    sum_dEta2 += SumMin_dEta[n]*SumMin_dEta[n];
 	  }	  
 	  event_distance_Min = sqrt(sum_dPt2 + sum_dEta2);
-	  if(event_distance_Min < min_distance_Min) min_distance_Min = event_distance_Min;
-	  if( verbose > 1 ) cout<<"Event_distance(MinDr) = "<<event_distance_Min<<endl;  
+	  if(event_distance_Min < min_distance_Min){
+	    min_distance_Min = event_distance_Min;
+	    imc_min = mc;
+	  }
+	  if( verbose > 2 ) cout<<"Event_distance(MinDr) = "<<event_distance_Min<<endl;  
 	}
 	
 	if(PhSDr_Method == "media" && SumMed_dPt.size() > 0){
@@ -339,8 +346,11 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	    sum_dEta2 += SumMed_dEta[n]*SumMed_dEta[n];
 	  }	  
 	  event_distance_Med = sqrt(sum_dPt2 + sum_dEta2);
-	  if(event_distance_Med < min_distance_Med) min_distance_Med = event_distance_Med;
-	  if( verbose > 1 ) cout<<"Event_distance (Media) = "<<event_distance_Med<<endl;  
+	  if(event_distance_Med < min_distance_Med){
+	    min_distance_Med = event_distance_Med;
+	    imc_min = mc;
+	  }
+	  if( verbose > 2 ) cout<<"Event_distance (Media) = "<<event_distance_Med<<endl;  
 	}
 	///Stores the MC type
 	f_type = *McType;
@@ -351,25 +361,38 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 
       
       ///Stores the minimum distances found
-      if(PhSDr_Method == "mindr") mdists->Fill(dt,f_type,min_distance_Min);
-      if(PhSDr_Method == "media") mdists->Fill(dt,f_type,min_distance_Med);
-      if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance: "<<min_distance_Min<<endl;
-      if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance: "<<min_distance_Med<<endl;
+      if(PhSDr_Method == "mindr"){
+	mdists->Fill(dt,f_type,min_distance_Min);
+	indices->Fill(dt,f_type,imc_min);
+      }
+      if(PhSDr_Method == "media"){
+	mdists->Fill(dt,f_type,min_distance_Med);
+	indices->Fill(dt,f_type,imc_min);
+      }
+      if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<endl;
+      if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<endl;
     }///End Data sample loop
-    
+    TObjArray *hists = new TObjArray(2);
+    hists->Add( mdists );
+    hists->Add( indices );
     
     t2.Stop();
     delete fData;
-    return mdists;
+    return hists;
   };
   
   ///Calls analysis through TProcPool
   TProcPool workers(N_Cores);
-  auto f_hist = (TH2D*)workers.ProcTree(MCs, workItem);  
-  f_hist->GetXaxis()->SetTitle("Data Events");
-  for(int mcn=0; mcn<int(MC_Names.size()); mcn++)
-    f_hist->GetYaxis()->SetBinLabel(mcn+1,MC_Names[mcn]);
+  TH2D *f_hist[2];
   
+  f_hist[0] = (TH2D*)((TObjArray*)workers.ProcTree(MCs, workItem))->At(0);
+  f_hist[0]->GetXaxis()->SetTitle("Data Events");
+  f_hist[1] = (TH2D*)((TObjArray*)workers.ProcTree(MCs, workItem))->At(1);
+  f_hist[1]->GetXaxis()->SetTitle("Data Events");
+  for(int mcn=0; mcn<int(MC_Names.size()); mcn++){
+    f_hist[0]->GetYaxis()->SetBinLabel(mcn+1,MC_Names[mcn]);
+    f_hist[1]->GetYaxis()->SetBinLabel(mcn+1,MC_Names[mcn]);
+  }  
 
   ///_______________________ Compute discriminant from MDMCED _____________________________________________________
   cout<<":: [Distance Computing Time]: "; t.Stop(); t.Print(); t.Continue();
@@ -388,14 +411,14 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
     if( verbose != 0 && data%(nData/10) == 0)
       cout<< Form(":: [Remaining]:   %i Events",nData-data) <<endl;
 
-    Double_t min_dr_sig = f_hist->GetBinContent(data+1,1);
+    Double_t min_dr_sig = f_hist[0]->GetBinContent(data+1,1);
     Double_t min_dr_bkg = 1.E15;
     PsbD_MinDist.clear();
     ///Finds closet MC
     for(Int_t mcs=1; mcs<N_MCT; mcs++){
-      PsbD_MinDist.push_back( PsbD(min_dr_sig, f_hist->GetBinContent(data+1,mcs+1)) );
-      if( f_hist->GetBinContent(data+1,mcs+1) < min_dr_bkg )
-	min_dr_bkg = f_hist->GetBinContent(data+1,mcs+1);
+      PsbD_MinDist.push_back( PsbD(min_dr_sig, f_hist[0]->GetBinContent(data+1,mcs+1)) );
+      if( f_hist[0]->GetBinContent(data+1,mcs+1) < min_dr_bkg )
+	min_dr_bkg = f_hist[0]->GetBinContent(data+1,mcs+1);
     }
 
     G_PsbD_MinDist = PsbD(min_dr_sig, min_dr_bkg);
@@ -415,7 +438,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   ///Saving FastME results
   gSystem->Exec("mkdir -p "+out_path);
   TFile *tmp = TFile::Open(out_path+"/"+out_name+".root","recreate");
-  f_hist->Write();
+  f_hist[0]->Write();
+  f_hist[1]->Write();
   tree->Write();
   tmp->Close();
   
