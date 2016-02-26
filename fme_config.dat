@@ -35,8 +35,8 @@ mc_type_branch_name McType
 
 
 ############ FastME configs ##########
---Available 2 phs dr method (how to compare data-mc objects):
-  -mindr and media (when one has identical objects: compares the colsest ones or get the media of combinations);
+--Available 3 phs dr method (how to compare data-mc objects):
+  -mindr, media (when one has identical objects: compares the colsest ones or get the media of combinations);
 --Number of final particles is in principle not restricted (but, only up to 6 was checked);
 --One can chose restrict the comparison between leptons of same flavor;
 --Verbose leves available: 0= quiet, 1= time proccessing, (for debug) 2= main info and 3= everything;
