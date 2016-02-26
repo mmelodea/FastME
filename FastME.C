@@ -9,6 +9,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <exception>
+
 #include <TString.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -99,14 +101,19 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   cout<<"=============================================================================================="<<endl;
   cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]::::::::::::::::::::::::::::"<<endl;
   cout<<"=============================================================================================="<<endl;
-  cout<<" [RAM memory info]"<<endl;
-  gSystem->Exec("free -m");
-  cout<<" Certify RAM memory available? (y/n)";
-  string aws;
-  cin >> aws; 
-  if(aws != "y"){
-    cout<<" Stoped due to insuficient RAM memory availability!"<<endl;
-    return -1;
+  cout<<" Certify RAM memory available? (y/n) ";
+  string aws1;
+  cin >> aws1;
+  if(aws1 == "y"){
+    cout<<" [RAM memory info]"<<endl;
+    gSystem->Exec("free -m");
+    cout<<" Proceed? (y/n) ";
+    string aws2;
+    cin >> aws2; 
+    if(aws2 != "y"){
+      cout<<" Stoped due to insuficient RAM memory availability!"<<endl;
+      return -1;
+    }
   }
   cout<<"\n:: Your input file..."<<endl;
   ///______________________________________________________________________________________________________________
@@ -161,6 +168,10 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
     cout<<"Missing key-word! Check your input file!";
     return -1;
   }
+  cout<<" Input file correct?(y/n) ";
+  string aws3;
+  cin >> aws3;
+  if(aws3 == "n") return -1;
   ///__________________________________________________________________________________________________________________
   
   ///Getting some numbers
@@ -195,14 +206,17 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   cout<< Form(":: Final State:      %i  Objects",N_FSParticles) <<endl;
   cout<< Form(":: Cores to Use:     %i  Cores",N_Cores) <<endl;
   cout<<"----------------------------------------------------------------------------------------------"<<endl;
-  cout<<" [RAM info]:"<<endl;
-  gSystem->Exec("free -m");
-  cout<<" Continue proccess? (y/n)";
-  string aws2;
-  cin >> aws2;
-  if(aws2 != "y"){
-    cout<<" Stoped stopped by user!"<<endl;
-    return -1;
+
+  if(aws1 == "y"){
+    cout<<" [RAM info after full compilation]:"<<endl;
+    gSystem->Exec("free -m");
+    cout<<" Continue? (y/n) ";
+    string aws4;
+    cin >> aws4;
+    if(aws4 != "y"){
+      cout<<" Stoped stopped by user!"<<endl;
+      return -1;
+    }
   }
   cout<<" [Analysing events...]"<<endl;  
   ///--------------------------------------------------------------------------------------------------------------
@@ -388,53 +402,104 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   ///Calls analysis through TProcPool
   TProcPool workers(N_Cores);
   TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
-  
   Int_t iEvent, TMcType, Indice;
   Double_t Mdist;
-  mtree->Branch("iEvent",&iEvent,"iEvent/I");
-  mtree->Branch("Mdist",&Mdist,"Mdist/D");
-  mtree->Branch("TMcType",&TMcType,"TMcType/I");
-  mtree->Branch("Indice",&Indice,"Indice/I");  
+  mtree->SetBranchAddress("iEvent",&iEvent);
+  mtree->SetBranchAddress("Mdist",&Mdist);
+  mtree->SetBranchAddress("TMcType",&TMcType);
+  mtree->SetBranchAddress("Indice",&Indice);
+  Int_t fentries = mtree->GetEntries();
 
   ///_______________________ Compute discriminant from MDMCED _____________________________________________________
   cout<<":: [Distance Computing Time]: "; t.Stop(); t.Print(); t.Continue();
   cout<<"\n::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<endl;
   ///--------------------------------------------------------------------------------------------------------------
-  Int_t Event, McIndice;
-  Double_t Global_PsbDist;
-  vector<Double_t> Local_PsbDist;
-  TTree *tree = new TTree("FastME","Fast Matrix Element Analysis Results");
-  tree->SetDirectory(0);
-  tree->Branch("Event",&Event,"Event/I");
-  tree->Branch("McIndice",&McIndice,"McIndice/I");
-  tree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
-  tree->Branch("Local_PsbDist","vector<Double_t> Local_PsbDist",&Local_PsbDist);
 
+  vector<Int_t> McIndex, McCat;
+  Double_t Global_PsbDist;
+  vector<Double_t> MinDist, Local_PsbDist;
+  TTree *ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
+  ftree->SetDirectory(0);
+  ftree->Branch("McIndex","vector<Int_t>",&McIndex);
+  ftree->Branch("McCat","vector<Int_t>",&McCat);
+  ftree->Branch("MinDist","vector<Double_t>",&MinDist);
+  ftree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
+  ftree->Branch("Local_PsbDist","vector<Double_t> Local_PsbDist",&Local_PsbDist);
+
+  ///Find the tree sectors
+  Int_t TreeSectors[N_Cores];
+  if(fentries % N_Cores != 0){
+    cout<<"[Error] Something gone wrong... non-integer tree sectors!!"<<endl;
+    throw exception();
+  }
+  
+  Int_t EndSector = fentries/N_Cores; //How many entries in each core job                                     
+  for(Int_t ic=0; ic<(Int_t)N_Cores; ic++) TreeSectors[ic] = ic*EndSector;
+  
+  ///Getting results from analysis
   for(Int_t data=0; data<nData; data++){
-    Event = data;
     if( verbose != 0 && data%(nData/10) == 0)
       cout<< Form(":: [Remaining]:   %i Events",nData-data) <<endl;
 
-    mtree->GetEntry(data);
-    
-    Double_t min_dr_sig = f_hist[0]->GetBinContent(data+1,1);
-    Double_t min_dr_bkg = 1.E15;
-    PsbD_MinDist.clear();
-    ///Finds closet MC
-    for(Int_t mcs=1; mcs<N_MCT; mcs++){
-      PsbD_MinDist.push_back( PsbD(min_dr_sig, f_hist[0]->GetBinContent(data+1,mcs+1)) );
-      if( f_hist[0]->GetBinContent(data+1,mcs+1) < min_dr_bkg )
-	min_dr_bkg = f_hist[0]->GetBinContent(data+1,mcs+1);
+    Int_t MinSigIndex = -99, GMinBkgIndex = -99;
+    Double_t min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
+    Double_t local_min_dr_bkg[N_MC], local_min_bkg_index[N_MC];
+    McIndex.clear();
+    MinDist.clear();
+    Local_PsbDist.clear();
+    for(Int_t p=0; p<N_MC; p++){
+      local_min_bkg_index[p] = -99;
+      local_min_dr_bkg[p] = 1.e15;
+      McCat.push_back( -99 );
+      McIndex.push_back( -99 );
+      MinDist.push_back( -99. );
+      Local_PsbDist.push_back( -99. );
+    }
+    for(Int_t ic=0; ic<(Int_t)N_Cores; ic++){
+      mtree->GetEntry(TreeSectors[ic]+data);//TreeSectors aligns the results from different cores
+      if(iEvent != data){
+	cout<<"[Error] Something gone wrong... iEvent != data"<<endl;
+	throw exception();
+      }
+      
+      ///Finds closet MC Signal
+      if(TMcType == 0)
+	if( Mdist < min_dr_sig ){
+	  min_dr_sig = Mdist;
+	  MinSigIndex = Indice;
+	  McCat[0] = 0;
+	  //cout<<"Indice= "<<Indice<<endl;
+	}
+
+      ///Finds closet MC Background
+      if(TMcType > 0){
+	///The general most close MC Background
+        if( Mdist < global_min_dr_bkg ) global_min_dr_bkg = Mdist;
+	///Each MC Background
+	if( Mdist < local_min_dr_bkg[TMcType-1] ){
+	  McCat[TMcType] = TMcType;
+	  local_min_dr_bkg[TMcType-1] = Mdist;
+	  local_min_bkg_index[TMcType-1] = Indice;
+	}
+      }
     }
 
-    G_PsbD_MinDist = PsbD(min_dr_sig, min_dr_bkg);
+    MinDist[0] = min_dr_sig;
+    McIndex[0] = MinSigIndex;
+    Global_PsbDist = PsbD(min_dr_sig, global_min_dr_bkg);
+
+    for(Int_t im=0; im<N_MC; im++){
+      McIndex[im+1] = local_min_bkg_index[im];
+      MinDist[im+1] = local_min_dr_bkg[im];
+      Local_PsbDist[im+1] = PsbD(min_dr_sig, local_min_dr_bkg[im]);
+    }
     if( verbose > 1 )
-      cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", min_dr_sig, min_dr_bkg, G_PsbD_MinDist) << endl;
+      cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", min_dr_sig, global_min_dr_bkg, Global_PsbDist) << endl;
     
     
-    tree->Fill();
+    ftree->Fill();
   }
-  
+
   ///________________________________ Stoping timming ________________________________________________________
   cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<endl;
   cout<<":: [Analysis Total Time]: "; t.Stop(); t.Print();
@@ -444,7 +509,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   ///Saving FastME results
   gSystem->Exec("mkdir -p "+out_path);
   TFile *tmp = TFile::Open(out_path+"/"+out_name+".root","recreate");
-  tree->Write();
+  ftree->Write();
   tmp->Close();
   
   return 0;
