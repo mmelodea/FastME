@@ -51,7 +51,7 @@ vector<string> fme_keywords = {
   "n_fs_particles",
   "flavor_constraint",
   "n_cores",
-  "data_limit"
+  "data_limit",
   "mc_limit",
   "verbose_level"
 };
@@ -213,14 +213,6 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 		   PhSDr_Method, FlavorConstraint, MC_Limit, verbose](TTreeReader &tread) -> TObject* {
     TStopwatch t2;
         
-    ///Defines 2D histograms to stores minimum distances
-    TH2D *mdists = new TH2D("mdists","Minimum Data-MC distances found",nData,0,nData,N_MCT,0,N_MCT);
-    mdists->SetDirectory(0);    
-
-    ///Defines 2D histograms to stores indices
-    TH2I *indices = new TH2I("indices","Minimum Data-MC distances found",nData,0,nData,N_MCT,0,N_MCT);
-    indices->SetDirectory(0);    
-
     ///Addresses the MC branches to be used
     TTreeReaderValue<Int_t>    McType(tread, McType_branch); ///McType for Signal=0 and Background >0
     TTreeReaderArray<Int_t>    McId(tread, Id_branch);
@@ -234,6 +226,16 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
     TTreeReaderArray<Double_t> DataEta(refReader, Eta_branch);
 
 
+    ///Tree to store the results from analysis
+    Int_t iEvent, TMcType, Indice;
+    Double_t Mdist;
+    TTree *fme_tree = new TTree("fme_tree","temporary");
+    fme_tree->SetDirectory(0);
+    fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
+    fme_tree->Branch("Mdist",&Mdist,"Mdist/D");
+    fme_tree->Branch("TMcType",&TMcType,"TMcType/I");
+    fme_tree->Branch("Indice",&Indice,"Indice/I");
+    
     ///Loop on Data events
     for(Int_t dt=0; dt<nData; dt++){
       if( verbose != 0 && ((dt!= 0 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
@@ -361,56 +363,60 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 
       
       ///Stores the minimum distances found
+      iEvent = dt;
       if(PhSDr_Method == "mindr"){
-	mdists->Fill(dt,f_type,min_distance_Min);
-	indices->Fill(dt,f_type,imc_min);
+	Mdist = min_distance_Min;
+	TMcType = f_type;
+	Indice  = imc_min;
+	if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<endl;
       }
       if(PhSDr_Method == "media"){
-	mdists->Fill(dt,f_type,min_distance_Med);
-	indices->Fill(dt,f_type,imc_min);
+	Mdist = min_distance_Med;
+	TMcType = f_type;
+	Indice  = imc_min;
+	if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<endl;
       }
-      if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<endl;
-      if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<endl;
+      
+      fme_tree->Fill();
     }///End Data sample loop
-    TObjArray *hists = new TObjArray(2);
-    hists->Add( mdists );
-    hists->Add( indices );
     
     t2.Stop();
     delete fData;
-    return hists;
+    return fme_tree;
   };
   
   ///Calls analysis through TProcPool
   TProcPool workers(N_Cores);
-  TH2D *f_hist[2];
+  TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
   
-  f_hist[0] = (TH2D*)((TObjArray*)workers.ProcTree(MCs, workItem))->At(0);
-  f_hist[0]->GetXaxis()->SetTitle("Data Events");
-  f_hist[1] = (TH2D*)((TObjArray*)workers.ProcTree(MCs, workItem))->At(1);
-  f_hist[1]->GetXaxis()->SetTitle("Data Events");
-  for(int mcn=0; mcn<int(MC_Names.size()); mcn++){
-    f_hist[0]->GetYaxis()->SetBinLabel(mcn+1,MC_Names[mcn]);
-    f_hist[1]->GetYaxis()->SetBinLabel(mcn+1,MC_Names[mcn]);
-  }  
+  Int_t iEvent, TMcType, Indice;
+  Double_t Mdist;
+  mtree->Branch("iEvent",&iEvent,"iEvent/I");
+  mtree->Branch("Mdist",&Mdist,"Mdist/D");
+  mtree->Branch("TMcType",&TMcType,"TMcType/I");
+  mtree->Branch("Indice",&Indice,"Indice/I");  
 
   ///_______________________ Compute discriminant from MDMCED _____________________________________________________
   cout<<":: [Distance Computing Time]: "; t.Stop(); t.Print(); t.Continue();
   cout<<"\n::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<endl;
   ///--------------------------------------------------------------------------------------------------------------
-  Int_t Event;
-  Double_t G_PsbD_MinDist;
-  vector<Double_t> PsbD_MinDist;
+  Int_t Event, McIndice;
+  Double_t Global_PsbDist;
+  vector<Double_t> Local_PsbDist;
   TTree *tree = new TTree("FastME","Fast Matrix Element Analysis Results");
   tree->SetDirectory(0);
   tree->Branch("Event",&Event,"Event/I");
-  tree->Branch("G_PsbD_MinDist",&G_PsbD_MinDist,"G_PsbD_MinDist/D");
-  tree->Branch("PsbD_MinDist","vector<Double_t> PsbD_MinDist",&PsbD_MinDist);
+  tree->Branch("McIndice",&McIndice,"McIndice/I");
+  tree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
+  tree->Branch("Local_PsbDist","vector<Double_t> Local_PsbDist",&Local_PsbDist);
+
   for(Int_t data=0; data<nData; data++){
     Event = data;
     if( verbose != 0 && data%(nData/10) == 0)
       cout<< Form(":: [Remaining]:   %i Events",nData-data) <<endl;
 
+    mtree->GetEntry(data);
+    
     Double_t min_dr_sig = f_hist[0]->GetBinContent(data+1,1);
     Double_t min_dr_bkg = 1.E15;
     PsbD_MinDist.clear();
@@ -438,8 +444,6 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   ///Saving FastME results
   gSystem->Exec("mkdir -p "+out_path);
   TFile *tmp = TFile::Open(out_path+"/"+out_name+".root","recreate");
-  f_hist[0]->Write();
-  f_hist[1]->Write();
   tree->Write();
   tmp->Close();
   
