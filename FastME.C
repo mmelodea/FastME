@@ -259,8 +259,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	t2.Continue();
       }
       refReader.SetEntry(dt); ///Move on Data loop
-      Double_t min_distance_Min = 1.E15;
-      Double_t min_distance_Med = 1.E15;
+      Double_t min_distance_Min = 1.e15;
+      Double_t min_distance_Med = 1.e15;
       Int_t imc_min = -1;
       Int_t f_type=-99;
       Int_t nMonteCarlo = tread.GetEntries(true);
@@ -276,7 +276,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
       ///::::::::::::::::::::::::::::::::::::: Currently 2 Methods Available ::::::::::::::::::::::::::::::::::::::::::
       ///==============================================================================================================
 	Double_t event_distance_Min= -99, event_distance_Med= -99, event_distance= -99;
-	vector<Double_t> SumMed_dPt, SumMed_dEta, SumMin_dPt, SumMin_dEta;
+	Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
+	Double_t SumMin_dPt2 = 0, SumMin_dEta2 = 0;
 	
 	//stores flags to sinalize when a MC object is already selected
 	vector<int> vmin_imc;
@@ -287,6 +288,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	  Double_t particles_distance = -1.;
 	  int min_imc = -1;
     
+	  Int_t nsame_flavor = 0;
+	  Double_t tmp_dPt = 0, tmp_dEta = 0;
 	  for(int imc=0; imc<N_FSParticles; imc++){
 	    ///Avoid different Data-MC particles comparison
 	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
@@ -317,8 +320,19 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	  
   	  ///________________________ Only for media comparison method ________________________________________________
 	    if(PhSDr_Method == "media"){
-	      SumMed_dPt.push_back(dPt/2.);
-	      SumMed_dEta.push_back(dEta/2.);
+	      if(nsame_flavor == 0){
+		tmp_dPt  = dPt/scale_dPt;
+		tmp_dEta = dEta/scale_dEta;
+	      }
+	      else{
+		///Repair the previous one
+		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
+		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
+		///Append the new one
+		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
+		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
+	      }
+	      nsame_flavor++;
 	      if( verbose == 3 )
 		cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<endl;
 	    }
@@ -335,19 +349,19 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	    vmin_imc[min_imc] = 1;//changes the flag for current MC object
 	    if( verbose == 3 ) cout<<"Chosen->>  MCPos: "<<min_imc<<"   ID: "<<McId[min_imc]<<endl;
 	    ///For proximity comparison method
-	    SumMin_dPt.push_back( (DataPt[idt]-McPt[min_imc])/(scale_dPt) );
-	    SumMin_dEta.push_back( (DataEta[idt]-McEta[min_imc])/(scale_dEta) );
+	    SumMin_dPt2 += pow( (DataPt[idt]-McPt[min_imc])/(scale_dPt), 2 );
+	    SumMin_dEta2 += pow( (DataEta[idt]-McEta[min_imc])/(scale_dEta), 2 );
 	  }
-	}///Ends Data event loop  
+	  
+	  if(PhSDr_Method == "media" && nsame_flavor == 1){
+	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
+	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
+	  }
+	}///Ends Data event loop
 	
 	///Compute final Data-MC events distance & searches for minimum distance
-	Double_t sum_dPt2 = 0, sum_dEta2 = 0;	
 	if(PhSDr_Method == "mindr" && acept == true){
-	  for(int n=0; n<(int)SumMin_dPt.size(); n++){
-	    sum_dPt2  += SumMin_dPt[n]*SumMin_dPt[n];
-	    sum_dEta2 += SumMin_dEta[n]*SumMin_dEta[n];
-	  }	  
-	  event_distance_Min = sqrt(sum_dPt2 + sum_dEta2);
+	  event_distance_Min = sqrt(SumMin_dPt2 + SumMin_dEta2);
 	  if(event_distance_Min < min_distance_Min){
 	    min_distance_Min = event_distance_Min;
 	    imc_min = mc;
@@ -355,13 +369,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	  if( verbose > 2 ) cout<<"Event_distance(MinDr) = "<<event_distance_Min<<endl;  
 	}
 	
-	if(PhSDr_Method == "media" && SumMed_dPt.size() > 0){
-	  sum_dPt2 = 0; sum_dEta2 = 0; 
-	  for(int n=0; n<(int)SumMed_dPt.size(); n++){
-	    sum_dPt2  += SumMed_dPt[n]*SumMed_dPt[n];
-	    sum_dEta2 += SumMed_dEta[n]*SumMed_dEta[n];
-	  }	  
-	  event_distance_Med = sqrt(sum_dPt2 + sum_dEta2);
+	if(PhSDr_Method == "media" && SumMed_dPt2 > 0){
+	  event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2);
 	  if(event_distance_Med < min_distance_Med){
 	    min_distance_Med = event_distance_Med;
 	    imc_min = mc;
