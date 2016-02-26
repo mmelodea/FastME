@@ -181,8 +181,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   if(DT_Limit != -1 && DT_Limit <= nData)
     nData = DT_Limit;
 
-  Int_t N_MCT = MC_Names.size();
-  Int_t N_MC = MCs.size();
+  const Int_t N_MCT = MC_Names.size();
+  const Int_t N_MC = MCs.size();
   Int_t NMCEV[N_MC];
   for(Int_t ne=0; ne<N_MC; ne++){
     TFile *tmpf = TFile::Open((TString)MCs[ne]);
@@ -443,11 +443,12 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 
     Int_t MinSigIndex = -99, GMinBkgIndex = -99;
     Double_t min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
-    Double_t local_min_dr_bkg[N_MC], local_min_bkg_index[N_MC];
+    Double_t local_min_dr_bkg[N_MCT], local_min_bkg_index[N_MCT];
     McIndex.clear();
+    McCat.clear();
     MinDist.clear();
     Local_PsbDist.clear();
-    for(Int_t p=0; p<N_MC; p++){
+    for(Int_t p=0; p<N_MCT; p++){
       local_min_bkg_index[p] = -99;
       local_min_dr_bkg[p] = 1.e15;
       McCat.push_back( -99 );
@@ -488,7 +489,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
     McIndex[0] = MinSigIndex;
     Global_PsbDist = PsbD(min_dr_sig, global_min_dr_bkg);
 
-    for(Int_t im=0; im<N_MC; im++){
+    for(Int_t im=0; im<N_MCT; im++){
       McIndex[im+1] = local_min_bkg_index[im];
       MinDist[im+1] = local_min_dr_bkg[im];
       Local_PsbDist[im+1] = PsbD(min_dr_sig, local_min_dr_bkg[im]);
