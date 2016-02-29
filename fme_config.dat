@@ -41,12 +41,14 @@ mc_type_branch_name McType
 --One can chose restrict the comparison between leptons of same flavor;
 --Verbose leves available: 0= quiet, 1= time proccessing, (for debug) 2= main info and 3= everything;
     
-outfile_name fme_results_sig
+outfile_name fme_results_data_media
 outfile_path FME_results
-phs_dr_method mindr
+phs_dr_method media
 n_fs_particles 4
 flavor_constraint true
-n_cores 3
+n_cores 6
 #data_limit 50
 #mc_limit 0.1
+scale_dPt 48
+scale_dEta 2
 verbose_level 1
