@@ -1,5 +1,5 @@
 ________________________________________________________________________________________
-<img src="https://raw.githubusercontent.com/mmelodea/FastME/master/fme_logo.png" width="180"> <h1>FastME</h1>
+<img align="right" src="https://raw.githubusercontent.com/mmelodea/FastME/master/fme_logo.png" width="180"> <h1>FastME</h1>
 <h6>Probing and Discriminating Data by MC Topology (stable & updated version of the project)</h6>
 ________________________________________________________________________________________
 FastME stands for Fast Matrix Element and its main goal is achieve similar capabability and full physic information as the many types of Matrix Element method available today. However, FastME try to reduce the computing time needed to get such info.  
