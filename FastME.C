@@ -28,10 +28,6 @@
 #include <PoolUtils.h>
 #include <TSystem.h>
 
-///Scale Factors to normalize deltas
-#define scale_dPt	50.
-#define scale_dEta	5.
-
 using namespace std;
 
 ///-------------  Define the key-words  ------------------
@@ -52,6 +48,8 @@ vector<string> fme_keywords = {
   "n_cores",
   "data_limit",
   "mc_limit",
+  "scale_dPt",
+  "scale_dEta",
   "verbose_level"
 };
 vector<int> ksize = {
@@ -71,6 +69,8 @@ vector<int> ksize = {
   8,
   11,
   9,
+  10,
+  11,
   14
 };
 vector<string> null = {""};
@@ -121,7 +121,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   TString TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch;
   vector<TString> MC_Names;
   Int_t N_FSParticles= 4, verbose= 1, DT_Limit= -1;
-  Float_t MC_Limit= -1;
+  Float_t MC_Limit= -1, scale_dPt = 50., scale_dEta = 5.;
   UInt_t N_Cores= 1;
 
   ///______________ Extract the need info from txt file _______________________________________________________________
@@ -140,7 +140,9 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
       if(line.find(fme_keywords[k]) != string::npos){
 	nkeys++;
         line.erase(line.begin(),line.begin()+ksize[k]);
-	cout <<":: "<< fme_keywords[k] <<"\t\t\t"<< line << endl;
+        if(k==0 || k==1 || k==2 || k==3 || k==8 || k==9 || k==13 || k==14 || k==15 || k==16 || k==17)
+	  cout <<":: "<< fme_keywords[k] <<"\t\t\t\t"<< line << endl;
+	else cout <<":: "<< fme_keywords[k] <<"\t\t\t"<< line << endl;
         if(fme_keywords[k] == "data_path") Data_Path = line;
 	if(fme_keywords[k] == "mc_path") MCs.push_back(line);
 	if(fme_keywords[k] == "mc_name") MC_Names.push_back(line);
@@ -157,6 +159,8 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	if(fme_keywords[k] == "n_cores") N_Cores = stoi(line);
 	if(fme_keywords[k] == "data_limit") DT_Limit = stoi(line);
 	if(fme_keywords[k] == "mc_limit") MC_Limit = stof(line);
+        if(fme_keywords[k] == "scale_dPt") scale_dPt = stof(line);
+        if(fme_keywords[k] == "scale_dEta") scale_dEta = stof(line);
 	if(fme_keywords[k] == "verbose_level") verbose = stoi(line);
       }
     }
@@ -220,8 +224,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
   
   
   ///TProcPool declaration to objects to be analised  
-  auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT, N_FSParticles,
-		   PhSDr_Method, FlavorConstraint, MC_Limit, verbose](TTreeReader &tread) -> TObject* {
+  auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT, N_FSParticles, PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose](TTreeReader &tread) -> TObject* {
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
