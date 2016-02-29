@@ -28,12 +28,9 @@
 #include <PoolUtils.h>
 #include <TSystem.h>
 
-
-#define pi		3.14159265358979312
 ///Scale Factors to normalize deltas
 #define scale_dPt	50.
 #define scale_dEta	5.
-#define scale_dPhi	pi
 
 using namespace std;
 
@@ -143,7 +140,7 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
       if(line.find(fme_keywords[k]) != string::npos){
 	nkeys++;
         line.erase(line.begin(),line.begin()+ksize[k]);
-	cout <<":: "<< fme_keywords[k] <<"\t\t"<< line << endl;
+	cout <<":: "<< fme_keywords[k] <<"\t\t\t"<< line << endl;
         if(fme_keywords[k] == "data_path") Data_Path = line;
 	if(fme_keywords[k] == "mc_path") MCs.push_back(line);
 	if(fme_keywords[k] == "mc_name") MC_Names.push_back(line);
@@ -478,7 +475,6 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	  min_dr_sig = Mdist;
 	  MinSigIndex = Indice;
 	  McCat[0] = 0;
-	  //cout<<"Indice= "<<Indice<<endl;
 	}
 
       ///Finds closet MC Background
@@ -486,10 +482,10 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
 	///The general most close MC Background
         if( Mdist < global_min_dr_bkg ) global_min_dr_bkg = Mdist;
 	///Each MC Background
-	if( Mdist < local_min_dr_bkg[TMcType-1] ){
+	if( Mdist < local_min_dr_bkg[TMcType] ){
 	  McCat[TMcType] = TMcType;
-	  local_min_dr_bkg[TMcType-1] = Mdist;
-	  local_min_bkg_index[TMcType-1] = Indice;
+	  local_min_dr_bkg[TMcType] = Mdist;
+	  local_min_bkg_index[TMcType] = Indice;
 	}
       }
     }
@@ -498,10 +494,10 @@ int FastME(TString Data_Path="", vector<string> MCs=null){
     McIndex[0] = MinSigIndex;
     Global_PsbDist = PsbD(min_dr_sig, global_min_dr_bkg);
 
-    for(Int_t im=0; im<N_MCT; im++){
-      McIndex[im+1] = local_min_bkg_index[im];
-      MinDist[im+1] = local_min_dr_bkg[im];
-      Local_PsbDist[im+1] = PsbD(min_dr_sig, local_min_dr_bkg[im]);
+    for(Int_t im=1; im<N_MCT; im++){
+      McIndex[im] = local_min_bkg_index[im];
+      MinDist[im] = local_min_dr_bkg[im];
+      Local_PsbDist[im] = PsbD(min_dr_sig, local_min_dr_bkg[im]);
     }
     if( verbose > 1 )
       cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", min_dr_sig, global_min_dr_bkg, Global_PsbDist) << endl;
