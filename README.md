@@ -13,5 +13,5 @@ The branches present in the resulting file store the follow informations:
 (1) Global_PsbDist - the discriminant computed taking in account all MCs (a minimum DR is chosen between the MC backgrounds);  
 (2) Local_PsbDist - the discriminant computed to each of the MC backgrounds (its value is -99 for signal, since doesn't make sense compare signal to signal DR; also, note that the framework assumes only one signal source by analysis);  
 (3) McCat - the MC category: (always!)0 for signal and >0 for backgrounds;  
-(4) McIndex - the MC chosen as the most close to the analised event;
+(4) McIndex - the MC chosen as the most close to the analised event;  
 (5) MinDist - the distance found for the most close MC found to the analised event.
