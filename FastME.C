@@ -143,12 +143,12 @@ int FastME(string config){
   ///--------------------------------------------------------------------------------------------------------------
   
   ///Calls TProcPool to compute distances between events
-  TTree *rtree = 0;
+  TTree *rtree = 
   ComputePhsDR(fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, MCs, N_MCT, N_Cores,
-	       N_FSParticles, PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose, rtree);
+	       N_FSParticles, PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose);
   
-  TTree *ftree = 0;
-  Discriminant(rtree, ftree, N_Cores, nData, N_MCT, verbose);
+  ///Calls discriminator
+  TTree *ftree = Discriminant(rtree, N_Cores, nData, N_MCT, verbose);
   
   ///Saving FastME results
   gSystem->Exec("mkdir -p "+out_path);
@@ -156,6 +156,9 @@ int FastME(string config){
   ftree->Write();
   tmp->Close();
   
-  return 0;
+  cout<<"=============================================================================================="<<endl;
+  cout<<":::::::::::::::::::::::::[ Fast Matrix Element Analysis Finalized ]:::::::::::::::::::::::::::"<<endl;
+  cout<<"=============================================================================================="<<endl;
 
+  return 0;
 }
