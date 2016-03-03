@@ -1,0 +1,252 @@
+///####################################################################################################################
+///=========================================[ Fast Matrix Element Module ]=============================================
+///=====================================[ Code Author: Miqueias M. de Almeida ]========================================
+///####################################################################################################################
+
+
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <exception>
+
+#include <TString.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TMath.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TCanvas.h>
+#include <TStopwatch.h>
+#include <TObjArray.h>
+
+///Headers to TProcPool
+#include <TTreeReader.h>
+#include <TTreeReaderArray.h>
+#include <TProcPool.h>
+#include <PoolUtils.h>
+#include <TSystem.h>
+
+using namespace std;
+
+
+///========== Compute Discriminant Value ===============
+///Based on Distance
+Double_t PsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
+  Double_t DD = min_dr_bkg/(min_dr_sig + min_dr_bkg);
+  return DD;
+}
+///=====================================================
+
+
+///######################################## Main FastME Function ######################################################
+void ComputePhsDR(TFile *fData, Int_t nData, TString TreeName, TString McType_branch, TString Id_branch, TString Pt_branch,
+		  TString Eta_branch, vector<string> MCs, Int_t N_MCT, UInt_t N_Cores, Int_t N_FSParticles, TString PhSDr_Method, TString FlavorConstraint,
+		  Float_t MC_Limit, Double_t scale_dPt, Double_t scale_dEta, Int_t verbose, TTree *mtree){
+
+  ///Timming full process
+  TStopwatch t;
+  t.Start();  
+  
+  ///TProcPool declaration to objects to be analised  
+  auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT, N_FSParticles,
+		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
+		   (TTreeReader &tread) -> TObject* {
+    TStopwatch t2;
+        
+    ///Addresses the MC branches to be used
+    TTreeReaderValue<Int_t>    McType(tread, McType_branch); ///McType for Signal=0 and Background >0
+    TTreeReaderArray<Int_t>    McId(tread, Id_branch);
+    TTreeReaderArray<Double_t> McPt(tread, Pt_branch);
+    TTreeReaderArray<Double_t> McEta(tread, Eta_branch);
+    
+    ///Addresses the Data branches to be used
+    TTreeReader refReader(TreeName,fData);
+    TTreeReaderArray<Int_t>    DataId(refReader, Id_branch);
+    TTreeReaderArray<Double_t> DataPt(refReader, Pt_branch);
+    TTreeReaderArray<Double_t> DataEta(refReader, Eta_branch);
+
+
+    ///Tree to store the results from analysis
+    Int_t iEvent, TMcType, Indice;
+    Double_t Mdist;
+    TTree *fme_tree = new TTree("fme_tree","temporary");
+    fme_tree->SetDirectory(0);
+    fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
+    fme_tree->Branch("Mdist",&Mdist,"Mdist/D");
+    fme_tree->Branch("TMcType",&TMcType,"TMcType/I");
+    fme_tree->Branch("Indice",&Indice,"Indice/I");
+    
+    ///Loop on Data events
+    for(Int_t dt=0; dt<nData; dt++){
+      if( verbose != 0 && ((dt!= 0 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
+	cout<< Form(":: [Remaining]:  %i Events\t\t[Elapsed]:  ",nData-dt);
+	t2.Stop();
+	t2.Print();
+	t2.Continue();
+      }
+      refReader.SetEntry(dt); ///Move on Data loop
+      Double_t min_distance_Min = 1.e15;
+      Double_t min_distance_Med = 1.e15;
+      Int_t imc_min = -1;
+      Int_t f_type=-99;
+      Int_t nMonteCarlo = tread.GetEntries(true);
+      if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
+      if(MC_Limit != -1 && MC_Limit < 1) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
+      
+      for(Int_t mc=0; mc<nMonteCarlo; mc++){
+	tread.SetEntry(mc); ///Move on MC loop
+        bool acept = true;
+	
+      ///==============================================================================================================
+      ///::::::::::::::::::::::::: Fast Matrix Element methods to compute Data - MC distance ::::::::::::::::::::::::::
+      ///::::::::::::::::::::::::::::::::::::: Currently 2 Methods Available ::::::::::::::::::::::::::::::::::::::::::
+      ///==============================================================================================================
+	Double_t event_distance_Min= -99, event_distance_Med= -99, event_distance= -99;
+	Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
+	Double_t SumMin_dPt2 = 0, SumMin_dEta2 = 0;
+	
+	//stores flags to sinalize when a MC object is already selected
+	vector<int> vmin_imc;
+	for(int sl=0; sl<N_FSParticles; sl++) vmin_imc.push_back(-1);
+	
+	for(int idt=0; idt<N_FSParticles; idt++){
+	  Double_t min_particles_distance = 1.E15;
+	  Double_t particles_distance = -1.;
+	  int min_imc = -1;
+    
+	  Int_t nsame_flavor = 0;
+	  Double_t tmp_dPt = 0, tmp_dEta = 0;
+	  for(int imc=0; imc<N_FSParticles; imc++){
+	    ///Avoid different Data-MC particles comparison
+	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
+	    ///Avoid leptons-jets comparison
+	    else if(FlavorConstraint == "false"){
+	      if(abs(DataId[idt])== 11 && (abs(McId[imc])!= 11 || abs(McId[imc])!= 13)) continue;
+	      if(abs(DataId[idt])== 13 && (abs(McId[imc])!= 11 || abs(McId[imc])!= 13)) continue;
+	      if(abs(McId[idt])== 11 && (abs(DataId[imc])!= 11 || abs(DataId[imc])!= 13)) continue;
+	      if(abs(McId[idt])== 13 && (abs(DataId[imc])!= 11 || abs(DataId[imc])!= 13)) continue;
+	    }
+	    ///Compute preliminary particles distance
+	    Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
+	    Double_t dEta = (DataEta[idt]-McEta[imc])/(scale_dEta);
+	
+
+	  ///_______________________ For proximity comparison method __________________________________________________
+	    if( PhSDr_Method == "mindr")
+	      if(vmin_imc[imc] == -1){
+		particles_distance = sqrt(dPt*dPt + dEta*dEta);
+		if( verbose == 3 ) cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<"   part_dist: "<<particles_distance<<endl;
+		if(particles_distance < min_particles_distance){
+		  min_imc = imc;
+		  min_particles_distance = particles_distance;
+		}
+	      }
+	  ///¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+	  
+	  
+  	  ///________________________ Only for media comparison method ________________________________________________
+	    if(PhSDr_Method == "media"){
+	      if(nsame_flavor == 0){
+		tmp_dPt  = dPt/scale_dPt;
+		tmp_dEta = dEta/scale_dEta;
+	      }
+	      else{
+		///Repair the previous one
+		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
+		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
+		///Append the new one
+		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
+		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
+	      }
+	      nsame_flavor++;
+	      if( verbose == 3 )
+		cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<endl;
+	    }
+	  ///¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+
+	  }///Ends MC event loop
+	  
+	  if(PhSDr_Method == "mindr"){
+	    ///Monitor of chosen MCs to avoid object recounting and wrong pairing
+	    if(min_imc == -1){
+	      acept = false;
+	      break;
+	    }
+	    vmin_imc[min_imc] = 1;//changes the flag for current MC object
+	    if( verbose == 3 ) cout<<"Chosen->>  MCPos: "<<min_imc<<"   ID: "<<McId[min_imc]<<endl;
+	    ///For proximity comparison method
+	    SumMin_dPt2 += pow( (DataPt[idt]-McPt[min_imc])/(scale_dPt), 2 );
+	    SumMin_dEta2 += pow( (DataEta[idt]-McEta[min_imc])/(scale_dEta), 2 );
+	  }
+	  
+	  if(PhSDr_Method == "media" && nsame_flavor == 1){
+	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
+	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
+	  }
+	}///Ends Data event loop
+	
+	///Compute final Data-MC events distance & searches for minimum distance
+	if(PhSDr_Method == "mindr" && acept == true){
+	  event_distance_Min = sqrt(SumMin_dPt2 + SumMin_dEta2);
+	  if(event_distance_Min < min_distance_Min){
+	    min_distance_Min = event_distance_Min;
+	    imc_min = mc;
+	  }
+	  if( verbose > 2 ) cout<<"Event_distance(MinDr) = "<<event_distance_Min<<endl;  
+	}
+	
+	if(PhSDr_Method == "media" && SumMed_dPt2 > 0){
+	  event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2);
+	  if(event_distance_Med < min_distance_Med){
+	    min_distance_Med = event_distance_Med;
+	    imc_min = mc;
+	  }
+	  if( verbose > 2 ) cout<<"Event_distance (Media) = "<<event_distance_Med<<endl;  
+	}
+	///Stores the MC type
+	f_type = *McType;
+      ///================================================================================================================
+      ///================================================================================================================
+	
+      }///End MC sample loop
+
+      
+      ///Stores the minimum distances found
+      iEvent = dt;
+      if(PhSDr_Method == "mindr"){
+	Mdist = min_distance_Min;
+	TMcType = f_type;
+	Indice  = imc_min;
+	if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<endl;
+      }
+      if(PhSDr_Method == "media"){
+	Mdist = min_distance_Med;
+	TMcType = f_type;
+	Indice  = imc_min;
+	if( verbose > 1 ) cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<endl;
+      }
+      
+      fme_tree->Fill();
+    }///End Data sample loop
+    
+    t2.Stop();
+    delete fData;
+    return fme_tree;
+  };
+  
+  ///Calls analysis through TProcPool
+  TProcPool workers(N_Cores);
+  mtree = (TTree*)workers.ProcTree(MCs, workItem);
+
+  ///________________________________ Stoping timming ________________________________________________________
+  cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<endl;
+  cout<<":: [Analysis Total Time]: "; t.Stop(); t.Print();
+  cout<<":: [Sending TTree results...]"<<endl;
+  cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<endl;
+  ///---------------------------------------------------------------------------------------------------------
+
+  ///Final tree merged from trees coming from all cores used
+  return;
+}
