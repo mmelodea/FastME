@@ -1,14 +1,28 @@
-///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-///:::::::::::::::::::::: Discriminant Module - Analysisng the Results from Distances found:::::::::::::::::::::::::::::
-///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+///############################################################################################################$
+///======================[ Discriminant Module - Analysisng the Results from Distances Found ]==================
+///=====================================[ Code Author: Miqueias M. de Almeida ]================================
+///############################################################################################################$
 
 
 
 #include <iostream>
 #include <vector>
 #include <TTree.h>
+#include <TStopwatch.h>
 
-void Discriminant(TTree *mtree, TTree *ftree, UInt_t N_Cores, Int_t nData, const Int_t N_MCT, Int_t verbose){
+TTree *Discriminant(TTree *mtree, UInt_t N_Cores, Int_t nData, const Int_t N_MCT, Int_t verbose){
+
+  TStopwatch t2;
+  t2.Start();
+  ///_______________________ Compute discriminant from MDMCED _________________________________________________$
+  cout<<":::::::                                                                                :::::::"<<endl;
+  cout<<":::::::::::                                                                        :::::::::::"<<endl;
+  cout<<"::::::::::::::::::                                                          ::::::::::::::::::"<<endl;
+  cout<<"::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<endl;
+  cout<<"::::::::::::::::::                                                          ::::::::::::::::::"<<endl;
+  cout<<":::::::::::                                                                        :::::::::::"<<endl;
+  cout<<":::::::                                                                                :::::::"<<endl;
+  ///----------------------------------------------------------------------------------------------------------$
 
   ///Set the input tree
   Int_t iEvent, TMcType, Indice;
@@ -18,14 +32,11 @@ void Discriminant(TTree *mtree, TTree *ftree, UInt_t N_Cores, Int_t nData, const
   mtree->SetBranchAddress("TMcType",&TMcType);
   mtree->SetBranchAddress("Indice",&Indice);  
   Int_t fentries = mtree->GetEntries();
-  ///_______________________ Compute discriminant from MDMCED _____________________________________________________
-  cout<<"\n::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<endl;
-  ///--------------------------------------------------------------------------------------------------------------
 
   vector<Int_t> McIndex, McCat;
   Double_t Global_PsbDist;
   vector<Double_t> MinDist, Local_PsbDist;
-  ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
+  TTree *ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
   ftree->SetDirectory(0);
   ftree->Branch("McIndex","vector<Int_t>",&McIndex);
   ftree->Branch("McCat","vector<Int_t>",&McCat);
@@ -45,8 +56,10 @@ void Discriminant(TTree *mtree, TTree *ftree, UInt_t N_Cores, Int_t nData, const
   
   ///Getting results from analysis
   for(Int_t data=0; data<nData; data++){
-    if( verbose != 0 && data%(nData/10) == 0)
-      cout<< Form(":: [Remaining]:   %i Events",nData-data) <<endl;
+    if( verbose != 0 && data%(nData/10) == 0){
+      cout<< Form(":: [Remaining]:   %i Events",nData-data)<<"\t\t";
+      t2.Print();
+    }
 
     Int_t MinSigIndex = -99, GMinBkgIndex = -99;
     Double_t min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
@@ -106,5 +119,12 @@ void Discriminant(TTree *mtree, TTree *ftree, UInt_t N_Cores, Int_t nData, const
     ftree->Fill();
   }
   
-  return;
+  ///________________________________ Stoping timming ________________________________________________________
+  cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<endl;
+  cout<<":: [Computing Total Time]: "; t2.Stop(); t2.Print();
+  cout<<":: [Sending TTree results...]"<<endl;
+  cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<endl;
+  ///---------------------------------------------------------------------------------------------------------
+
+  return ftree;
 }
