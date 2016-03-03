@@ -31,8 +31,10 @@
 using namespace std;
 
 
-///========== Compute Discriminant Value ===============
-///Based on Distance
+///============ Discriminant  Formula ==================
+///============== Based on Distance ====================
+///=== Creators: Miquéias M. Almeida, Andre Sznajder ===
+///=====================================================
 Double_t PsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
   Double_t DD = min_dr_bkg/(min_dr_sig + min_dr_bkg);
   return DD;
@@ -40,14 +42,22 @@ Double_t PsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
 ///=====================================================
 
 
-///######################################## Main FastME Function ######################################################
-void ComputePhsDR(TFile *fData, Int_t nData, TString TreeName, TString McType_branch, TString Id_branch, TString Pt_branch,
-		  TString Eta_branch, vector<string> MCs, Int_t N_MCT, UInt_t N_Cores, Int_t N_FSParticles, TString PhSDr_Method, TString FlavorConstraint,
-		  Float_t MC_Limit, Double_t scale_dPt, Double_t scale_dEta, Int_t verbose, TTree *mtree){
+///######################################## FastME Main Function ######################################################
+TTree *ComputePhsDR(TFile *fData, Int_t nData, TString TreeName, TString McType_branch, TString Id_branch, 
+     	            TString Pt_branch, TString Eta_branch, vector<string> MCs, Int_t N_MCT, UInt_t N_Cores, 
+	            Int_t N_FSParticles, TString PhSDr_Method, TString FlavorConstraint, Float_t MC_Limit, 
+	            Double_t scale_dPt, Double_t scale_dEta, Int_t verbose){
 
   ///Timming full process
   TStopwatch t;
   t.Start();  
+  cout<<":::::::                                                                                :::::::"<<endl;
+  cout<<":::::::::::                                                                        :::::::::::"<<endl;
+  cout<<"::::::::::::::::::                                                          ::::::::::::::::::"<<endl;
+  cout<<"::::::::::::::::::::::::::::::::[ Computing Events Distance ]:::::::::::::::::::::::::::::::::"<<endl;
+  cout<<"::::::::::::::::::                                                          ::::::::::::::::::"<<endl;
+  cout<<":::::::::::                                                                        :::::::::::"<<endl;
+  cout<<":::::::                                                                                :::::::"<<endl;
   
   ///TProcPool declaration to objects to be analised  
   auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT, N_FSParticles,
@@ -238,7 +248,7 @@ void ComputePhsDR(TFile *fData, Int_t nData, TString TreeName, TString McType_br
   
   ///Calls analysis through TProcPool
   TProcPool workers(N_Cores);
-  mtree = (TTree*)workers.ProcTree(MCs, workItem);
+  TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
 
   ///________________________________ Stoping timming ________________________________________________________
   cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<endl;
@@ -248,5 +258,5 @@ void ComputePhsDR(TFile *fData, Int_t nData, TString TreeName, TString McType_br
   ///---------------------------------------------------------------------------------------------------------
 
   ///Final tree merged from trees coming from all cores used
-  return;
+  return mtree;
 }
