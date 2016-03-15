@@ -1,0 +1,8 @@
+<flags CXXFLAGS="-g -O0 -Wno-error=unused-variable -Wno-error=unused-but-set-variable"/>
+<flags CXXFLAGS="-g -O0 `root-config --cflags` `root-config --libs`"/>
+<bin   name="fastme" file="fastme.cc">
+  <use   name="root"/>
+  <use   name="rootcore"/>
+  <use   name="rootgraphics"/>
+</bin>
+

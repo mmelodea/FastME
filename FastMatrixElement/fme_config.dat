@@ -1,0 +1,56 @@
+#############################################################
+################# FastME config file ########################
+#############################################################
+--Left words are key-words;
+--Right sentences are the arguments (use only simple space between key-words and its arguments);
+  -do not leave space after arguments;
+--Comments can be done in any way;
+  -the code looks for key-words so, don't use similar words and don't write on the left from the arguments;
+  -except for the case you use some key-word, do the comment using the caracter #;
+
+
+############# User config ############
+--This is an option. It's most fast compile code with ntuple pre-loaded in the memory. However, this can
+  require large space availability. If no such space available, user can pass samples path through here
+  and just call FastME() function (without arguments). In the main_code.C one can see how to do that. 
+  
+### Path of samples
+data_path ../../../../CMS_Ntuples/FastME_format/4l_data.root
+mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
+mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
+mc_path	../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
+
+
+### Name of MC samples
+mc_name SM_Higgs126
+mc_name ggZZ
+mc_name qqZZ
+
+
+### Tree info
+tree_name Higgs
+id_branch_name ParticleId
+pt_branch_name ParticlePt
+eta_branch_name ParticleEta
+mc_type_branch_name McType
+
+
+
+############ FastME configs ##########
+--Available 3 phs dr method (how to compare data-mc objects):
+  -mindr, media (when one has identical objects: compares the colsest ones or get the media of combinations);
+--Number of final particles is in principle not restricted (but, only up to 6 was checked);
+--One can chose restrict the comparison between leptons of same flavor;
+--Verbose leves available: 0= quiet, 1= time proccessing, (for debug) 2= main info and 3= everything;
+    
+outfile_name fme_results_data_mindr
+outfile_path ../FME_results
+phs_dr_method mindr
+n_fs_particles 4
+flavor_constraint true
+n_cores 3
+data_limit 50
+mc_limit 0.1
+scale_dPt -1
+scale_dEta -1
+verbose_level 1
