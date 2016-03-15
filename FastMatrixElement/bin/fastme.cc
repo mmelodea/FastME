@@ -37,7 +37,7 @@ int main(int argc, char *argv[]){
   
   ///Calls interface to get analysis setup
   FmeInterface(argv, &setup);
-  if(argv[1] != help && argv[1] != nc) break;
+  if(argv[1] != help && argv[1] != nc) return 0;//Stop execution
   
   ///User can abort analysis if something is wrong
   std::cout<<" Input file correct?(y/n) ";
