@@ -38,7 +38,7 @@ mc_type_branch_name McType
 
 ############ FastME configs ##########
 outfile_name fme_results_data_mindr
-outfile_path ../FME_results
+outfile_path ../tests
 phs_dr_method mindr
 n_fs_particles 4
 flavor_constraint true
