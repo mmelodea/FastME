@@ -1,4 +1,18 @@
-///To see in how are separated the particles in the (pT,eta,phi) phase space
+///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::[ Plot Particles Disposition in pT-eta Plane]:::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. de Almeida ]:::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+#ifndef ShowParticles_h
+#define ShowParticles_h
+
+#include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
+
+
+
+
 void display_particles(){
   gROOT->SetBatch(kTRUE);
   
@@ -126,3 +140,6 @@ void display_particles(){
   cout<<endl;
   cout<<"Minimum DR = "<<mindr<<endl;
 }//End script
+
+
+#endif

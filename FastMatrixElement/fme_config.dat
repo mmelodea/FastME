@@ -1,6 +1,6 @@
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
 #::::::::::::::::::::::::::::::::::::::::::[ FastME config file ]:::::::::::::::::::::::::::::::::::::::::::::#
-#:::::::::::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. Almeida ]::::::::::::::::::::::::::::::#
+#:::::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. Almeida ]::::::::::::::::::::::::::::::::::::#
 --General Instructions:
 --Left words are key-words;
 --Right sentences are the arguments (use only simple space between key-words and its arguments);
@@ -17,7 +17,7 @@
 
 
 ############# User config ############
-### Path of samples
+### Path of samples ###
 data_path ../../../../CMS_Ntuples/FastME_format/4l_data.root
 mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
 mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root

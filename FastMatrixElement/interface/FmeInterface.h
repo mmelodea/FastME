@@ -1,6 +1,7 @@
-///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-///:::::::::::::::::::::::::::::::::::::::::::::::: FastME Interface :::::::::::::::::::::::::::::::::::::::::::::::::::
-///:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::[ Fast Matrix Element Interface Manager ]:::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. de Almeida ]:::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
@@ -22,15 +23,15 @@
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", ff = "-f", fa = "-a";//commands
+static std::string help = "-help", ff = "-f", fa = "-a", sp = "-s";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
   std::cout<<"\t-f\t\tConvert a general root file to FastME root file format"<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
-  std::cout<<"\t-d\t\tDisplay the particles disposition on FastME phase space"<<std::endl;
-  
+  std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<std::endl;  
   std::cout<<"More info access github..."<<std::endl;
+
   return;
 }
 
@@ -133,6 +134,7 @@ int FmeInterface(char *argv[], FmeSetup *USetup){
        if(argv[1] == help)	Helper();
   else if(argv[1] == ff)	FileFormater((std::string)argv[2]);
   else if(argv[1] == fa)	ConfigReader((std::string)argv[2], USetup);
+  else if(argv[1] == sp)        ShowParticles();
   else{
     std::cout<<"[ERROR] Invalid command '"<<argv[1]<<"'"<<std::endl;
     std::cout<<"These are the available commands:"<<std::endl;
