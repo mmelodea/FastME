@@ -43,11 +43,11 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
     ttmp->Project("stackpt", Setup.PtBranch);
-    if(Setup.Scale_Method == "mean")    pt_sum += stackpt->GetMean();
-    if(Setup.Scale_Method == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
+    if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
+    if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
     ttmp->Project("stacketa", Setup.EtaBranch);
-    if(Setup.Scale_Method == "mean")    eta_sum += fabs(stacketa->GetMean());
-    if(Setup.Scale_Method == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
+    if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());
+    if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
   }
   
   *f_scale_dPt  = pt_sum/total;
