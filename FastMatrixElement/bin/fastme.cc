@@ -30,7 +30,7 @@ int main(int argc, char *argv[]){
   std::cout<<"=============================================================================================="<<std::endl;
   std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<"=============================================================================================="<<std::endl;
-  std::cout<<":: [Your input file: "<< argv[1] <<"]"<<std::endl;
+  std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
   
   ///Calls interface to get analysis setup
   FmeInterface(argv, &setup);
