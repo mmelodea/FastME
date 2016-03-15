@@ -41,8 +41,9 @@ void Helper(void){
 
 ///Return how many cores are available in the machine
 void FindCores(){
-  std::cout<<"Cores available: ";
   system("nproc");
+  std::cout<<"Cores available"<<std::endl;
+  std::cout<<"**Be carefull, do not set more than these!**"std::endl;
   
   return;
 }

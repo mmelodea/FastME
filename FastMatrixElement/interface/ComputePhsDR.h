@@ -43,6 +43,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
     ttmp->Project("stackpt", Setup.PtBranch);
+    std::cout<<"Mean: "<<stackpt->GetMean()<<endl;
     if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
     if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
     ttmp->Project("stacketa", Setup.EtaBranch);
@@ -53,7 +54,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   *f_scale_dPt  = pt_sum/total;
   *f_scale_dEta = eta_sum/total;
   
-  std::cout<<Form(":: nMCs: %i   pt_sum: %.3f   eta_sum: %.3f",total,pt_sum,eta_sum)<<std::endl;
+  std::cout<<Form(":: nMCs: %.3f   pt_sum: %.3f   eta_sum: %.3f",total,pt_sum,eta_sum)<<std::endl;
   std::cout<<Form(":: [NOTE] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
   return;
 }
