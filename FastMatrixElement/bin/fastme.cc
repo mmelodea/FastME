@@ -9,7 +9,6 @@
 #include "FastMatrixElement/FastMatrixElement/interface/FmeInterface.h"
 #include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
 #include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
-#include "FastMatrixElement/FastMatrixElement/interface/ShowParticles.h"
 
 
 #include <iostream>

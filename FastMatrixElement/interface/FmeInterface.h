@@ -7,6 +7,7 @@
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 #include "FastMatrixElement/FastMatrixElement/interface/FileFormater.h"
+//#include "FastMatrixElement/FastMatrixElement/interface/ShowParticles.h"
 
 
 #include <TROOT.h>
@@ -144,7 +145,7 @@ int FmeInterface(char *argv[], FmeSetup *USetup){
   else if(argv[1] == nc)	FindCores();
   else if(argv[1] == ff)	FileFormater((std::string)argv[2]);
   else if(argv[1] == fa)	ConfigReader((std::string)argv[2], USetup);
-  else if(argv[1] == sp)	ShowParticles();
+  //else if(argv[1] == sp)	ShowParticles();
   else{
     std::cout<<"[ERROR] Invalid command '"<<argv[1]<<"'"<<std::endl;
     std::cout<<"These are the available commands:"<<std::endl;
