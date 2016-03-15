@@ -20,6 +20,7 @@
 #include <fstream>
 #include <string>
 #include <exception>
+#include <system>
 
 
 
@@ -41,7 +42,7 @@ void Helper(void){
 ///Return how many cores are available in the machine
 void FindCores(){
   std::cout<<"Cores available: ";
-  gSystem->Exec("nproc");
+  system("nproc");
   std::cout<<std::endl;
   
   return;
