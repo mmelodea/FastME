@@ -23,10 +23,11 @@
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", ff = "-f", fa = "-a", sp = "-s";
+static std::string help = "-help", nc = "-c", ff = "-f", fa = "-a", sp = "-s";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
+  std::cout<<"\t-c\t\tInform how many cores are available in the machine"<<std::endl;
   std::cout<<"\t-f\t\tConvert a general root file to FastME root file format"<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
   std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<std::endl;  
@@ -35,6 +36,13 @@ void Helper(void){
   return;
 }
 
+
+///Return how many cores are available in the machine
+void FindCores(){
+  std::cout<<"Cores available: "<< gSystem->Exec("nproc") <<std::endl;
+  
+  return;
+}
 
 
 ///Read input file and convert to program format
@@ -77,8 +85,9 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
 	if(fme_keywords[k] == 		  "n_cores")	Setup->NCores = stoi(line);
 	if(fme_keywords[k] == 	       "data_limit")	Setup->DTLimit = stoi(line);
 	if(fme_keywords[k] == 		 "mc_limit")	Setup->MCLimit = stof(line);
-        if(fme_keywords[k] == 		"scale_dPt")	Setup->Scale_dPt = stof(line);
-        if(fme_keywords[k] == 	       "scale_dEta")	Setup->Scale_dEta = stof(line);
+        if(fme_keywords[k] == 		"scale_dPt")	Setup->ScaledPt = stof(line);
+        if(fme_keywords[k] == 	       "scale_dEta")	Setup->ScaledEta = stof(line);
+	if(fme_keywords[k] == 	     "scale_method")	Setup->ScaleMethod = line;
 	if(fme_keywords[k] == 	    "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
@@ -132,9 +141,10 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
 ///--------------------- Interface with user ----------------------
 int FmeInterface(char *argv[], FmeSetup *USetup){
        if(argv[1] == help)	Helper();
+  else if(argv[1] == nc)	FindCores();
   else if(argv[1] == ff)	FileFormater((std::string)argv[2]);
   else if(argv[1] == fa)	ConfigReader((std::string)argv[2], USetup);
-  else if(argv[1] == sp)        ShowParticles();
+  else if(argv[1] == sp)	ShowParticles();
   else{
     std::cout<<"[ERROR] Invalid command '"<<argv[1]<<"'"<<std::endl;
     std::cout<<"These are the available commands:"<<std::endl;

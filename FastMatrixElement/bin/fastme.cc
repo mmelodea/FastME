@@ -33,12 +33,12 @@ int main(int argc, char *argv[]){
   std::cout<<"=============================================================================================="<<std::endl;
   std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<"=============================================================================================="<<std::endl;
-  std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
+  if(argv[1] != help && argv[1] != nc) std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
   
   ///Calls interface to get analysis setup
   FmeInterface(argv, &setup);
 
-  ///User can abort analysis
+  ///User can abort analysis if something is wrong
   std::cout<<" Input file correct?(y/n) ";
   std::string aws3;
   std::cin >> aws3;
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
   ///-------------------------------------------------------------------------------------------------------------------
   std::cout<<"=============================================================================================="<<std::endl;
   std::cout<<":::::::::::::::::::::::::[ Fast Matrix Element Analysis Finalized ]:::::::::::::::::::::::::::"<<std::endl;
-  //std::cout<<":: [Analysis file saved: "<<resulting_file<<"]"<<std::endl;
+  std::cout<<":: [Analysis file saved: "<<resulting_file<<"]"<<std::endl;
   std::cout<<"=============================================================================================="<<std::endl;
   std::cout<<"\n\n";
 

@@ -43,11 +43,11 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
     ttmp->Project("stackpt", Setup.PtBranch);
-    if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
-    if(Setup.ScaleMethod == "maximum") pt_sum += stackpt->GetMaximum();
+    if(Setup.Scale_Method == "mean")    pt_sum += stackpt->GetMean();
+    if(Setup.Scale_Method == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
     ttmp->Project("stacketa", Setup.EtaBranch);
-    if(Setup.ScaleMethod == "mean")    eta_sum += stacketa->GetMean();
-    if(Setup.ScaleMethod == "maximum") eta_sum += stacketa->GetMaximum();
+    if(Setup.Scale_Method == "mean")    eta_sum += fabs(stacketa->GetMean());
+    if(Setup.Scale_Method == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
   }
   
   *f_scale_dPt  = pt_sum/total;
@@ -75,8 +75,9 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TString PhSDr_Method		= Setup.PhSDrMethod;
   TString FlavorConstraint	= Setup.SetFlavorConstraint;
   Float_t MC_Limit		= Setup.MCLimit;
-  Double_t scale_dPt		= Setup.Scale_dPt;
-  Double_t scale_dEta		= Setup.Scale_dEta;
+  Double_t scale_dPt		= Setup.ScaledPt;
+  Double_t scale_dEta		= Setup.ScaledEta;
+  TString Scale_Method		= Setup.ScaleMethod;
   Int_t verbose			= Setup.Verbose;
 
   std::cout<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<std::endl;  

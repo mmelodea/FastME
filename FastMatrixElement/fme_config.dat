@@ -47,4 +47,5 @@ data_limit 50
 mc_limit 0.1
 scale_dPt -1
 scale_dEta -1
+scale_method mean
 verbose_level 1

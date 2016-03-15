@@ -33,8 +33,8 @@ struct FmeSetup{
   TString			OutPath;
   Int_t				DTLimit;
   Float_t			MCLimit;
-  Double_t			Scale_dPt;
-  Double_t			Scale_dEta;
+  Double_t			ScaledPt;
+  Double_t			ScaledEta;
   TString			ScaleMethod;
   Int_t				Verbose = 1;
 };
@@ -65,26 +65,26 @@ static std::vector<std::string> fme_keywords = {
 };
 
 static std::vector<int> ksize = {
-  10,
-  8,
-  8,
-  10,
-  20,
-  15,
-  15,
-  16,
-  13,
-  13,
-  14,
-  15,
-  18,
-  8,
-  11,
-  9,
-  10,
-  11,
-  13,
-  14
+  10,	///data_path
+  8,	///mc_path
+  8,	///mc_name
+  10,	///tree_name
+  20,	///mc_type_branch_name
+  15,	///id_branch_name
+  15,	///pt_branch_name
+  16,	///eta_branch_name
+  13,	///outfile_name
+  13,	///outfile_path
+  14,	///phs_dr_method
+  15,	///n_fs_particles
+  18,	///flavor_constraint
+  8,	///n_cores
+  11,	///data_limit
+  9,	///mc_limit
+  10,	///scale_dPt
+  11,	///scale_dEta
+  13,	///scale_method
+  14	///verbose_level
 };
 
 
