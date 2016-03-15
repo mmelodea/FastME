@@ -53,6 +53,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   *f_scale_dPt  = pt_sum/total;
   *f_scale_dEta = eta_sum/total;
   
+  std::cout<<Form(":: nMCs: %i   pt_sum: %.3f   eta_sum: %.3f",total,pt_sum,eta_sum)<<std::endl;
   std::cout<<Form(":: [NOTE] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
   return;
 }
@@ -80,7 +81,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TString Scale_Method		= Setup.ScaleMethod;
   Int_t verbose			= Setup.Verbose;
 
-  std::cout<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<std::endl;  
+  std::cout<<":: [Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<"]"<<std::endl;  
   if(scale_dPt == -1 || scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta);
 
   ///Timming full process
