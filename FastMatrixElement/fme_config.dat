@@ -12,6 +12,7 @@
   mindr and media (when one has identical objects: compares the colsest ones or get the media of combinations);
 --Number of final particles is in principle not restricted (but, only up to 6 was checked);
 --One can chose restrict the comparison between leptons of same flavor;
+--There are 2 available method to compute a scale factor: mean and extrem (finds the maximum pT and minimum eta medium)
 --Verbose leves available: 0= quiet, 1= time proccessing, (for debug) 2= main info and 3= everything;
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
 
