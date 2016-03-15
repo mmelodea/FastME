@@ -141,7 +141,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
 
 
 
-///--------------------- Interface with user ----------------------
+///--------------------- Interface manager ----------------------
 int FmeInterface(char *argv[], FmeSetup *USetup){
        if(argv[1] == help)	Helper();
   else if(argv[1] == nc)	FindCores();

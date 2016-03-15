@@ -60,7 +60,7 @@ static std::vector<std::string> fme_keywords = {
   "mc_limit",
   "scale_dPt",
   "scale_dEta",
-  "scale_method"
+  "scale_method",
   "verbose_level"
 };
 
