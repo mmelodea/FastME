@@ -9,7 +9,7 @@ The Monte Carlo events already contain the full physic information (that can be 
 This package is designed to be plugged into CMSSW. However, it also can be compiled by a c++ compiler since one has the ROOT6 libraries available and support to the new c++ version (c++11).  
 Into CMSSW the steps to follow are described in the script SetUpEnvironment.sh (which can be sourced - but not runned as a bash). Once one had the setup finalized, just clone the package through git and compile it using the CMSSW tool scram. The executable generated is "fastme" (present on CMSSW_BASE/bin) and can be called in any place. For check the commands available use "fastme -help".
 
-<5>Results</h5>
+<h5>Results</h5>
 The branches present in the resulting file store the follow informations:  
 (1) Global_PsbDist - the discriminant computed taking in account all MCs (a minimum DR is chosen between the MC backgrounds);  
 (2) Local_PsbDist - the discriminant computed to each of the MC backgrounds (its value is -99 for signal, since doesn't make sense compare signal to signal DR; also, note that the framework assumes only one signal source by analysis);  
