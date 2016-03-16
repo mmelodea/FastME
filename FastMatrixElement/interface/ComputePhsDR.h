@@ -38,15 +38,18 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   TH1D *stacketa = new TH1D("stacketa","",10000,0,10000);
   
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
+  gROOT->SetBatch(kTRUE);
   for(Int_t isample=0; isample<(Int_t)Setup.vMCs.size(); isample++){
     TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
-    ttmp->Project("stackpt", Setup.PtBranch);
-    std::cout<<"Mean: "<<stackpt->GetMean()<<std::endl;
+    TString draw_pt = Setup.PtBranch+" >> stackpt";
+    ttmp->Draw(draw_pt);
     if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
     if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
-    ttmp->Project("stacketa", Setup.EtaBranch);
+    
+    TString draw_eta = Setup.EtaBranch+" >> stackpt";
+    ttmp->Draw(draw_eta);
     if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());
     if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
   }
@@ -54,7 +57,6 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   *f_scale_dPt  = pt_sum/total;
   *f_scale_dEta = eta_sum/total;
   
-  std::cout<<Form(":: nMCs: %.3f   pt_sum: %.3f   eta_sum: %.3f",total,pt_sum,eta_sum)<<std::endl;
   std::cout<<Form(":: [NOTE] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
   return;
 }
@@ -285,7 +287,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: [Analysis Total Time]: "; t1.Stop(); t1.Print();
-  std::cout<<":: [Sending TTree results...]"<<std::endl;
+  std::cout<<":: [Sending PhsDrComputer results...]"<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 

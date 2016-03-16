@@ -20,6 +20,7 @@ Double_t GetPsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
 ///===================================================================
 
 
+///_______________________ Compute discriminant from MDMCED _________________________________________________
 TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   
   UInt_t N_Cores	= Setup.NCores;
@@ -29,15 +30,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   TStopwatch t2;
   t2.Start();
-  ///_______________________ Compute discriminant from MDMCED _________________________________________________
-  std::cout<<":::::::                                                                                :::::::"<<std::endl;
-  std::cout<<":::::::::::                                                                        :::::::::::"<<std::endl;
-  std::cout<<"::::::::::::::::::                                                          ::::::::::::::::::"<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<"::::::::::::::::::                                                          ::::::::::::::::::"<<std::endl;
-  std::cout<<":::::::::::                                                                        :::::::::::"<<std::endl;
-  std::cout<<":::::::                                                                                :::::::"<<std::endl;
-  ///----------------------------------------------------------------------------------------------------------
 
   ///Set the input tree
   Int_t iEvent, TMcType, Indice;
@@ -137,7 +130,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: [Computing Total Time]: "; t2.Stop(); t2.Print();
-  std::cout<<":: [Sending TTree results...]"<<std::endl;
+  std::cout<<":: [Sending Discriminant results...]"<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 
