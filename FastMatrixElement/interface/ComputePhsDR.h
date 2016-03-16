@@ -33,15 +33,11 @@
 
 
 
-void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta){
-  //TH1D *stackpt  = new TH1D("stackpt","",10000,0,10000);
-  //TH1D *stacketa = new TH1D("stacketa","",10000,0,10000);
-  
+void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta){  
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
   for(Int_t isample=0; isample<(Int_t)Setup.vMCs.size(); isample++){
     TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
-    Int_t nentries = ttmp->GetEntries();
     
     TString draw_pt = Setup.PtBranch+" >> stackpt";
     ttmp->Draw(draw_pt);
