@@ -34,22 +34,24 @@
 
 
 void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta){
-  TH1D *stackpt  = new TH1D("stackpt","",10000,0,10000);
-  TH1D *stacketa = new TH1D("stacketa","",10000,0,10000);
+  //TH1D *stackpt  = new TH1D("stackpt","",10000,0,10000);
+  //TH1D *stacketa = new TH1D("stacketa","",10000,0,10000);
   
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
-  gROOT->SetBatch(kTRUE);
   for(Int_t isample=0; isample<(Int_t)Setup.vMCs.size(); isample++){
     TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
+    Int_t nentries = ttmp->GetEntries();
     
     TString draw_pt = Setup.PtBranch+" >> stackpt";
     ttmp->Draw(draw_pt);
+    TH1D *stackpt = (TH1D*)gDirectory->Get("stackpt");
     if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
     if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
     
-    TString draw_eta = Setup.EtaBranch+" >> stackpt";
+    TString draw_eta = Setup.EtaBranch+" >> stacketa";
     ttmp->Draw(draw_eta);
+    TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
     if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());
     if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
   }
