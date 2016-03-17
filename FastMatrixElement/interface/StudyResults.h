@@ -60,8 +60,8 @@ void StudyResults(FmeSetup UserSetup){
   
   TH1D *hsig = new TH1D("hsig","hsig",100000,0,1);
   hsig->SetLineColor(9);
-  sig_psbD->GetXaxis()->SetTitle("P_{SB}(Distance)");
-  sig_psbD->GetYaxis()->SetTitle("Events/0.02 (Normalized)");
+  hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
+  hsig->GetYaxis()->SetTitle("Events/0.02 (Normalized)");
 
   TH1D *hbkg = new TH1D("hbkg","hbkg",100000,0,1);	hbkg->SetLineColor(2);
     
