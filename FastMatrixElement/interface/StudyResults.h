@@ -69,10 +69,11 @@ void StudyResults(FmeSetup UserSetup){
   tsig->Draw("Global_PsbDist >> hsig");
   tbkg->Draw("Global_PsbDist >> hbkg");
   
-  hsig->Draw("9");
-  hbkg->Draw("9,same");
+  ((TH1D*)gDirectory->Get("hsig"))->Draw("9");
+  ((TH1D*)gDirectory->Get("hbkg"))->Draw("9, same");
+
   c1->Update();
-  c1->Print("Discriminant_Signal_vs_Background.png");
+  c1->Print(UserSetup.OutPath+"/"+"Discriminant_Signal_vs_Background.png");
   
 /*
   Double_t cutoff, integral=0;
