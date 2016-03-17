@@ -98,7 +98,7 @@ void StudyResults(FmeSetup UserSetup){
   for(int j=0; j<discret; j++){
     cutoff = j/float(discret);
     TP = FP = TN = FN = 0;
-    for(int i=0; i<nevents; i++){
+    for(int i=0; i<tsig->GetEntries(); i++){
       tsig->GetEntry(i);
       if( SGlobal_PsbDist > cutoff ) TP++;
       if( BGlobal_PsbDist < cutoff ) FN++;
