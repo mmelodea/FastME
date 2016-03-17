@@ -65,11 +65,11 @@ void StudyResults(FmeSetup UserSetup){
   hsig->SetFillColor(9);
   hsig->SetFillStyle(3001);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
-  hsig->GetYaxis()->SetTitle("Events/0.02 (Normalized)");
+  hsig->GetYaxis()->SetTitle("Events/0.01");
 
   TH1D *hbkg = new TH1D("hbkg","hbkg",100,0,1);
   hbkg->SetLineColor(2);
-  hbkg->SetFillColor(9);
+  hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
     
   tsig->Project("hsig","Global_PsbDist");
@@ -77,10 +77,11 @@ void StudyResults(FmeSetup UserSetup){
   hsig->Draw();
   hbkg->Draw("same");
   
-  TLegend *leg = new TLegend(0.2,0.75,0.5,0.85);
+  TLegend *leg = new TLegend(0.57,0.77,0.87,0.87);
   leg->AddEntry(hsig,"Signal","f");
   leg->AddEntry(hbkg,"Background","f");
   leg->SetFillColor(0);
+  leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetTextSize(0.05);
   leg->Draw();
@@ -116,7 +117,7 @@ void StudyResults(FmeSetup UserSetup){
   }
 
   TGraph *roc = new TGraph(discret,FPR,TPR);
-  roc->SetTitle(Form("ROC Plot - Area under curve = %.1f",integral));
+  roc->SetTitle(Form("ROC Plot - Area under curve = %.3f",integral));
   roc->SetMarkerStyle(4);
   roc->SetMarkerSize(0.9);
   roc->SetMarkerColor(kOrange);
@@ -126,8 +127,7 @@ void StudyResults(FmeSetup UserSetup){
   roc->GetYaxis()->SetRangeUser(0,1.1);
   
   TLine *l3 = new TLine(0,0,1,1);
-  l3->SetLineColor(kBlack);
-  l3->SetLineWidth(2);
+  l3->SetLineColor(kGreen-6);
   l3->SetLineStyle(2);
 
   TLine *l50  = new TLine(0,0.5,1,0.5);		l50->SetLineStyle(2);
