@@ -113,7 +113,7 @@ void StudyResults(FmeSetup UserSetup){
   }
 
   TGraph *roc = new TGraph(discret,FPR,TPR);
-  roc->SetTitle("ROC Plot - Area under curve = "+Form("%.1f",integral));
+  roc->SetTitle(Form("ROC Plot - Area under curve = %.1f",integral));
   roc->SetMarkerStyle(4);
   roc->SetMarkerSize(0.9);
   roc->SetMarkerColor(kOrange);
