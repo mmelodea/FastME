@@ -7,10 +7,10 @@ scram project CMSSW CMSSW_8_0_2
 mv FastMatrixElement CMSSW_8_0_2/src/
 cd CMSSW_8_0_2/src/
 
-echo "Setting up CMSSW_8_0_2 environment..."
+echo -e "\nSetting up CMSSW_8_0_2 environment..."
 cmsenv
 
-echo "Compiling FastME package..."
+echo -e "\nCompiling FastME package..."
 scram b -v
 
-echo "Proccess finished!"
+echo -e"\n*** Proccess finished! ***"

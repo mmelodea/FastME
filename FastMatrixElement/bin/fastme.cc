@@ -34,7 +34,7 @@ int main(int argc, char *argv[]){
   if(argv[1] != help && argv[1] != nc){
     std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
     
-    ConfigReader((std::string)argv[2], &setup);
+    ConfigReader((std::string)argv[1], &setup);
     
     ///User can abort analysis if something is wrong
     std::cout<<" Input file correct?(y/n) ";
