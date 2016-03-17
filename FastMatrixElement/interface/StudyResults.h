@@ -113,7 +113,7 @@ void StudyResults(FmeSetup UserSetup){
   }
 
   TGraph *roc = new TGraph(discret,FPR,TPR);
-  roc->SetTitle("ROC");
+  roc->SetTitle("ROC Plot - Area under curve = "+Form("%.1f",integral));
   roc->SetMarkerStyle(4);
   roc->SetMarkerSize(0.9);
   roc->SetMarkerColor(kOrange);
@@ -130,7 +130,7 @@ void StudyResults(FmeSetup UserSetup){
   TLine *l50  = new TLine(0,0.5,1,0.5);		l50->SetLineStyle(2);
   TLine *l80  = new TLine(0,0.8,1,0.8);         l80->SetLineStyle(2);
   TLine *l90  = new TLine(0,0.9,1,0.9);         l90->SetLineStyle(2);
-  TLine *l95  = new TLine(0,0.95,1,0.95);         l95->SetLineStyle(2);
+  TLine *l95  = new TLine(0,0.95,1,0.95);       l95->SetLineStyle(2);
   TLine *l100 = new TLine(0,1.,1,1.);           l100->SetLineStyle(2);
     
   roc->Draw("AP");
