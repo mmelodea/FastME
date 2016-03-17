@@ -92,6 +92,9 @@ void StudyResults(FmeSetup UserSetup){
   
   ///------------- Plot ROC curve -----------------------------------------
   Double_t SGlobal_PsbDist, BGlobal_PsbDist;
+  tsig->SetBranchAddress("Global_PsbDist",&SGlobal_PsbDist);
+  tbkg->SetBranchAddress("Global_PsbDist",&BGlobal_PsbDist);
+  
   Double_t cutoff, integral=0;
   const int discret = 1000;
   float TPR[discret], FPR[discret], TP, FP, TN, FN;
