@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
   TTree *rtree, *ftree;
 
   ///Takes the config input file and converts it to FastME readable format
-  if(argv[1] == fa){
+  if(argv[1] != help && argv[1] != nc){
     std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
     
     ConfigReader((std::string)argv[2], &setup);
