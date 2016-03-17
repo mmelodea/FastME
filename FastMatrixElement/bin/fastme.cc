@@ -10,6 +10,7 @@
 #include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
 #include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
 #include "FastMatrixElement/FastMatrixElement/interface/StudyResults.h"
+//#include "FastMatrixElement/FastMatrixElement/interface/ShowParticles.h"
 
 
 #include <iostream>
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]){
   FmeSetup setup;
   TTree *rtree, *ftree;
 
-  if(argv[1] != help && argv[1] != nc){
+  if(argv[1] != help && argv[1] != nc && argv[1] != pr){
     std::cout<<"\n\n";
     std::cout<<"=============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]::::::::::::::::::::::::::::"<<std::endl;
@@ -47,7 +48,10 @@ int main(int argc, char *argv[]){
   if(aws3 == "n") return -1;  
   
   ///Calls FastME analyzer (plot discriminants, ROC curve, events/discriminant value)
-  StudyResults(setup);
+  if(argv[1] == pr ){
+    StudyResults(setup);
+    return -1;
+  }
   
   ///Calls PhsDrComputer to compute events distance
   rtree = ComputePhsDR(setup);
