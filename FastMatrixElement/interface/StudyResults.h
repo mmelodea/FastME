@@ -104,9 +104,9 @@ void StudyResults(FmeSetup UserSetup){
     for(int i=0; i<tsig->GetEntries(); i++){
       tsig->GetEntry(i);
       if( SGlobal_PsbDist > cutoff ) TP++;
-      if( BGlobal_PsbDist < cutoff ) FN++;
+      if( SGlobal_PsbDist < cutoff ) FN++;
       tbkg->GetEntry(i);
-      if( SGlobal_PsbDist > cutoff ) FP++;
+      if( BGlobal_PsbDist > cutoff ) FP++;
       if( BGlobal_PsbDist < cutoff ) TN++;
     }
     TPR[j] = TP/float(TP + FN);
@@ -145,7 +145,7 @@ void StudyResults(FmeSetup UserSetup){
   l100->Draw();
   
   c1->Update();
-  c1->Print("FastMatrixElement_ROC_Curve.png");
+  c1->Print(UserSetup.OutPath+"/"+"FastMatrixElement_ROC_Curve.png");
   ///----------------------------------------------------------------------
   
   return;
