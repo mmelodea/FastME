@@ -69,7 +69,7 @@ void StudyResults(FmeSetup UserSetup){
   tsig->Draw("Global_PsbDist >> hsig");
   //tbkg->Draw("Global_PsbDist >> hbkg");
   
-  ((TH1D*)gDirectory->Get("hsig"))->Draw("9");
+  ((TH1D*)gDirectory->Get("hsig"))->Draw();
   //((TH1D*)gDirectory->Get("hbkg"))->Draw("9, same");
 
   c1->Update();
