@@ -14,6 +14,9 @@
 
 
 void display_particles(FmeSetup UserConfig){
+  std::cout<<"Option under construction yet..."<<std::endl;  
+
+/*
   gROOT->SetBatch(kTRUE);
   
   TFile *fmeResults = TFile::Open(fme_results);
@@ -128,7 +131,10 @@ void display_particles(FmeSetup UserConfig){
   distances->Close();
   cout<<endl;
   cout<<"Minimum DR = "<<mindr<<endl;
-}//End script
+*/
+
+  return;
+}
 
 
 #endif
