@@ -31,7 +31,15 @@ int main(int argc, char *argv[]){
   TTree *rtree, *ftree;
 
   ///Takes the config input file and converts it to FastME readable format
-  if(argv[1] == fa)	ConfigReader((std::string)argv[2], &setup);
+  if(argv[1] == fa){
+    ConfigReader((std::string)argv[2], &setup);
+    
+    ///User can abort analysis if something is wrong
+    std::cout<<" Input file correct?(y/n) ";
+    std::string aws3;
+    std::cin >> aws3;
+    if(aws3 == "n") return -1;  
+  }
 
   ///--------------------- Interface manager ------------------------------
   ///To show usage
@@ -49,12 +57,6 @@ int main(int argc, char *argv[]){
     std::cout<<"=============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]::::::::::::::::::::::::::::"<<std::endl;
     std::cout<<"=============================================================================================="<<std::endl;
-    std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
-    ///User can abort analysis if something is wrong
-    std::cout<<" Input file correct?(y/n) ";
-    std::string aws3;
-    std::cin >> aws3;
-    if(aws3 == "n") return -1;  
 
     ///Calls PhsDrComputer to compute events distance
     rtree = ComputePhsDR(setup);
