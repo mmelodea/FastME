@@ -123,7 +123,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
     ///Loop on Data events
     for(Int_t dt=0; dt<nData; dt++){
       if( verbose != 0 && ((dt!= 0 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
-	std::cout<< Form(":: [Remaining on Core %i]:  %i Events\t\t[Elapsed]:  ",McType,nData-dt);
+	std::cout<< Form(":: [Remaining to MC %i]:  %i Events\t\t[Elapsed]:  ",*McType,nData-dt);
 	t2.Stop();
 	t2.Print();
 	t2.Continue();
