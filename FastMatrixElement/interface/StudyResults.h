@@ -7,7 +7,7 @@
 #ifndef StudyResults_h
 #define StudyResults_h
 
-#include "FastMatrixElement/FastMatrixElement/include/FmeDefinitions.h"
+#include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
 #include <TROOT.h>
 #include <TFile.h>
