@@ -55,8 +55,8 @@ void StudyResults(FmeSetup UserSetup){
   TFile *fbkg  = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
   
   //TTree *tdata = (TTree)fdata->Get("FastME");
-  TTree *tsig  = (TTree)fsig->Get("FastME");
-  TTree *tbkg  = (TTree)fbkg->Get("FastME");
+  TTree *tsig  = (TTree*)fsig->Get("FastME");
+  TTree *tbkg  = (TTree*)fbkg->Get("FastME");
   
   TH1D *hsig = new TH1D("hsig","hsig",100000,0,1);
   hsig->SetLineColor(9);
@@ -69,8 +69,8 @@ void StudyResults(FmeSetup UserSetup){
   tsig->Draw("Global_PsbDist >> hsig");
   tbkg->Draw("Global_PsbDist >> hbkg");
   
-  hsig->Draw();
-  hbkg->Draw("same");
+  hsig->Draw("9");
+  hbkg->Draw("9,same");
   c1->Update();
   c1->Print("Discriminant_Signal_vs_Background.png");
   

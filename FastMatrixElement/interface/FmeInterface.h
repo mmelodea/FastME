@@ -146,7 +146,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
 int FmeInterface(char *argv[], FmeSetup *USetup){
        if(argv[1] == help)	Helper();
   else if(argv[1] == nc)	FindCores();
-  else if(argv[1] == ff)	FileFormater(USetup);
+  //else if(argv[1] == ff)	FileFormater(USetup);
   else if(argv[1] == fa)	ConfigReader((std::string)argv[2], USetup);
   else{
     std::cout<<"[ERROR] Invalid command '"<<argv[1]<<"'"<<std::endl;
