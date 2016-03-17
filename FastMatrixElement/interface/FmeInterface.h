@@ -73,10 +73,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
       if(line.find(fme_keywords[k]) != std::string::npos){
 	nkeys++;
         line.erase(line.begin(),line.begin()+ksize[k]);
-        //if(k==0 || k==1 || k==2 || k==3 || k==8 || k==9 || k==13 || k==14 || k==15 || k==16 || k==17 || k==18 || k==19 || k==20)
-	  //std::cout <<":: "<< fme_keywords[k] <<"\t\t\t\t"<< line << std::endl;
-	//else std::cout <<":: "<< fme_keywords[k] <<"\t\t\t"<< line << std::endl;
-	std::cout << ":: " << fme_keywords[k] << setw(10) << line << std::endl;
+	std::cout << ":: " << std::left << std::setw(25) << fme_keywords[k] << std::right << std::setw(1) << line << std::endl;
         if(fme_keywords[k] == 		"data_path") 	Data_Path = line;
 	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
 	if(fme_keywords[k] == 		  "mc_name")	MC_Names.push_back(line);

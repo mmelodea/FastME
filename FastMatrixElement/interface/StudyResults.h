@@ -47,9 +47,11 @@ void StudyResults(FmeSetup UserSetup){
   
   //Does not show on fly
   gROOT->SetBatch(kTRUE);
+  gStyle->SetOptStat(0);
+  TCanvas *c1 = new TCanvas("c1","",0,0,600,600);
 
   
-  ///Plot discriminant from singal and background 
+  ///-------------- Plot discriminant from singal and background --------------
   //TFile *fdata = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
   TFile *fsig  = TFile::Open(UserSetup.FmeFiles[0]);
   TFile *fbkg  = TFile::Open(UserSetup.FmeFiles[1]);
@@ -60,45 +62,55 @@ void StudyResults(FmeSetup UserSetup){
   
   TH1D *hsig = new TH1D("hsig","hsig",100,0,1);
   hsig->SetLineColor(9);
+  hsig->SetFillColor(9);
+  hsig->SetFillStyle(3001);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
   hsig->GetYaxis()->SetTitle("Events/0.02 (Normalized)");
 
-  TH1D *hbkg = new TH1D("hbkg","hbkg",100,0,1);	hbkg->SetLineColor(2);
+  TH1D *hbkg = new TH1D("hbkg","hbkg",100,0,1);
+  hbkg->SetLineColor(2);
+  hbkg->SetFillColor(9);
+  hbkg->SetFillStyle(3001);
     
-  TCanvas *c1 = new TCanvas("c1","",0,0,600,600);
   tsig->Project("hsig","Global_PsbDist");
   tbkg->Project("hbkg","Global_PsbDist");
   hsig->Draw();
   hbkg->Draw("same");
   
-  //((TH1D*)gDirectory->Get("hsig"))->Draw();
-  //((TH1D*)gDirectory->Get("hbkg"))->Draw("same");
+  TLegend *leg = new TLegend(0.2,0.75,0.5,0.85);
+  leg->AddEntry(hsig,"Signal","f");
+  leg->AddEntry(hbkg,"Background","f");
+  leg->SetFillColor(0);
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.05);
+  leg->Draw();
 
   c1->Update();
   c1->Print(UserSetup.OutPath+"/"+"Discriminant_Signal_vs_Background.png");
+  ///----------------------------------------------------------------------  
   
-/*
+  
+  ///------------- Plot ROC curve -----------------------------------------
+  Double_t SGlobal_PsbDist, BGlobal_PsbDist;
   Double_t cutoff, integral=0;
-  const int discret = 50;
+  const int discret = 1000;
   float TPR[discret], FPR[discret], TP, FP, TN, FN;
   for(int j=0; j<discret; j++){
     cutoff = j/float(discret);
     TP = FP = TN = FN = 0;
     for(int i=0; i<nevents; i++){
       tsig->GetEntry(i);
-      if( GSigPsbDistance > cutoff ) TP++;
-      if( GSigPsbDistance < cutoff ) FN++;
+      if( SGlobal_PsbDist > cutoff ) TP++;
+      if( BGlobal_PsbDist < cutoff ) FN++;
       tbkg->GetEntry(i);
-      if( GBkgPsbDistance > cutoff ) FP++;
-      if( GBkgPsbDistance < cutoff ) TN++;
+      if( SGlobal_PsbDist > cutoff ) FP++;
+      if( BGlobal_PsbDist < cutoff ) TN++;
     }
     TPR[j] = TP/float(TP + FN);
     FPR[j] = FP/float(FP + TN);
     if(j>0)
      integral += fabs(FPR[j-1]-FPR[j])*TPR[j];
-    //if(TPR[j]>=0.8) cout<<"TPR: "<<TPR[j]<<"\tFPR: "<<FPR[j]<<"\tCutOff: "<<cutoff<<endl;
   }
-  cout<<"Area in the ROC plot: "<<integral<<endl;
 
   TGraph *roc = new TGraph(discret,FPR,TPR);
   roc->SetTitle("ROC");
@@ -120,28 +132,7 @@ void StudyResults(FmeSetup UserSetup){
   TLine *l90  = new TLine(0,0.9,1,0.9);         l90->SetLineStyle(2);
   TLine *l95  = new TLine(0,0.95,1,0.95);         l95->SetLineStyle(2);
   TLine *l100 = new TLine(0,1.,1,1.);           l100->SetLineStyle(2);
-  
-  TLegend *leg = new TLegend(0.2,0.75,0.5,0.85);
-  leg->AddEntry(sig_psbD,"SM Higgs 126GeV","f");
-  leg->AddEntry(bkg_psbD,"ggZZ + qqZZ","f");
-  leg->AddEntry(bkg1_psbD,"ggZZ","l");
-  leg->AddEntry(bkg2_psbD,"qqZZ","l");
-  leg->SetFillColor(0);
-  leg->SetBorderSize(0);
-  leg->SetTextSize(0.05);  
-  
-  gStyle->SetOptStat(0);
-  TCanvas *cv = new TCanvas();
-  cv->Divide(2,1);
-  cv->cd(1);
-  sig_psbD->DrawNormalized();
-  bkg_psbD->DrawNormalized("same");
-  bkg1_psbD->DrawNormalized("same");
-  bkg2_psbD->DrawNormalized("same");
-  leg->Draw();
-  pv->Draw();
-  pv2->Draw();
-  cv->cd(2);
+    
   roc->Draw("AP");
   l3->Draw();
   l50->Draw();
@@ -149,7 +140,11 @@ void StudyResults(FmeSetup UserSetup){
   l90->Draw();
   l95->Draw();
   l100->Draw();
-*/
+  
+  c1->Update();
+  c1->Print("FastMatrixElement_ROC_Curve.png");
+  ///----------------------------------------------------------------------
+  
   return;
 }
 
