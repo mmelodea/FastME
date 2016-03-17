@@ -36,8 +36,10 @@ struct FmeSetup{
   Double_t			ScaledPt;
   Double_t			ScaledEta;
   TString			ScaleMethod;
+  std::vector<TString>		FmeFiles;
   Int_t				Verbose = 1;
 };
+
 
 
 ///-------------  Define global key-words  ------------------
@@ -61,6 +63,7 @@ static std::vector<std::string> fme_keywords = {
   "scale_dPt",
   "scale_dEta",
   "scale_method",
+  "fme_files",
   "verbose_level"
 };
 
@@ -84,6 +87,7 @@ static std::vector<int> ksize = {
   10,	///scale_dPt
   11,	///scale_dEta
   13,	///scale_method
+  10,	///fme_files
   14	///verbose_level
 };
 

@@ -39,7 +39,7 @@ mc_type_branch_name McType
 
 ############ FastME configs ##########
 outfile_name fme_results_data_mindr
-outfile_path ../tests
+outfile_path tests
 phs_dr_method mindr
 n_fs_particles 4
 flavor_constraint true
@@ -49,4 +49,6 @@ mc_limit 0.1
 scale_dPt -1
 scale_dEta -1
 scale_method mean
+fme_files tests/fme_results_sig_mindr.root
+fme_files tests/fme_results_bkg_mindr.root
 verbose_level 1

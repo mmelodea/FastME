@@ -51,8 +51,8 @@ void StudyResults(FmeSetup UserSetup){
   
   ///Plot discriminant from singal and background 
   //TFile *fdata = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
-  TFile *fsig  = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
-  TFile *fbkg  = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
+  TFile *fsig  = TFile::Open(UserSetup.FmeFiles[0]);
+  TFile *fbkg  = TFile::Open(UserSetup.FmeFiles[1]);
   
   //TTree *tdata = (TTree)fdata->Get("FastME");
   TTree *tsig  = (TTree*)fsig->Get("FastME");
