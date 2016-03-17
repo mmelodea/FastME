@@ -20,8 +20,7 @@
 #include <fstream>
 #include <string>
 #include <exception>
-#include <iomanip.h>
-#include <cmath>
+#include <iomanip>
 #include <stdlib.h>
 
 
