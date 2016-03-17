@@ -13,25 +13,14 @@
 
 
 
-void display_particles(){
+void display_particles(FmeSetup UserConfig){
   gROOT->SetBatch(kTRUE);
   
-  TFile *fmeResults = TFile::Open("FME_results/fme_results_data.root");
-  Double_t RParticlePt[4], RParticleEta[4];  
-  TH2D *mdists = (TH2D*)fmeResults->Get("mdists");
-  TH2D *indices = (TH2D*)fmeResults->Get("indices");
-  Int_t nentries = indices->GetNbinsX();
-  
-  TFile *inputs[4];
-  inputs[0] = TFile::Open("CMS_Ntuples/FastME_format/4l_data.root");
-  inputs[1] = TFile::Open("CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root");
-  inputs[2] = TFile::Open("CMS_Ntuples/FastME_format/4l_ggZZ_2.root");
-  inputs[3] = TFile::Open("CMS_Ntuples/FastME_format/4l_qqZZ_2.root");
-  
+  TFile *fmeResults = TFile::Open(fme_results);
+    
   Double_t OParticlePt[4], OParticleEta[4], OParticlePhi[4], mindr;
   Int_t evIds[7], color[4] = {1,4,2,6}, marker[4] = {28,24,3,26};
-  TFile *distances = new TFile("particles_distances_display.root","recreate");
-  //nentries = 1;
+  TFile *distances = new TFile("particles_disposition.root","recreate");
   TMultiGraph *full[3];
   TGraph *phs[4];
   TString view[3] = {"eta_pt_view","phi_pt_view","eta_phi_view"};

@@ -9,6 +9,7 @@
 #include "FastMatrixElement/FastMatrixElement/interface/FmeInterface.h"
 #include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
 #include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
+#include "FastMatrixElement/FastMatrixElement/interface/StudyResults.h"
 
 
 #include <iostream>
@@ -44,6 +45,9 @@ int main(int argc, char *argv[]){
   std::string aws3;
   std::cin >> aws3;
   if(aws3 == "n") return -1;  
+  
+  ///Calls FastME analyzer (plot discriminants, ROC curve, events/discriminant value)
+  StudyResults(setup);
   
   ///Calls PhsDrComputer to compute events distance
   rtree = ComputePhsDR(setup);

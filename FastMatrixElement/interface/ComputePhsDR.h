@@ -48,7 +48,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
     TString draw_eta = Setup.EtaBranch+" >> stacketa";
     ttmp->Draw(draw_eta);
     TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
-    if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());
+    if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());//Just in case you are in region shifted from 0!
     if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
   }
   
