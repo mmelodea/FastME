@@ -58,19 +58,21 @@ void StudyResults(FmeSetup UserSetup){
   TTree *tsig  = (TTree*)fsig->Get("FastME");
   TTree *tbkg  = (TTree*)fbkg->Get("FastME");
   
-  TH1D *hsig = new TH1D("hsig","hsig",100000,0,1);
+  TH1D *hsig = new TH1D("hsig","hsig",100,0,1);
   hsig->SetLineColor(9);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
   hsig->GetYaxis()->SetTitle("Events/0.02 (Normalized)");
 
-  TH1D *hbkg = new TH1D("hbkg","hbkg",100000,0,1);	hbkg->SetLineColor(2);
+  TH1D *hbkg = new TH1D("hbkg","hbkg",100,0,1);	hbkg->SetLineColor(2);
     
   TCanvas *c1 = new TCanvas("c1","",0,0,600,600);
-  tsig->Draw("Global_PsbDist >> hsig");
-  tbkg->Draw("Global_PsbDist >> hbkg");
+  tsig->Project("hsig","Global_PsbDist");
+  tbkg->Project("hbkg","Global_PsbDist");
+  hsig->Draw();
+  hbkg->Draw("same");
   
-  ((TH1D*)gDirectory->Get("hsig"))->Draw();
-  ((TH1D*)gDirectory->Get("hbkg"))->Draw("same");
+  //((TH1D*)gDirectory->Get("hsig"))->Draw();
+  //((TH1D*)gDirectory->Get("hbkg"))->Draw("same");
 
   c1->Update();
   c1->Print(UserSetup.OutPath+"/"+"Discriminant_Signal_vs_Background.png");
@@ -148,7 +150,7 @@ void StudyResults(FmeSetup UserSetup){
   l95->Draw();
   l100->Draw();
 */
-  
+  return;
 }
 
 
