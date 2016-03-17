@@ -4,10 +4,11 @@
 ///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
+#ifndef FmeInterface_h
+#define FmeInterface_h
+
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
-#include "FastMatrixElement/FastMatrixElement/interface/FileFormater.h"
-
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -141,19 +142,4 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
 }
 
 
-
-///--------------------- Interface manager ----------------------
-int FmeInterface(char *argv[], FmeSetup *USetup){
-       if(argv[1] == help)	Helper();
-  else if(argv[1] == nc)	FindCores();
-  //else if(argv[1] == ff)	FileFormater(USetup);
-  else if(argv[1] == fa)	ConfigReader((std::string)argv[2], USetup);
-  else{
-    std::cout<<"[ERROR] Invalid command '"<<argv[1]<<"'"<<std::endl;
-    std::cout<<"These are the available commands:"<<std::endl;
-    Helper();
-    return -1;
-  }
-  
-  return 0;
-}
+#endif
