@@ -52,7 +52,6 @@ void FindCores(){
 
 ///Read input file and convert to program format
 void ConfigReader(std::string UserConfig, FmeSetup *Setup){
-  std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
 
   ///Define variables used in the analysis
   TString Data_Path;

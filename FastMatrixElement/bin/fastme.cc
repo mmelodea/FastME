@@ -32,6 +32,8 @@ int main(int argc, char *argv[]){
 
   ///Takes the config input file and converts it to FastME readable format
   if(argv[1] == fa){
+    std::cout<<":: [Your input file: "<< argv[2] <<"]"<<std::endl;
+    
     ConfigReader((std::string)argv[2], &setup);
     
     ///User can abort analysis if something is wrong
