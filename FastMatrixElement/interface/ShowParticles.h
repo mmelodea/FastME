@@ -13,7 +13,7 @@
 
 
 
-void display_particles(FmeSetup UserConfig){
+void ShowParticles(FmeSetup UserConfig){
   std::cout<<"Option under construction yet..."<<std::endl;  
 
 /*
