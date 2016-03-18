@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
   
   ///Checks for config file
   if(argc < 3 && (argv[1] != help && argv[1] != nc)){
-    std::cout<<"[ERROR] Where's the config file??!"<<std::endl;
+    std::cout<<"[ERROR] Where's the config file??"<<std::endl;
     return -1;
   }
   
