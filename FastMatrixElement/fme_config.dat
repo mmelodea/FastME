@@ -1,6 +1,7 @@
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
 #::::::::::::::::::::::::::::::::::::::::::[ FastME config file ]:::::::::::::::::::::::::::::::::::::::::::::#
 #:::::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. Almeida ]::::::::::::::::::::::::::::::::::::#
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
 --General Instructions:
 --Left words are key-words;
 --Right sentences are the arguments (use only simple space between key-words and its arguments);
@@ -20,9 +21,9 @@
 ############# User config ############
 ### Path of samples ###
 data_path ../../../../CMS_Ntuples/FastME_format/4l_data.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
-mc_path	../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
+  mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
+  mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
+  mc_path ../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
 
 ### Name of MC samples ###
 mc_name SM_Higgs126
@@ -30,25 +31,25 @@ mc_name ggZZ
 mc_name qqZZ
 
 ### Tree info ###
-tree_name Higgs
-id_branch_name ParticleId
-pt_branch_name ParticlePt
-eta_branch_name ParticleEta
+          tree_name Higgs
+     id_branch_name ParticleId
+     pt_branch_name ParticlePt
+    eta_branch_name ParticleEta
 mc_type_branch_name McType
 
 
 ############ FastME configs ##########
-outfile_name fme_results_data_mindr
-outfile_path tests
-phs_dr_method mindr
-n_fs_particles 4
+     outfile_name fme_results_data_mindr
+     outfile_path tests
+    phs_dr_method mindr
+   n_fs_particles 4
 flavor_constraint true
-n_cores 3
-data_limit 50
-mc_limit 0.1
-scale_dPt -1
-scale_dEta -1
-scale_method mean
-fme_files tests/fme_results_sig_mindr.root
-fme_files tests/fme_results_bkg_mindr.root
-verbose_level 1
+          n_cores 3
+       data_limit 50
+         mc_limit 0.1    #MC quantity is based on fraction to mantain cross section relation
+        scale_dPt -1
+       scale_dEta -1
+     scale_method extrem
+        fme_files tests/fme_results_sig_mindr.root #To plot some results
+        fme_files tests/fme_results_bkg_mindr.root
+    verbose_level 1
