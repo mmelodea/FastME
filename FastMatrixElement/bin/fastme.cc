@@ -91,7 +91,7 @@ int main(int argc, char *argv[]){
   else if(argv[1] == pr )	StudyResults(setup);
   
   ///Calls event display
-  //else if(argv[1] == sp)	ShowParticles();
+  else if(argv[1] == sp)	ShowParticles();
   
   ///Wrong commands gets error
   else{
