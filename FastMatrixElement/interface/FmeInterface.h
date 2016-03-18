@@ -35,7 +35,7 @@ void Helper(void){
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
   std::cout<<"\t-p\t\tMake plots from the FastME results"<<std::endl;
   std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<std::endl;  
-  std::cout<<"More info access github..."<<std::endl;
+  std::cout<<"For more info access https://github.com/mmelodea/FastMatrixElement"<<std::endl;
 
   return;
 }
