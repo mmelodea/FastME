@@ -1,6 +1,6 @@
 #script to set up all the needed configuration and to compile FastME package
 
-echo "Creating CMSSW_8_0_2 release..."
+echo -e "\nCreating CMSSW_8_0_2 release..."
 cd ../
 export SCRAM_ARCH=slc6_amd64_gcc493
 scram project CMSSW CMSSW_8_0_2
