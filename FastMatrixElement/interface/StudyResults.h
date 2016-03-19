@@ -60,14 +60,14 @@ void StudyResults(FmeSetup UserSetup){
   TTree *tsig  = (TTree*)fsig->Get("FastME");
   TTree *tbkg  = (TTree*)fbkg->Get("FastME");
   
-  TH1D *hsig = new TH1D("hsig","hsig",100,0,1);
+  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",100,0,1);
   hsig->SetLineColor(9);
   hsig->SetFillColor(9);
   hsig->SetFillStyle(3001);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
   hsig->GetYaxis()->SetTitle("Events/0.01");
 
-  TH1D *hbkg = new TH1D("hbkg","hbkg",100,0,1);
+  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,0,1);
   hbkg->SetLineColor(2);
   hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
