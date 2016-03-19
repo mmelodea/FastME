@@ -9,11 +9,11 @@ The Monte Carlo events already contain the full physic information (that can be 
 <h5>Usage and Setup</h5>  
 This package is designed to be plugged into CMSSW. However, it also can be compiled by a c++ compiler if one has the ROOT6 libraries available and support to the new c++ version (c++11).  
 Into CMSSW you just need to do 'source SetUpEnvironment.sh' (the script inside the package) and then all the needed configuration will be setup and the package will be compiled automatically. The executable generated is called "fastme" (present on CMSSW_BASE/bin). For check the commands available use "fastme -help".  
-To use fastme the user has to pass a configuration file that specify some parameters in the analysis and also for control the results flow during/after the analysis. To get more info look in the file "fme_config.dat" to see the setups available in the package.
+To use fastme the user has to pass a configuration file that specify some parameters in the analysis and also for control the results flow during/after the analysis. To get more info look in the file "fme_config.dat" to see the setup available in the package. Note that the root files input to the software need a specif format (as the example "fme_ntuple_format.root"). In the future, a interface to convert root or even LHE files to the root format used by the FastME.  
 
 
 <h5>Results</h5>
-The branches present in the resulting file store the follow informations:  
+The branches present in the resulting file store the following informations:  
 (1) Global_PsbDist - the discriminant computed taking in account all MCs (a minimum DR is chosen between the MC backgrounds);  
 (2) Local_PsbDist - the discriminant computed to each of the MC backgrounds (its value is -99 for signal, since doesn't make sense compare signal to signal DR; also, note that the framework assumes only one signal source by analysis);  
 (3) McCat - the MC category: (always!)0 for signal and >0 for backgrounds;  
