@@ -5,7 +5,7 @@
 --General Instructions:
 --Left words are key-words;
 --Right sentences are its arguments:
-  -you can indicate arguments to key-words by simple space or tab;
+  -you must indicate arguments to key-words by simple space;
   -don't write after them;
 --Comments can be done in any way since not after key-words or arguments:
   -the executable input reader looks for key-words and its arguments;
@@ -22,38 +22,38 @@
 
 ############# User config ############
 ### Path of samples ###
-data_path		../../../../CMS_Ntuples/FastME_format/4l_data.root
-mc_path			../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
-mc_path			../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
-mc_path			../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
+data_path ../../../../CMS_Ntuples/FastME_format/4l_data.root
+mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
+mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
+mc_path ../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
 
 ### Name of MC samples ###
-mc_name			SM_Higgs126
-mc_name			ggZZ
-mc_name			qqZZ
+mc_name SM_Higgs126
+mc_name ggZZ
+mc_name qqZZ
 
 ### Tree info ###
-tree_name		Higgs
-id_branch_name		ParticleId
-pt_branch_name		ParticlePt
-eta_branch_name		ParticleEta
-mc_type_branch_name	McType
+tree_name Higgs
+id_branch_name ParticleId
+pt_branch_name ParticlePt
+eta_branch_name ParticleEta
+mc_type_branch_name McType
 
 
 ############ FastME configs ##########
-outfile_name		fme_results_data_mindr
-outfile_path		tests
-phs_dr_method		mindr
-n_fs_particles		4
-flavor_constraint	true
-n_cores			3
-data_limit		50
+outfile_name fme_results_data_mindr
+outfile_path tests
+phs_dr_method mindr
+n_fs_particles 4
+flavor_constraint true
+n_cores 3
+data_limit 50
 #MC quantity is based on fraction to mantain cross section relation
-mc_limit		0.1
-scale_dPt		-1
-scale_dEta		-1
-scale_method		extrem
+mc_limit 0.1
+scale_dPt -1
+scale_dEta -1
+scale_method extrem
 #To plot some results
-fme_files		tests/fme_results_sig_mindr.root
-fme_files		tests/fme_results_bkg_mindr.root
-verbose_level		1
+fme_files tests/fme_results_sig_mindr.root
+fme_files tests/fme_results_bkg_mindr.root
+verbose_level 1
