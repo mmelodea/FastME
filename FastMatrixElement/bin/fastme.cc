@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
   
   ///Checks for config file
   if(argc < 3 && (argv[1] != help && argv[1] != nc)){
-    std::cout<<"[ERROR] Where's the config file??"<<std::endl;
+    std::cout<< ansi_red <<"[ERROR]"<< ansi_reset <<" Where's the config file??"<<std::endl;
     return -1;
   }
   
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
     ConfigReader((std::string)argv[2], &setup);
     
     ///User can abort analysis if something is wrong
-    std::cout<<" Input file correct?(y/n) ";
+    std::cout<<ansi_yellow<<" Input file correct?(y/n) "<<ansi_reset;
     std::string aws3;
     std::cin >> aws3;
     if(aws3 == "n") return -1;  
@@ -61,10 +61,11 @@ int main(int argc, char *argv[]){
   
   ///To make the Fast Matrix Element analysis and compute discriminant
   else if(argv[1] == fa){
-    std::cout<<"\n\n";
-    std::cout<<"=============================================================================================="<<std::endl;
-    std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]::::::::::::::::::::::::::::"<<std::endl;
-    std::cout<<"=============================================================================================="<<std::endl;
+    std::cout<<"\n\n"<<ansi_blue;
+    std::cout<<"==============================================================================================="<<std::endl;
+    std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Started ]:::::::::::::::::::::::::::::"<<std::endl;
+    std::cout<<"==============================================================================================="<<std::endl;
+    std::cout<<ansi_reset;
 
     ///Calls PhsDrComputer to compute events distance
     rtree = ComputePhsDR(setup);
@@ -80,11 +81,12 @@ int main(int argc, char *argv[]){
     ffile->Close();
   
     ///-------------------------------------------------------------------------------------------------------------------
-    std::cout<<"=============================================================================================="<<std::endl;
-    std::cout<<":::::::::::::::::::::::::[ Fast Matrix Element Analysis Finalized ]:::::::::::::::::::::::::::"<<std::endl;
+    std::cout<<ansi_blue;
+    std::cout<<"==============================================================================================="<<std::endl;
+    std::cout<<"::::::::::::::::::::::::::[ Fast Matrix Element Analysis Finalized ]:::::::::::::::::::::::::::"<<std::endl;
     std::cout<<":: [Analysis file saved: "<<resulting_file<<"]"<<std::endl;
-    std::cout<<"=============================================================================================="<<std::endl;
-    std::cout<<"\n\n";
+    std::cout<<"==============================================================================================="<<std::endl;
+    std::cout<<ansi_reset<<"\n\n";
   }
 
   ///Calls FastME analyzer (plot discriminants, ROC curve, events/discriminant value)
@@ -95,7 +97,7 @@ int main(int argc, char *argv[]){
   
   ///Wrong commands gets error
   else{
-    std::cout<<"[ERROR] Invalid command '"<<argv[1]<<"'"<<std::endl;
+    std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" Invalid command '"<<argv[1]<<"'"<<std::endl;
     std::cout<<"These are the available commands:"<<std::endl;
     Helper();
     return -1;
