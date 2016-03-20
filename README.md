@@ -1,5 +1,5 @@
 ________________________________________________________________________________________
-<img align="left" src="https://raw.githubusercontent.com/mmelodea/FastME/master/fme_logo.png" width="180"> <h1>FastME</h1>
+<img align="left" src="https://raw.githubusercontent.com/mmelodea/FastME/master/.fme_logo.png" width="180"> <h1>FastME</h1>
 <h6>Probing and Discriminating Data by MC Topology (stable & updated version of the project)</h6>
 ________________________________________________________________________________________
 FastME stands for Fast Matrix Element and its main goal is achieve similar capabability and full physic information as the many types of Matrix Element method available today. However, FastME try to reduce the computing time needed to get such info.  
@@ -19,3 +19,7 @@ The branches present in the resulting file store the following informations:
 (3) McCat - the MC category: (always!)0 for signal and >0 for backgrounds;  
 (4) McIndex - the MC chosen as the most close to the analised event;  
 (5) MinDist - the distance found for the most close MC found to the analised event.
+
+
+<h5>View from the Software Running</h5>
+<img align="left" src="https://raw.githubusercontent.com/mmelodea/FastME/master/.FastMatrixElement_run_view.png" width="1000">
