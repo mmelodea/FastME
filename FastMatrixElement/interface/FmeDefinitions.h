@@ -13,6 +13,15 @@
 #include <vector>
 
 
+///System output colors
+static std::string ansi_red    = "\x1b[31m";
+static std::string ansi_green  = "\x1b[32m";
+static std::string ansi_yellow = "\x1b[33m";
+static std::string ansi_blue   = "\x1b[34m";
+static std::string ansi_violet = "\x1b[35m";
+static std::string ansi_cyan   = "\x1b[36m";
+static std::string ansi_reset  = "\x1b[0m";
+
 
 ///------- Define global struct to store user setup ----------
 struct FmeSetup{

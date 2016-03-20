@@ -55,14 +55,14 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   *f_scale_dPt  = pt_sum/total;
   *f_scale_dEta = eta_sum/total;
   
-  std::cout<<Form(":: [NOTE] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
+  std::cout<<ansi_yellow<<":: [NOTE]"<<ansi_reset<<Form(" Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
   return;
 }
 
 ///######################################## FastME Main Function ######################################################
 TTree *ComputePhsDR(FmeSetup Setup){
 
-  std::cout<<"::::::::::::::::::::::::::::::::[ Getting User Configuration ]:::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ Getting User Configuration ]:::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   TFile *fData 			= Setup.DataFile;
   Int_t nData 			= Setup.NData;
   TString TreeName 		= Setup.TTreeName;
@@ -82,11 +82,11 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TString Scale_Method		= Setup.ScaleMethod;
   Int_t verbose			= Setup.Verbose;
 
-  std::cout<<":: [Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<"]"<<std::endl;  
+  std::cout<<ansi_yellow<<":: [Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<"]"<<ansi_reset<<std::endl;  
   if(scale_dPt == -1 || scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta);
 
   ///Timming full process
-  std::cout<<"::::::::::::::::::::::::::::::::[ Computing Events Distance ]:::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ Computing Events Distance ]::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   
   TStopwatch t1;
   t1.Start();
@@ -122,8 +122,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
     
     ///Loop on Data events
     for(Int_t dt=0; dt<nData; dt++){
-      if( verbose != 0 && ((dt!= 0 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
-	std::cout<< Form(":: [Remaining to MC %i]:  %i Events\t\t[Elapsed]:  ",*McType,nData-dt);
+      if( verbose != 0 && ((dt!= 0 && nData > 10 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
+	std::cout<<":: ["<<ansi_violet<<"Remaining events from MC "<<*McType<<ansi_reset<<"]:  "<<nData-dt<<"\t\t["<<ansi_violet<<"Elapsed"<<ansi_reset<<"]:  ";
 	t2.Stop();
 	t2.Print();
 	t2.Continue();
@@ -283,10 +283,12 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
 
   ///________________________________ Stoping timming ________________________________________________________
+  std::cout<<ansi_blue;
   std::cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: [Analysis Total Time]: "; t1.Stop(); t1.Print();
   std::cout<<":: [Sending PhsDrComputer results...]"<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<std::endl;
+  std::cout<<ansi_reset;
   ///---------------------------------------------------------------------------------------------------------
 
   ///Final tree merged from trees coming from all cores used

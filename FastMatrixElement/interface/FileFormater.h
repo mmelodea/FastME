@@ -4,6 +4,9 @@
 ///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
+#ifndef FileFormater_h
+#define FileFormater_h
+
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
 #include <iostream>
@@ -15,3 +18,5 @@ void FileFormater(FmeSetup UserSetup){
   std::cout<<"Option under construction yet..."<<std::endl;  
   return;
 }
+
+#endif

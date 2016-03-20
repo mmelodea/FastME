@@ -3,6 +3,11 @@
 ///::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. de Almeida ]:::::::::::::::::::::::::::::::::::
 ///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
+
+#ifndef Discriminant_h
+#define Discriminant_h
+
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
 #include <iostream>
@@ -30,7 +35,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   TStopwatch t2;
   t2.Start();
-  std::cout<<"::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
 
   ///Set the input tree
   Int_t iEvent, TMcType, Indice;
@@ -55,7 +60,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   ///Find the tree sectors
   Int_t TreeSectors[N_Cores];
   if(fentries % N_Cores != 0){
-    std::cout<<"[Error] Something gone wrong... non-integer tree sectors!!"<<std::endl;
+    std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something gone wrong... non-integer tree sectors!!"<<std::endl;
     throw std::exception();
   }
   
@@ -64,8 +69,8 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   
   ///Getting results from analysis
   for(Int_t data=0; data<nData; data++){
-    if( verbose != 0 && data%(nData/10) == 0){
-      std::cout<< Form(":: [Remaining]:   %i Events",nData-data)<<"\t\t";
+    if( verbose != 0 && nData > 10 && data%(nData/10) == 0){
+      std::cout<<":: ["<<ansi_violet<<"Remaining events"<<ansi_reset<<"]:  "<<nData-data<<"\t\t";
       t2.Print();
     }
 
@@ -87,7 +92,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
     for(Int_t ic=0; ic<(Int_t)N_Cores; ic++){
       mtree->GetEntry(TreeSectors[ic]+data);//TreeSectors aligns the results from different cores
       if(iEvent != data){
-	std::cout<<"[Error] Something gone wrong... iEvent != data"<<std::endl;
+	std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something gone wrong... iEvent != data"<<std::endl;
 	throw std::exception();
       }
       
@@ -128,11 +133,16 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   }
   
   ///________________________________ Stoping timming ________________________________________________________
+  std::cout<<ansi_blue;
   std::cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: [Computing Total Time]: "; t2.Stop(); t2.Print();
   std::cout<<":: [Sending Discriminant results...]"<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<std::endl;
+  std::cout<<ansi_reset;
   ///---------------------------------------------------------------------------------------------------------
 
   return ftree;
 }
+
+
+#endif
