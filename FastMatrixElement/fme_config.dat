@@ -4,52 +4,56 @@
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
 --General Instructions:
 --Left words are key-words;
---Right sentences are the arguments (use only simple space between key-words and its arguments);
-  -do not leave space after arguments;
---Comments can be done in any way;
-  -the code looks for key-words so, don't use similar words and don't write on the left from the arguments;
-  -except for the case you use some key-word, do the comment using the caracter #;
---Currently are available 2 phs dr method (how to compare data-mc objects):
-  mindr and media (when one has identical objects: compares the colsest ones or get the media of combinations);
---Number of final particles is in principle not restricted (but, only up to 6 was checked);
---One can chose restrict the comparison between leptons of same flavor;
---There are 2 available method to compute a scale factor: mean and extrem (finds the maximum pT and minimum eta medium)
+--Right sentences are its arguments:
+  -you can indicate arguments to key-words by simple space or tab;
+  -don't write after them;
+--Comments can be done in any way since not after key-words or arguments:
+  -the executable input reader looks for key-words and its arguments;
+  -however, be carefull on comments;
+  -use # if you want to ignore some key-word configuration (or just remove it);
+--Currently are available 2 phase space dr methods (how to compare data-mc objects):
+  mindr and media (when one has identical objects: compares the closest ones or get the media of combinations);
+--Number of final particles is in principle not restricted (but, only up to 6 was studied);
+--One can chose restrict (or not restrict) the comparison between leptons of same flavor;
+--There are 2 available methods to compute a scale factor: mean and extrem (finds the maximum pT and minimum eta medium)
 --Verbose leves available: 0= quiet, 1= time proccessing, (for debug) 2= main info and 3= everything;
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
 
 
 ############# User config ############
 ### Path of samples ###
-data_path ../../../../CMS_Ntuples/FastME_format/4l_data.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
+data_path		../../../../CMS_Ntuples/FastME_format/4l_data.root
+mc_path			../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
+mc_path			../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
+mc_path			../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
 
 ### Name of MC samples ###
-mc_name SM_Higgs126
-mc_name ggZZ
-mc_name qqZZ
+mc_name			SM_Higgs126
+mc_name			ggZZ
+mc_name			qqZZ
 
 ### Tree info ###
-tree_name Higgs
-id_branch_name ParticleId
-pt_branch_name ParticlePt
-eta_branch_name ParticleEta
-mc_type_branch_name McType
+tree_name		Higgs
+id_branch_name		ParticleId
+pt_branch_name		ParticlePt
+eta_branch_name		ParticleEta
+mc_type_branch_name	McType
 
 
 ############ FastME configs ##########
-outfile_name fme_results_data_mindr
-outfile_path tests
-phs_dr_method mindr
-n_fs_particles 4
-flavor_constraint true
-n_cores 3
-data_limit 50
-mc_limit 0.1    #MC quantity is based on fraction to mantain cross section relation
-scale_dPt -1
-scale_dEta -1
-scale_method extrem
-fme_files tests/fme_results_sig_mindr.root #To plot some results
-fme_files tests/fme_results_bkg_mindr.root
-verbose_level 1
+outfile_name		fme_results_data_mindr
+outfile_path		tests
+phs_dr_method		mindr
+n_fs_particles		4
+flavor_constraint	true
+n_cores			3
+data_limit		50
+#MC quantity is based on fraction to mantain cross section relation
+mc_limit		0.1
+scale_dPt		-1
+scale_dEta		-1
+scale_method		extrem
+#To plot some results
+fme_files		tests/fme_results_sig_mindr.root
+fme_files		tests/fme_results_bkg_mindr.root
+verbose_level		1
