@@ -35,7 +35,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   TStopwatch t2;
   t2.Start();
-  std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ Computing discriminant ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
+  std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ Computing Discriminant ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
 
   ///Set the input tree
   Int_t iEvent, TMcType, Indice;
@@ -133,12 +133,12 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   }
   
   ///________________________________ Stoping timming ________________________________________________________
-  std::cout<<ansi_blue;
-  std::cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<ansi_blue<<std::endl;
+  std::cout<<"::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: [Computing Total Time]: "; t2.Stop(); t2.Print();
-  std::cout<<":: [Sending Discriminant results...]"<<std::endl;
-  std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<std::endl;
-  std::cout<<ansi_reset;
+  std::cout<<":: [Sending Discriminant Results...]"<<std::endl;
+  std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 
   return ftree;
