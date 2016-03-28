@@ -22,10 +22,10 @@
 
 ############# User config ############
 ### Path of samples ###
-data_path ../../../../CMS_Ntuples/FastME_format/4l_data.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_SM_Higgs126_2.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_ggZZ_2.root
-mc_path ../../../../CMS_Ntuples/FastME_format/4l_qqZZ_2.root
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
+mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_2.root
+mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_2.root
+mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_2.root
 
 ### Name of MC samples ###
 mc_name SM_Higgs126
@@ -41,15 +41,14 @@ mc_type_branch_name McType
 
 
 ############ FastME configs ##########
-outfile_name fme_results_data_mindr
+outfile_name fme_results_bkg_mindr
 outfile_path tests
 phs_dr_method mindr
-n_fs_particles 4
 flavor_constraint true
 n_cores 3
-data_limit 50
+data_limit 10000
 #MC quantity is based on fraction to mantain cross section relation
-mc_limit 0.1
+mc_limit -1
 scale_dPt -1
 scale_dEta -1
 scale_method extrem
