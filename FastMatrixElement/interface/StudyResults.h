@@ -7,7 +7,10 @@
 #ifndef StudyResults_h
 #define StudyResults_h
 
+
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
+
+#include <iostream>
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -20,6 +23,7 @@
 #include <TGraph.h>
 #include <TLine.h>
 #include <TLegend.h>
+#include <TString.h>
 
 
 void StudyResults(FmeSetup UserSetup){
@@ -44,8 +48,10 @@ void StudyResults(FmeSetup UserSetup){
   Double_t Length[Number] = { 0.00, 0.50, 1.00 };
   Int_t nb=50;
   TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);
+
+  TString plot_name;
   
-  //Does not show on fly
+  //Does not show plots on fly
   gROOT->SetBatch(kTRUE);
   gStyle->SetOptStat(0);
   TCanvas *c1 = new TCanvas("c1","",0,0,600,600);
@@ -87,7 +93,9 @@ void StudyResults(FmeSetup UserSetup){
   leg->Draw();
 
   c1->Update();
-  c1->Print(UserSetup.OutPath+"/"+"Discriminant_Signal_vs_Background.png");
+  std::cout<<ansi_yellow<<"Enter name to save discriminant distribution plot: "<<ansi_reset;
+  std::cin >> plot_name;
+  c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------  
   
   
@@ -131,10 +139,10 @@ void StudyResults(FmeSetup UserSetup){
   l3->SetLineStyle(2);
 
   TLine *l50  = new TLine(0,0.5,1,0.5);		l50->SetLineStyle(2);
-  TLine *l80  = new TLine(0,0.8,1,0.8);         l80->SetLineStyle(2);
-  TLine *l90  = new TLine(0,0.9,1,0.9);         l90->SetLineStyle(2);
-  TLine *l95  = new TLine(0,0.95,1,0.95);       l95->SetLineStyle(2);
-  TLine *l100 = new TLine(0,1.,1,1.);           l100->SetLineStyle(2);
+  TLine *l80  = new TLine(0,0.8,1,0.8);		l80->SetLineStyle(2);
+  TLine *l90  = new TLine(0,0.9,1,0.9);		l90->SetLineStyle(2);
+  TLine *l95  = new TLine(0,0.95,1,0.95);	l95->SetLineStyle(2);
+  TLine *l100 = new TLine(0,1.,1,1.);		l100->SetLineStyle(2);
     
   roc->Draw("AP");
   l3->Draw();
@@ -145,7 +153,9 @@ void StudyResults(FmeSetup UserSetup){
   l100->Draw();
   
   c1->Update();
-  c1->Print(UserSetup.OutPath+"/"+"FastMatrixElement_ROC_Curve.png");
+  std::cout<<ansi_yellow<<"Enter name to save ROC plot: "<<ansi_reset;
+  std::cin >> plot_name;
+  c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------
   
   return;
