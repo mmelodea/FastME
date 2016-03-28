@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include <cmath>
 
 #include <TROOT.h>
 #include <TString.h>
@@ -48,7 +49,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
     TString draw_eta = Setup.EtaBranch+" >> stacketa";
     ttmp->Draw(draw_eta);
     TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
-    if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());//Just in case you are in region shifted from 0!
+    if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());//Only in case you are in region shifted from 0!
     if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
   }
   
@@ -62,7 +63,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
 ///######################################## FastME Main Function ######################################################
 TTree *ComputePhsDR(FmeSetup Setup){
 
-  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ Getting User Configuration ]:::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
+  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Getting User Configuration"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   TFile *fData 			= Setup.DataFile;
   Int_t nData 			= Setup.NData;
   TString TreeName 		= Setup.TTreeName;
@@ -73,7 +74,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
   std::vector<std::string> MCs 	= Setup.vMCs;
   Int_t N_MCT			= Setup.NMCT;
   UInt_t N_Cores		= Setup.NCores;
-  Int_t N_FSParticles		= Setup.NFSParticles;
   TString PhSDr_Method		= Setup.PhSDrMethod;
   TString FlavorConstraint	= Setup.SetFlavorConstraint;
   Float_t MC_Limit		= Setup.MCLimit;
@@ -82,53 +82,58 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TString Scale_Method		= Setup.ScaleMethod;
   Int_t verbose			= Setup.Verbose;
 
-  std::cout<<ansi_yellow<<":: [Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<"]"<<ansi_reset<<std::endl;  
+  std::cout<<":: ["<<ansi_yellow<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<ansi_reset<<"]"<<std::endl;  
   if(scale_dPt == -1 || scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta);
 
   ///Timming full process
-  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ Computing Events Distance ]::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
+  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Events Distance"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   
   TStopwatch t1;
   t1.Start();
   
   ///TProcPool declaration to objects to be analised  
-  auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT, N_FSParticles,
+  auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
 		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
-    TTreeReaderValue<Int_t>    McType(tread, McType_branch); ///McType for Signal=0 and Background >0
-    TTreeReaderArray<Int_t>    McId(tread, Id_branch);
-    TTreeReaderArray<Double_t> McPt(tread, Pt_branch);
-    TTreeReaderArray<Double_t> McEta(tread, Eta_branch);
+    TTreeReaderValue<Int_t>    	McType(tread, McType_branch); ///McType for Signal=0 and Background >0
+    TTreeReaderArray<Int_t>	McId(tread, Id_branch);
+    TTreeReaderArray<Double_t>	McPt(tread, Pt_branch);
+    TTreeReaderArray<Double_t>	McEta(tread, Eta_branch);
     
     ///Addresses the Data branches to be used
     TTreeReader refReader(TreeName,fData);
-    TTreeReaderArray<Int_t>    DataId(refReader, Id_branch);
-    TTreeReaderArray<Double_t> DataPt(refReader, Pt_branch);
-    TTreeReaderArray<Double_t> DataEta(refReader, Eta_branch);
+    TTreeReaderArray<Int_t>	DataId(refReader, Id_branch);
+    TTreeReaderArray<Double_t>	DataPt(refReader, Pt_branch);
+    TTreeReaderArray<Double_t>	DataEta(refReader, Eta_branch);
 
 
     ///Tree to store the results from analysis
     Int_t iEvent, TMcType, Indice;
     Double_t Mdist;
+    std::vector<Int_t> DtObjFlag; 
     TTree *fme_tree = new TTree("fme_tree","temporary");
     fme_tree->SetDirectory(0);
     fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
     fme_tree->Branch("Mdist",&Mdist,"Mdist/D");
     fme_tree->Branch("TMcType",&TMcType,"TMcType/I");
     fme_tree->Branch("Indice",&Indice,"Indice/I");
+    fme_tree->Branch("DtObjFlag","std::vector<Int_t>",&DtObjFlag);
+
     
     ///Loop on Data events
     for(Int_t dt=0; dt<nData; dt++){
+      refReader.SetEntry(dt); ///Move on Data loop                                                              
+      
       if( verbose != 0 && ((dt!= 0 && nData > 10 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
 	std::cout<<":: ["<<ansi_violet<<"Remaining events from MC "<<*McType<<ansi_reset<<"]:  "<<nData-dt<<"\t\t["<<ansi_violet<<"Elapsed"<<ansi_reset<<"]:  ";
 	t2.Stop();
 	t2.Print();
 	t2.Continue();
       }
-      refReader.SetEntry(dt); ///Move on Data loop
+
       Double_t min_distance_Min = 1.e15;
       Double_t min_distance_Med = 1.e15;
       Int_t imc_min = -1;
@@ -136,8 +141,12 @@ TTree *ComputePhsDR(FmeSetup Setup){
       Int_t nMonteCarlo = tread.GetEntries(true);
       if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
       if(MC_Limit != -1 && MC_Limit < 1) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
-      
+
       for(Int_t mc=0; mc<nMonteCarlo; mc++){
+	//Initialyze the vector
+	DtObjFlag.clear();
+	for(int sl=0; sl<(int)DataId.GetSize(); sl++) DtObjFlag.push_back(-1);
+
 	tread.SetEntry(mc); ///Move on MC loop
         bool acept = true;
 	
@@ -149,18 +158,14 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
 	Double_t SumMin_dPt2 = 0, SumMin_dEta2 = 0;
 	
-	//stores flags to sinalize when a MC object is already selected
-	std::vector<int> vmin_imc;
-	for(int sl=0; sl<N_FSParticles; sl++) vmin_imc.push_back(-1);
-	
-	for(int idt=0; idt<N_FSParticles; idt++){
+	for(int imc=0; imc<(int)McId.GetSize(); imc++){
 	  Double_t min_particles_distance = 1.E15;
 	  Double_t particles_distance = -1.;
-	  int min_imc = -1;
+	  int sel_data = -1;
     
 	  Int_t nsame_flavor = 0;
 	  Double_t tmp_dPt = 0, tmp_dEta = 0;
-	  for(int imc=0; imc<N_FSParticles; imc++){
+	  for(int idt=0; idt<(int)DataId.GetSize(); idt++){
 	    ///Avoid different Data-MC particles comparison
 	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
 	    ///Avoid leptons-jets comparison
@@ -177,11 +182,11 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
 	  ///_______________________ For proximity comparison method __________________________________________________
 	    if( PhSDr_Method == "mindr")
-	      if(vmin_imc[imc] == -1){
+	      if(DtObjFlag[idt] == -1){
 		particles_distance = sqrt(dPt*dPt + dEta*dEta);
 		if( verbose == 3 ) std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<"   part_dist: "<<particles_distance<<std::endl;
 		if(particles_distance < min_particles_distance){
-		  min_imc = imc;
+		  sel_data = idt;
 		  min_particles_distance = particles_distance;
 		}
 	      }
@@ -208,26 +213,26 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    }
 	  ///¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 
-	  }///Ends MC event loop
+	  }///Ends Data event loop
 	  
 	  if(PhSDr_Method == "mindr"){
 	    ///Monitor of chosen MCs to avoid object recounting and wrong pairing
-	    if(min_imc == -1){
+	    if(sel_data == -1){
 	      acept = false;
 	      break;
 	    }
-	    vmin_imc[min_imc] = 1;//changes the flag for current MC object
-	    if( verbose == 3 ) std::cout<<"Chosen->>  MCPos: "<<min_imc<<"   ID: "<<McId[min_imc]<<std::endl;
+	    DtObjFlag[sel_data] = 1;//changes the flag for current Data object
+	    if( verbose == 3 ) std::cout<<"Chosen->>  DtPos: "<<sel_data<<"   ID: "<<DataId[sel_data]<<std::endl;
 	    ///For proximity comparison method
-	    SumMin_dPt2 += pow( (DataPt[idt]-McPt[min_imc])/(scale_dPt), 2 );
-	    SumMin_dEta2 += pow( (DataEta[idt]-McEta[min_imc])/(scale_dEta), 2 );
+	    SumMin_dPt2 += pow( (DataPt[sel_data]-McPt[imc])/(scale_dPt), 2 );
+	    SumMin_dEta2 += pow( (DataEta[sel_data]-McEta[imc])/(scale_dEta), 2 );
 	  }
 	  
 	  if(PhSDr_Method == "media" && nsame_flavor == 1){
 	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
 	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
 	  }
-	}///Ends Data event loop
+	}///Ends MC event loop
 	
 	///Compute final Data-MC events distance & searches for minimum distance
 	if(PhSDr_Method == "mindr" && acept == true){
@@ -283,15 +288,16 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
 
   ///________________________________ Stoping timming ________________________________________________________
-  std::cout<<ansi_blue;
-  std::cout<<"\n::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<":: [Analysis Total Time]: "; t1.Stop(); t1.Print();
-  std::cout<<":: [Sending PhsDrComputer Results...]"<<std::endl;
-  std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"<<std::endl;
-  std::cout<<ansi_reset;
+  std::cout<<ansi_blue<<std::endl;
+  std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<":: ["<<ansi_cyan<<"Analysis Total Time"<<ansi_blue<<"]: "; t1.Stop(); t1.Print();
+  std::cout<<":: ["<<ansi_cyan<<"Sending PhsDrComputer Results"<<ansi_blue<<"]"<<std::endl;
+  std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 
-  ///Final tree merged from trees coming from all cores used
+  
+  ///Send final tree merged from trees coming from all cores used
   return mtree;
 }
 
