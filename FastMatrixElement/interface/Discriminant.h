@@ -35,7 +35,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   TStopwatch t2;
   t2.Start();
-  std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ Computing Discriminant ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
+  std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Discriminant"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
 
   ///Set the input tree
   Int_t iEvent, TMcType, Indice;
@@ -134,13 +134,15 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
-  std::cout<<"::::::::::::::::::::::::::::::::::::[ Process Finished ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<":: [Computing Total Time]: "; t2.Stop(); t2.Print();
-  std::cout<<":: [Sending Discriminant Results...]"<<std::endl;
+  std::cout<<"::::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<":: ["<<ansi_cyan<<"Computing Total Time"<<ansi_blue<<"]: "; t2.Stop(); t2.Print();
+  std::cout<<":: ["<<ansi_cyan<<"Sending Discriminant Results"<<ansi_blue<<"]"<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 
+
+  ///Send the final tree to be stored with the full results from FastME analysis
   return ftree;
 }
 
