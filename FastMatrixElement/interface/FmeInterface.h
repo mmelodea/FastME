@@ -45,7 +45,7 @@ void Helper(void){
 void FindCores(){
   system("nproc");
   std::cout<<"Cores available"<<std::endl;
-  std::cout<<"**Be carefull, do not set more than these!**"<<std::endl;
+  std::cout<<ansi_yellow<<"[Warning] Be carefull, do not set a number of cores higher than available!"<<ansi_reset<<std::endl;
   
   return;
 }
@@ -62,7 +62,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
   ///Opens the config file to get the user configuration
   std::ifstream inFile(UserConfig.c_str());
   if(!inFile){
-    std::cout<<"Error in file!";
+    std::cout<<ansi_red<<"Error! File could not be openned!"<<ansi_reset;
     throw std::exception();
   }
   int nkeys=0;
@@ -85,7 +85,6 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
 	if(fme_keywords[k] == 	     "outfile_name")	Setup->OutName = line;
 	if(fme_keywords[k] == 	     "outfile_path")	Setup->OutPath = line;
 	if(fme_keywords[k] == 	    "phs_dr_method")	Setup->PhSDrMethod = line;
-	if(fme_keywords[k] == 	   "n_fs_particles") 	Setup->NFSParticles = stoi(line);
 	if(fme_keywords[k] == 	"flavor_constraint")	Setup->SetFlavorConstraint = line;
 	if(fme_keywords[k] == 		  "n_cores")	Setup->NCores = stoi(line);
 	if(fme_keywords[k] == 	       "data_limit")	Setup->DTLimit = stoi(line);
