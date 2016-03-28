@@ -63,8 +63,8 @@ void StudyResults(FmeSetup UserSetup){
   std::vector<TH1D*> hists;
   for(Int_t i=0; i<(Int_t)UserSetup.FmeFiles.Size(); i++){
     hists[i] = new TH1D(Form("hist%i",i),"Discriminant Based on Distance",100,0,1);
-    hists[i]->SetLineColor(9);
-    hists[i]->SetFillColor(9);
+    hists[i]->SetLineColor(i+1);
+    //hists[i]->SetFillColor(9);
     hists[i]->SetFillStyle(3001);
     hists[i]->GetXaxis()->SetTitle("P_{SB}(Distance)");
     hists[i]->GetYaxis()->SetTitle("Events/0.01");
