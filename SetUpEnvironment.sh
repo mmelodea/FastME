@@ -11,6 +11,6 @@ echo -e "\nSetting up CMSSW_8_0_2 environment..."
 cmsenv
 
 echo -e "\nCompiling FastME package..."
-scram b -v
+scram b
 
-echo -e"\n*** Proccess finished! ***"
+echo -e "\n*** Proccess finished! ***"
