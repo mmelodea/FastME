@@ -11,6 +11,7 @@
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
 #include <iostream>
+#include <vector>
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -42,9 +43,9 @@ void StudyResults(FmeSetup UserSetup){
   gStyle->SetPalette(10,palette);
 
   const Int_t Number = 3;
-  Double_t Red[Number]    = { 1.00, 0.00, 0.00};
-  Double_t Green[Number]  = { 0.00, 1.00, 0.00};
-  Double_t Blue[Number]   = { 1.00, 0.00, 1.00};
+  Double_t Red[Number]    = { 1.00, 0.00, 0.00 };
+  Double_t Green[Number]  = { 0.00, 1.00, 0.00 };
+  Double_t Blue[Number]   = { 1.00, 0.00, 1.00 };
   Double_t Length[Number] = { 0.00, 0.50, 1.00 };
   Int_t nb=50;
   TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);
@@ -58,11 +59,23 @@ void StudyResults(FmeSetup UserSetup){
 
   
   ///-------------- Plot discriminant from singal and background --------------
-  //TFile *fdata = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
-  TFile *fsig  = TFile::Open(UserSetup.FmeFiles[0]);
-  TFile *fbkg  = TFile::Open(UserSetup.FmeFiles[1]);
-  
-  //TTree *tdata = (TTree)fdata->Get("FastME");
+  TLegend *leg = new TLegend(0.57,0.77,0.87,0.87);
+  std::vector<TH1D*> hists;
+  for(Int_t i=0; i<(Int_t)UserSetup.FmeFiles.Size(); i++){
+    hists[i] = new TH1D(Form("hist%i",i),"Discriminant Based on Distance",100,0,1);
+    hists[i]->SetLineColor(9);
+    hists[i]->SetFillColor(9);
+    hists[i]->SetFillStyle(3001);
+    hists[i]->GetXaxis()->SetTitle("P_{SB}(Distance)");
+    hists[i]->GetYaxis()->SetTitle("Events/0.01");
+
+    ((TTree*)(TFile::Open(UserSetup.FmeFiles[0]))->Get("FastME"))->Project(Form("hist%i",i),"Global_PsbDist");
+    if(i == 0) hists[i]->Draw();
+    else hists[i]->Draw("same");
+
+    leg->AddEntry(hsig,Form("file%i",i),"f");
+  }
+/*  
   TTree *tsig  = (TTree*)fsig->Get("FastME");
   TTree *tbkg  = (TTree*)fbkg->Get("FastME");
   
@@ -77,15 +90,11 @@ void StudyResults(FmeSetup UserSetup){
   hbkg->SetLineColor(2);
   hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
-    
+
   tsig->Project("hsig","Global_PsbDist");
-  tbkg->Project("hbkg","Global_PsbDist");
   hsig->Draw();
   hbkg->Draw("same");
-  
-  TLegend *leg = new TLegend(0.57,0.77,0.87,0.87);
-  leg->AddEntry(hsig,"Signal","f");
-  leg->AddEntry(hbkg,"Background","f");
+*/  
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
@@ -98,7 +107,7 @@ void StudyResults(FmeSetup UserSetup){
   c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------  
   
-  
+/*  
   ///------------- Plot ROC curve -----------------------------------------
   Double_t SGlobal_PsbDist, BGlobal_PsbDist;
   tsig->SetBranchAddress("Global_PsbDist",&SGlobal_PsbDist);
@@ -157,7 +166,8 @@ void StudyResults(FmeSetup UserSetup){
   std::cin >> plot_name;
   c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------
-  
+*/ 
+
   return;
 }
 

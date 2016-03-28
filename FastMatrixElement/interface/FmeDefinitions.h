@@ -35,7 +35,6 @@ struct FmeSetup{
   std::vector<std::string>	vMCs;
   Int_t				NMCT;
   UInt_t			NCores;
-  Int_t				NFSParticles;
   TString			PhSDrMethod;
   TString			SetFlavorConstraint;
   TString			OutName;
@@ -64,7 +63,6 @@ static std::vector<std::string> fme_keywords = {
   "outfile_name",
   "outfile_path",
   "phs_dr_method",
-  "n_fs_particles",
   "flavor_constraint",
   "n_cores",
   "data_limit",
@@ -88,7 +86,6 @@ static std::vector<int> ksize = {
   13,	///outfile_name
   13,	///outfile_path
   14,	///phs_dr_method
-  15,	///n_fs_particles
   18,	///flavor_constraint
   8,	///n_cores
   11,	///data_limit
