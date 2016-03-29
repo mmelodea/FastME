@@ -7,7 +7,11 @@
 #ifndef StudyResults_h
 #define StudyResults_h
 
+
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
+
+#include <iostream>
+#include <vector>
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -20,6 +24,7 @@
 #include <TGraph.h>
 #include <TLine.h>
 #include <TLegend.h>
+#include <TString.h>
 
 
 void StudyResults(FmeSetup UserSetup){
@@ -38,48 +43,62 @@ void StudyResults(FmeSetup UserSetup){
   gStyle->SetPalette(10,palette);
 
   const Int_t Number = 3;
-  Double_t Red[Number]    = { 1.00, 0.00, 0.00};
-  Double_t Green[Number]  = { 0.00, 1.00, 0.00};
-  Double_t Blue[Number]   = { 1.00, 0.00, 1.00};
+  Double_t Red[Number]    = { 1.00, 0.00, 0.00 };
+  Double_t Green[Number]  = { 0.00, 1.00, 0.00 };
+  Double_t Blue[Number]   = { 1.00, 0.00, 1.00 };
   Double_t Length[Number] = { 0.00, 0.50, 1.00 };
   Int_t nb=50;
   TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);
-  
-  //Does not show on fly
-  gROOT->SetBatch(kTRUE);
-  gStyle->SetOptStat(0);
-  TCanvas *c1 = new TCanvas("c1","",0,0,600,600);
 
   
+  ///Load the trees
+  TTree *tdata = ((TTree*)(TFile::Open(UserSetup.FmeFiles[0])))->Get("FastME");
+  TTree *tsig  = ((TTree*)(TFile::Open(UserSetup.FmeFiles[1])))->Get("FastME");
+  TTree *tbkg  = ((TTree*)(TFile::Open(UserSetup.FmeFiles[2])))->Get("FastME");  
+    
+  Int_t nevents[3];
+  Double_t DGlobal_PsbDist, SGlobal_PsbDist, BGlobal_PsbDist;
+  tdata->SetBranchAddress("Global_PsbDist",&DGlobal_PsbDist);
+  nevents[0] = tdata->GetEntries();
+  tsig->SetBranchAddress("Global_PsbDist",&SGlobal_PsbDist);
+  nevents[1]  = tsig->GetEntries();
+  tbkg->SetBranchAddress("Global_PsbDist",&BGlobal_PsbDist);
+  nevents[2]  = tbkg->GetEntries();
+
+  TString plot_name;
+  
+  //Does not show plots on fly
+  gROOT->SetBatch(kTRUE);
+  gStyle->SetOptStat(0);
+  TCanvas *c1 = new TCanvas("c1","",0,0,600,600);  
+  
+  
   ///-------------- Plot discriminant from singal and background --------------
-  //TFile *fdata = TFile::Open(UserSetup.OutPath+"/"+UserSetup.OutName+".root");
-  TFile *fsig  = TFile::Open(UserSetup.FmeFiles[0]);
-  TFile *fbkg  = TFile::Open(UserSetup.FmeFiles[1]);
-  
-  //TTree *tdata = (TTree)fdata->Get("FastME");
-  TTree *tsig  = (TTree*)fsig->Get("FastME");
-  TTree *tbkg  = (TTree*)fbkg->Get("FastME");
-  
-  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",100,0,1);
+  TH1D *hdata = new TH1D("hdata","Discriminant based on Distance",100,0,1);
+  hdata->GetXaxis()->SetTitle("P_{SB}(Distance)");
+  hdata->GetYaxis()->SetTitle("Events/0.01");
+  hdata->SetMarkerStyle(5);
+  hdata->SetMarkerColor(1);
+
+  TH1D *hsig  = new TH1D("hsig","Discriminant based on Distance",100,0,1);
   hsig->SetLineColor(9);
   hsig->SetFillColor(9);
   hsig->SetFillStyle(3001);
-  hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
-  hsig->GetYaxis()->SetTitle("Events/0.01");
 
-  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,0,1);
+  TH1D *hbkg  = new TH1D("hbkg","Discriminant based on Distance",100,0,1);
   hbkg->SetLineColor(2);
   hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
-    
-  tsig->Project("hsig","Global_PsbDist");
-  tbkg->Project("hbkg","Global_PsbDist");
-  hsig->Draw();
-  hbkg->Draw("same");
-  
+
+
+  for(Int_t s=0; s<3; s++)
+    for(Int_t iev=0; iev<nevents[s]; iev++){
+      
+
+      leg->AddEntry(hists[i],Form("file%i",i),"f");
+    }
+
   TLegend *leg = new TLegend(0.57,0.77,0.87,0.87);
-  leg->AddEntry(hsig,"Signal","f");
-  leg->AddEntry(hbkg,"Background","f");
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
@@ -87,15 +106,13 @@ void StudyResults(FmeSetup UserSetup){
   leg->Draw();
 
   c1->Update();
-  c1->Print(UserSetup.OutPath+"/"+"Discriminant_Signal_vs_Background.png");
+  std::cout<<ansi_yellow<<"Enter name to save discriminant distribution plot: "<<ansi_reset;
+  std::cin >> plot_name;
+  c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------  
+
   
-  
-  ///------------- Plot ROC curve -----------------------------------------
-  Double_t SGlobal_PsbDist, BGlobal_PsbDist;
-  tsig->SetBranchAddress("Global_PsbDist",&SGlobal_PsbDist);
-  tbkg->SetBranchAddress("Global_PsbDist",&BGlobal_PsbDist);
-  
+  ///----------------- Plot ROC curve -------------------------------------  
   Double_t cutoff, integral=0;
   const int discret = 1000;
   float TPR[discret], FPR[discret], TP, FP, TN, FN;
@@ -115,7 +132,7 @@ void StudyResults(FmeSetup UserSetup){
     if(j>0)
      integral += fabs(FPR[j-1]-FPR[j])*TPR[j];
   }
-
+  
   TGraph *roc = new TGraph(discret,FPR,TPR);
   roc->SetTitle(Form("ROC Plot - Area under curve = %.3f",integral));
   roc->SetMarkerStyle(4);
@@ -131,10 +148,10 @@ void StudyResults(FmeSetup UserSetup){
   l3->SetLineStyle(2);
 
   TLine *l50  = new TLine(0,0.5,1,0.5);		l50->SetLineStyle(2);
-  TLine *l80  = new TLine(0,0.8,1,0.8);         l80->SetLineStyle(2);
-  TLine *l90  = new TLine(0,0.9,1,0.9);         l90->SetLineStyle(2);
-  TLine *l95  = new TLine(0,0.95,1,0.95);       l95->SetLineStyle(2);
-  TLine *l100 = new TLine(0,1.,1,1.);           l100->SetLineStyle(2);
+  TLine *l80  = new TLine(0,0.8,1,0.8);		l80->SetLineStyle(2);
+  TLine *l90  = new TLine(0,0.9,1,0.9);		l90->SetLineStyle(2);
+  TLine *l95  = new TLine(0,0.95,1,0.95);	l95->SetLineStyle(2);
+  TLine *l100 = new TLine(0,1.,1,1.);		l100->SetLineStyle(2);
     
   roc->Draw("AP");
   l3->Draw();
@@ -145,9 +162,12 @@ void StudyResults(FmeSetup UserSetup){
   l100->Draw();
   
   c1->Update();
-  c1->Print(UserSetup.OutPath+"/"+"FastMatrixElement_ROC_Curve.png");
+  std::cout<<ansi_yellow<<"Enter name to save ROC plot: "<<ansi_reset;
+  std::cin >> plot_name;
+  c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------
-  
+*/ 
+
   return;
 }
 
