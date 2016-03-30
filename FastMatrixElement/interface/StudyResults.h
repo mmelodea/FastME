@@ -9,6 +9,8 @@
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
+#include <iostream>
+
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -48,6 +50,7 @@ void StudyResults(FmeSetup UserSetup){
   //Does not show on fly
   gROOT->SetBatch(kTRUE);
   gStyle->SetOptStat(0);
+  TString plot_name;
   TCanvas *c1 = new TCanvas("c1","",0,0,600,600);
 
   
@@ -60,14 +63,14 @@ void StudyResults(FmeSetup UserSetup){
   TTree *tsig  = (TTree*)fsig->Get("FastME");
   TTree *tbkg  = (TTree*)fbkg->Get("FastME");
   
-  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",100,0,1);
+  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",100,-0.05,1.05);
   hsig->SetLineColor(9);
   hsig->SetFillColor(9);
   hsig->SetFillStyle(3001);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
   hsig->GetYaxis()->SetTitle("Events/0.01");
 
-  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,0,1);
+  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,-0.05,1.05);
   hbkg->SetLineColor(2);
   hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
@@ -87,7 +90,9 @@ void StudyResults(FmeSetup UserSetup){
   leg->Draw();
 
   c1->Update();
-  c1->Print(UserSetup.OutPath+"/"+"Discriminant_Signal_vs_Background.png");
+  std::cout<<"Enter name to save plot: ";
+  std::cin >> plot_name;
+  c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------  
   
   
@@ -145,7 +150,9 @@ void StudyResults(FmeSetup UserSetup){
   l100->Draw();
   
   c1->Update();
-  c1->Print(UserSetup.OutPath+"/"+"FastMatrixElement_ROC_Curve.png");
+  std::cout<<"Enter name to save plot: "; 
+  std::cin >> plot_name;
+  c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------
   
   return;

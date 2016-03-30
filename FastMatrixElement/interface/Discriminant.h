@@ -35,24 +35,27 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   TStopwatch t2;
   t2.Start();
-  std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Discriminant"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
+  std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Discriminant"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
 
   ///Set the input tree
   Int_t iEvent, TMcType, Indice;
   Double_t Mdist;
+  std::vector<Int_t> *oDtObjFlag=0;
   mtree->SetBranchAddress("iEvent",&iEvent);
   mtree->SetBranchAddress("Mdist",&Mdist);
   mtree->SetBranchAddress("TMcType",&TMcType);
-  mtree->SetBranchAddress("Indice",&Indice);  
+  mtree->SetBranchAddress("Indice",&Indice);
+  mtree->SetBranchAddress("DtObjFlag",&oDtObjFlag);  
   Int_t fentries = mtree->GetEntries();
 
-  std::vector<Int_t> McIndex, McCat;
+  std::vector<Int_t> McIndex, McCat, DtObjFlag;
   Double_t Global_PsbDist;
   std::vector<Double_t> MinDist, Local_PsbDist;
   TTree *ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
   ftree->SetDirectory(0);
   ftree->Branch("McIndex","std::vector<Int_t>",&McIndex);
   ftree->Branch("McCat","std::vector<Int_t>",&McCat);
+  ftree->Branch("DtObjFlag","std::vector<Int_t>",&DtObjFlag);
   ftree->Branch("MinDist","std::vector<Double_t>",&MinDist);
   ftree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
   ftree->Branch("Local_PsbDist","std::vector<Double_t> Local_PsbDist",&Local_PsbDist);
@@ -74,13 +77,15 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
       t2.Print();
     }
 
-    Int_t MinSigIndex = -99;// GMinBkgIndex = -99;
+    
+    Int_t MinSigIndex = -99, smin_ic = -1, bmin_ic = -1;
     Double_t min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
     Double_t local_min_dr_bkg[N_MCT], local_min_bkg_index[N_MCT];
     McIndex.clear();
     McCat.clear();
     MinDist.clear();
     Local_PsbDist.clear();
+    DtObjFlag.clear();
     for(Int_t p=0; p<N_MCT; p++){
       local_min_bkg_index[p] = -99;
       local_min_dr_bkg[p] = 1.e15;
@@ -96,18 +101,22 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 	throw std::exception();
       }
       
-      ///Finds closet MC Signal
+      ///Finds closest MC Signal
       if(TMcType == 0)
 	if( Mdist < min_dr_sig ){
 	  min_dr_sig = Mdist;
 	  MinSigIndex = Indice;
 	  McCat[0] = 0;
+          smin_ic = ic;
 	}
 
       ///Finds closet MC Background
       if(TMcType > 0){
 	///The general most close MC Background
-        if( Mdist < global_min_dr_bkg ) global_min_dr_bkg = Mdist;
+        if( Mdist < global_min_dr_bkg ){
+          global_min_dr_bkg = Mdist;
+          bmin_ic = ic;
+	}
 	///Each MC Background
 	if( Mdist < local_min_dr_bkg[TMcType] ){
 	  McCat[TMcType] = TMcType;
@@ -128,16 +137,23 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
     }
     if( verbose > 1 )
       std::cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", min_dr_sig, global_min_dr_bkg, Global_PsbDist) << std::endl;
+
+    ///Set the final flags to the Data objects
+    Int_t loadTTree_ic = (min_dr_sig < global_min_dr_bkg)? smin_ic : bmin_ic;
+    mtree->GetEntry(TreeSectors[loadTTree_ic]+data);
+    for(Int_t iobj=0; iobj<(Int_t)oDtObjFlag->size(); iobj++)
+      DtObjFlag.push_back( (*oDtObjFlag)[iobj] );
+
     
     ftree->Fill();
   }
   
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
-  std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<"::::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: ["<<ansi_cyan<<"Computing Total Time"<<ansi_blue<<"]: "; t2.Stop(); t2.Print();
   std::cout<<":: ["<<ansi_cyan<<"Sending Discriminant Results"<<ansi_blue<<"]"<<std::endl;
-  std::cout<<"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 
