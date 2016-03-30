@@ -113,14 +113,14 @@ TTree *ComputePhsDR(FmeSetup Setup){
     ///Tree to store the results from analysis
     Int_t iEvent, TMcType, Indice;
     Double_t Mdist;
-    std::vector<Int_t> DtObjFlag; 
+    std::vector<Int_t> DtObjFlag, fDtObjFlag; 
     TTree *fme_tree = new TTree("fme_tree","temporary");
     fme_tree->SetDirectory(0);
     fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
     fme_tree->Branch("Mdist",&Mdist,"Mdist/D");
     fme_tree->Branch("TMcType",&TMcType,"TMcType/I");
     fme_tree->Branch("Indice",&Indice,"Indice/I");
-    fme_tree->Branch("DtObjFlag","std::vector<Int_t>",&DtObjFlag);
+    fme_tree->Branch("DtObjFlag","std::vector<Int_t>",&fDtObjFlag);
 
     
     ///Loop on Data events
@@ -166,6 +166,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  Int_t nsame_flavor = 0;
 	  Double_t tmp_dPt = 0, tmp_dEta = 0;
 	  for(int idt=0; idt<(int)DataId.GetSize(); idt++){
+	    if(DtObjFlag[idt] == 1) continue;///Skip data object already selected
+	      
 	    ///Avoid different Data-MC particles comparison
 	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
 	    ///Avoid leptons-jets comparison
@@ -181,8 +183,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	
 
 	  ///_______________________ For proximity comparison method __________________________________________________
-	    if( PhSDr_Method == "mindr")
-	      if(DtObjFlag[idt] == -1){
+	    if( PhSDr_Method == "mindr"){
 		particles_distance = sqrt(dPt*dPt + dEta*dEta);
 		if( verbose == 3 ) std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<"   part_dist: "<<particles_distance<<std::endl;
 		if(particles_distance < min_particles_distance){
@@ -221,7 +222,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	      acept = false;
 	      break;
 	    }
-	    DtObjFlag[sel_data] = 1;//changes the flag for current Data object
+	    DtObjFlag[sel_data] = 1;///changes the flag for current Data object
+
 	    if( verbose == 3 ) std::cout<<"Chosen->>  DtPos: "<<sel_data<<"   ID: "<<DataId[sel_data]<<std::endl;
 	    ///For proximity comparison method
 	    SumMin_dPt2 += pow( (DataPt[sel_data]-McPt[imc])/(scale_dPt), 2 );
@@ -240,6 +242,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  if(event_distance_Min < min_distance_Min){
 	    min_distance_Min = event_distance_Min;
 	    imc_min = mc;
+	    fDtObjFlag = DtObjFlag;
 	  }
 	  if( verbose > 2 ) std::cout<<"Event_distance(MinDr) = "<<event_distance_Min<<std::endl;  
 	}
@@ -289,10 +292,10 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
-  std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: ["<<ansi_cyan<<"Analysis Total Time"<<ansi_blue<<"]: "; t1.Stop(); t1.Print();
   std::cout<<":: ["<<ansi_cyan<<"Sending PhsDrComputer Results"<<ansi_blue<<"]"<<std::endl;
-  std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
+  std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
 

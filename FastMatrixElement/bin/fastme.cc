@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
     std::cout<<ansi_yellow<<" Input file correct?(y/n) "<<ansi_reset;
     std::string aws3;
     std::cin >> aws3;
-    if(aws3 == "n") return -1;  
+    if(aws3 != "y") return -1;  
   }
 
   ///--------------------- Interface manager ------------------------------
