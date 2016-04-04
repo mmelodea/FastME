@@ -90,7 +90,7 @@ void StudyResults(FmeSetup UserSetup){
   leg->Draw();
 
   c1->Update();
-  std::cout<<"Enter name to save plot: ";
+  std::cout<<"Enter name to save discriminants plot: ";
   std::cin >> plot_name;
   c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------  
@@ -150,7 +150,8 @@ void StudyResults(FmeSetup UserSetup){
   l100->Draw();
   
   c1->Update();
-  std::cout<<"Enter name to save plot: "; 
+  std::cout<<Form("Area under ROC curve = %.3f",integral)<<std::endl;
+  std::cout<<"Enter name to save ROC plot: "; 
   std::cin >> plot_name;
   c1->Print(UserSetup.OutPath+"/"+plot_name+".png");
   ///----------------------------------------------------------------------
