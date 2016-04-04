@@ -26,16 +26,18 @@
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", nc = "-c", ff = "-f", fa = "-a", pr = "-p", sp = "-s";
+static std::string help = "-help", sl = "-quiet", nc = "-c", ff = "-f", fa = "-a", pr = "-p", sp = "-s";
 void Helper(void){
-  std::cout<<"Usage: fastme [commands] config_file"<<std::endl;
+  std::cout<<"Usage: fastme [commands] config_file [flux options]"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
   std::cout<<"\t-c\t\tInform how many cores are available in the machine"<<std::endl;
   std::cout<<"\t-f\t\tConvert a general root file to FastME root file format"<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
   std::cout<<"\t-p\t\tMake plots from the FastME results"<<std::endl;
   std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<std::endl;  
-  std::cout<<"For more info access https://github.com/mmelodea/FastMatrixElement"<<std::endl;
+  std::cout<<"Flux options:"<<std::endl;
+  std::cout<<"\t-quiet\t\tRun program without show the config file and avoid user check config file"<<std::endl;
+  std::cout<<"\nFor more info access https://github.com/mmelodea/FastMatrixElement"<<std::endl;
 
   return;
 }
@@ -52,7 +54,7 @@ void FindCores(){
 
 
 ///Read input file and convert to program format
-void ConfigReader(std::string UserConfig, FmeSetup *Setup){
+void ConfigReader(std::string UserConfig, FmeSetup *Setup, Int_t run_mode = 1){
 
   ///Define variables used in the analysis
   TString Data_Path;
@@ -62,7 +64,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
   ///Opens the config file to get the user configuration
   std::ifstream inFile(UserConfig.c_str());
   if(!inFile){
-    std::cout<<ansi_red<<"Error! File could not be openned!"<<ansi_reset;
+    std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" File could not be openned!";
     throw std::exception();
   }
   int nkeys=0;
@@ -73,7 +75,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
       if(line.find(fme_keywords[k]) != std::string::npos){
 	nkeys++;
         line.erase(line.begin(),line.begin()+ksize[k]);
-	std::cout << ":: " << std::left << std::setw(25) << fme_keywords[k] << std::right << std::setw(1) << line << std::endl;
+	if(run_mode == 1)
+	  std::cout << ":: " << std::left << std::setw(25) << fme_keywords[k] << std::right << std::setw(1) << line << std::endl;
         if(fme_keywords[k] == 		"data_path") 	Data_Path = line;
 	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
 	if(fme_keywords[k] == 		  "mc_name")	MC_Names.push_back(line);
@@ -98,7 +101,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
     }
   }
   if(nkeys < ((int)fme_keywords.size()-2)){
-    std::cout<<"Missing key-word! Check your input file!";
+    std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" Missing key-word! Check your input file!";
     throw std::exception();
   }
   ///__________________________________________________________________________________________________________________
@@ -124,14 +127,16 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup){
       NMCEV[ne] = Setup->MCLimit;
     fmc->Close();
   }
-  std::cout<<"______________________________________________________________________________________________"<<std::endl;
-  std::cout<< Form(":: Data Events:      %i",nData) <<std::endl;
-  std::cout<< Form(":: MC Samples:       %i\t[",N_MC); 
-            for(Int_t ne=0; ne<N_MC; ne++){
-              if( ne<(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << ",  ";
-              if( ne==(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << "]" <<std::endl;
-            }
-  std::cout<<"----------------------------------------------------------------------------------------------"<<std::endl;
+  if(run_mode == 1){
+    std::cout<<"______________________________________________________________________________________________"<<std::endl;
+    std::cout<< Form(":: Data Events:      %i",nData) <<std::endl;
+    std::cout<< Form(":: MC Samples:       %i\t[",N_MC); 
+    for(Int_t ne=0; ne<N_MC; ne++){
+      if( ne<(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << ",  ";
+      if( ne==(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << "]" <<std::endl;
+    }
+    std::cout<<"----------------------------------------------------------------------------------------------"<<std::endl;
+  }
   ///--------------------------------------------------------------------------------------------------------------
   
   Setup->DataFile = fData;
