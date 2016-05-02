@@ -41,21 +41,19 @@ int main(int argc, char *argv[]){
 
   ///Takes the config input file and converts it to FastME readable format
   if(argv[1] != help && argv[1] != nc){
-    if(argv[3] != sl){
+    if(argc < 4){
       std::cout<<"\n:: ["<<ansi_yellow<<"Your input file: "<< argv[2] <<ansi_reset<<"]"<<std::endl;
     
       //Fills up the 'setup' struct
-      ConfigReader((std::string)argv[2], &setup, 1, (std::string)argv[1]);
+      ConfigReader((std::string)argv[2], &setup, (std::string)argv[1]);
     
       ///User can abort analysis if something is wrong in his config file
-      if(argv[3] != sl){
-	std::cout<<ansi_yellow<<" Proceed?(y/n) "<<ansi_reset;
-	std::string aws3;
-	std::cin >> aws3;
-	if(aws3 != "y") return -1;  
-      }
+      std::cout<<ansi_yellow<<" Proceed?(y/n) "<<ansi_reset;
+      std::string aws3;
+      std::cin >> aws3;
+      if(aws3 != "y") return -1;  
     }
-    else ConfigReader((std::string)argv[2], &setup, 0, (std::string)argv[1]);
+    else ConfigReader((std::string)argv[2], &setup, (std::string)argv[1], (std::string)argv[3]);
   }
 
   ///--------------------- Interface manager ------------------------------

@@ -21,12 +21,11 @@
 #include <string>
 #include <exception>
 #include <iomanip>
-#include <stdlib.h>
 
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", sl = "-quiet", nc = "-c", ff = "-f", fa = "-a", pr = "-p", sp = "-s";
+static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", ff = "-f", fa = "-a", pr = "-p", sp = "-s";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file [flux options]"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
@@ -54,7 +53,7 @@ void FindCores(){
 
 
 ///Read input file and convert to program format
-void ConfigReader(std::string UserConfig, FmeSetup *Setup, Int_t run_mode = 1, std::string command){
+void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, std::string run_mode = normal){
 
   ///Define variables used in the analysis
   TString Data_Path;
@@ -75,9 +74,14 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, Int_t run_mode = 1, s
       if(line.find(fme_keywords[k]) != std::string::npos){
 	nkeys++;
         line.erase(line.begin(),line.begin()+ksize[k]);
-	if(run_mode == 1){
-	  if(command == pr && fme_keywords[k] != "fme_files") continue;
-	  std::cout << ":: " << std::left << std::setw(25) << ansi_cyan << fme_keywords[k] << ansi_reset << std::right << std::setw(1) << line << std::endl;
+	if(run_mode == normal){
+	  if(command == pr){
+            if(fme_keywords[k] != "fme_files")
+	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
+          }
+          else{
+    	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
+          }
 	}
         if(fme_keywords[k] == 		"data_path") 	Data_Path = line;
 	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
@@ -129,7 +133,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, Int_t run_mode = 1, s
       NMCEV[ne] = Setup->MCLimit;
     fmc->Close();
   }
-  if(run_mode == 1 && command != pr){
+  if(run_mode == normal && command != pr){
     std::cout<<ansi_yellow<<"______________________________________________________________________________________________"<<ansi_reset<<std::endl;
     std::cout<< Form(":: Data Events:      %i",nData) <<std::endl;
     std::cout<< Form(":: MC Samples:       %i\t[",N_MC); 
