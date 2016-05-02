@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
       std::cout<<"\n:: ["<<ansi_yellow<<"Your input file: "<< argv[2] <<ansi_reset<<"]"<<std::endl;
     
       //Fills up the 'setup' struct
-      ConfigReader((std::string)argv[2], &setup, 1);
+      ConfigReader((std::string)argv[2], &setup, 1, (std::string)argv[1]);
     
       ///User can abort analysis if something is wrong in his config file
       if(argv[3] != sl){
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
 	if(aws3 != "y") return -1;  
       }
     }
-    else ConfigReader((std::string)argv[2], &setup, 0);
+    else ConfigReader((std::string)argv[2], &setup, 0, (std::string)argv[1]);
   }
 
   ///--------------------- Interface manager ------------------------------

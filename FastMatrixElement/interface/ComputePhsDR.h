@@ -56,7 +56,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   *f_scale_dPt  = pt_sum/total;
   *f_scale_dEta = eta_sum/total;
   
-  std::cout<<ansi_yellow<<":: [NOTE]"<<ansi_reset<<Form(" Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
+  std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
   return;
 }
 
