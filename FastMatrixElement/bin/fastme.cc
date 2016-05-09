@@ -8,6 +8,7 @@
 ///My Own headers
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 #include "FastMatrixElement/FastMatrixElement/interface/FmeInterface.h"
+#include "FastMatrixElement/FastMatrixElement/interface/InitScreen.h"
 #include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
 #include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
 #include "FastMatrixElement/FastMatrixElement/interface/StudyResults.h"
@@ -68,6 +69,9 @@ int main(int argc, char *argv[]){
   
   ///To make the Fast Matrix Element analysis and compute discriminant
   else if(argv[1] == fa){
+    ///Just calls the FastME name
+    InitScreen();
+
     std::cout<<"\n\n"<<ansi_blue;
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Started"<<ansi_blue<<" ]:::::::::::::::::::::::::::::"<<std::endl;
