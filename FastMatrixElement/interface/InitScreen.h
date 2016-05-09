@@ -1,3 +1,7 @@
+#ifndef InitScreen_h
+#define InitScreen_h
+
+
 #include <iostream>                                                            
 
 void InitScreen(void){
@@ -15,3 +19,6 @@ void InitScreen(void){
   std::cout<<"***       ***            *** ************       ***       ***       ***       ***   ***************"<<std::endl;
   std::cout<<std::endl;
 }
+
+
+#endif

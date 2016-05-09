@@ -9,6 +9,7 @@
 
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
+#include "FastMatrixElement/FastMatrixElement/interface/InitScreen.h"
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -54,6 +55,11 @@ void FindCores(){
 
 ///Read input file and convert to program format
 void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, std::string run_mode = normal){
+
+  ///Print FastME name over screen
+  if(run_mode != sl){ 
+    InitScreen();
+  }
 
   ///Define variables used in the analysis
   TString Data_Path;
