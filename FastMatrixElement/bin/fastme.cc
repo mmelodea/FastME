@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
   ///Takes the config input file and converts it to FastME readable format
   if(argv[1] != help && argv[1] != nc){
     if(argc < 4){
-      std::cout<<"\n:: ["<<ansi_yellow<<"Your input file: "<< argv[2] <<ansi_reset<<"]"<<std::endl;
+      //std::cout<<"\n:: ["<<ansi_yellow<<"Your input file: "<< argv[2] <<ansi_reset<<"]"<<std::endl;
     
       //Fills up the 'setup' struct
       ConfigReader((std::string)argv[2], &setup, (std::string)argv[1]);

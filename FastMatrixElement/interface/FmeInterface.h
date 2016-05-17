@@ -57,7 +57,7 @@ void FindCores(){
 void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, std::string run_mode = normal){
 
   ///Print FastME name over screen
-  if(run_mode != sl){ 
+  if(run_mode != sl){
     InitScreen();
   }
 
@@ -72,6 +72,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" File could not be openned!";
     throw std::exception();
   }
+
+  std::cout<<"\n:: ["<<ansi_yellow<<"Your input file..."<<ansi_reset<<"]"<<std::endl;
   int nkeys=0;
   std::string line;
   while( getline(inFile,line) ){
