@@ -9,6 +9,7 @@
 
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
+#include "FastMatrixElement/FastMatrixElement/interface/InitScreen.h"
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -55,6 +56,11 @@ void FindCores(){
 ///Read input file and convert to program format
 void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, std::string run_mode = normal){
 
+  ///Print FastME name over screen
+  if(run_mode != sl){
+    InitScreen();
+  }
+
   ///Define variables used in the analysis
   TString Data_Path;
   std::vector<TString> MC_Names;
@@ -66,6 +72,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" File could not be openned!";
     throw std::exception();
   }
+
+  std::cout<<"\n:: ["<<ansi_yellow<<"Your input file..."<<ansi_reset<<"]"<<std::endl;
   int nkeys=0;
   std::string line;
   while( getline(inFile,line) ){
@@ -76,7 +84,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         line.erase(line.begin(),line.begin()+ksize[k]);
 	if(run_mode == normal){
 	  if(command == pr){
-            if(fme_keywords[k] != "fme_files")
+            if(fme_keywords[k] == "fme_files")
 	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
           }
           else{
