@@ -106,10 +106,10 @@ int main(int argc, char *argv[]){
     std::cout<<ansi_blue;
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
-    std::cout<<":: ["<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<ansi_blue<<"]"<<std::endl;
-    std::cout<<":: ["<<ansi_yellow<<"Total Time Analysis: ";t1.Print();
-    std::cout<<ansi_blue<<"]"<<std::endl;
-    std::cout<<"==============================================================================================="<<std::endl;
+    std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
+    std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: ";
+    t1.Print();
+    std::cout<<ansi_blue<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset<<"\n\n";
   }
 
