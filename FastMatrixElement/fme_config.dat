@@ -22,18 +22,29 @@
 
 ############# User config ############
 ### Path of samples ###
-data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
+#data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_1.root
 mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_2.root
 mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_2.root
 mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_2.root
+
+#data_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_1_NewFormat.root
+#data_path ../../../../VBF_Samples_StdVectors/VBF_BKG_QED4_QCD0_plus_QED2_QCD2.root
+#mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_2_NewFormat.root
+#mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_BKG_FastME_2_NewFormat.root
+#mc_path ../../../../VBF_Samples_StdVectors/VBF_QED2_QCD2_BKG_FastME_2_NewFormat.root
 
 ### Name of MC samples ###
 mc_name SM_Higgs126
 mc_name ggZZ
 mc_name qqZZ
+#mc_name VBF_Higgs126
+#mc_name VBF_EW_bkg
+#mc_name VBF_QCD_bkg
 
 ### Tree info ###
 tree_name Higgs
+#tree_name Vbf
 id_branch_name ParticleId
 pt_branch_name ParticlePt
 eta_branch_name ParticleEta
@@ -41,14 +52,14 @@ mc_type_branch_name McType
 
 
 ############ FastME configs ##########
-outfile_name fme_results_bkg_mindr
+outfile_name fme_results_sig_mindr
 outfile_path tests
 phs_dr_method mindr
-flavor_constraint true
+flavor_constraint false
 n_cores 3
-data_limit 10000
+data_limit 500
 #MC quantity is based on fraction to mantain cross section relation
-mc_limit -1
+mc_limit 0.0165
 scale_dPt -1
 scale_dEta -1
 scale_method extrem
