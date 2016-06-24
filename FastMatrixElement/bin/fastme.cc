@@ -82,12 +82,19 @@ int main(int argc, char *argv[]){
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset;
 
+    ///Timming
+    TStopwatch t1;
+    t1.Start();
+
     ///Calls PhsDrComputer to compute events distance
     rtree = ComputePhsDR(setup);
 
     ///Calls Discriminator
     ftree = Discriminant(rtree, setup);
 
+    ///Stop timming
+    t1.Stop();
+    
     ///Store results (be aware.. the file is handled relative to path where fastme software was called)
     gSystem->Exec("mkdir -p "+setup.OutPath);
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
@@ -100,6 +107,8 @@ int main(int argc, char *argv[]){
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
     std::cout<<":: ["<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<ansi_blue<<"]"<<std::endl;
+    std::cout<<":: ["<<ansi_yellow<<"Total Time Analysis: "<<t1.Print();
+    std::cout<<ansi_blue<<"]"<<std::endl;
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset<<"\n\n";
   }

@@ -88,8 +88,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
   ///Timming full process
   std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Events Distance"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   
-  TStopwatch t1;
-  t1.Start();
   
   ///TProcPool declaration to objects to be analised  
   auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
@@ -293,8 +291,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
   std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<":: ["<<ansi_cyan<<"Analysis Total Time"<<ansi_blue<<"]: "; t1.Stop(); t1.Print();
-  std::cout<<":: ["<<ansi_cyan<<"Sending PhsDrComputer Results"<<ansi_blue<<"]"<<std::endl;
+  std::cout<<":: ["<<ansi_cyan<<"Sending PhsDrComputer Results to Discriminant Computer"<<ansi_blue<<"]"<<std::endl;
   std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
