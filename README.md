@@ -23,3 +23,7 @@ The branches present in the resulting file store the following informations:
 
 <h5>View from the Software Running</h5>
 <img align="left" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/.SoftwareRunning.png" width="1000">
+
+<h2>Plots that can be done though the software for further studies</h2>
+<img align="center" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/.FastME_creating_disc_plot.png" width="800">
+<img align="center" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/.FastME_creating_roc_plot.png" width="800">
