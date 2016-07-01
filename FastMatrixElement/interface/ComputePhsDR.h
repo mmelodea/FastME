@@ -172,10 +172,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    else if(FlavorConstraint == "false"){
               if( (abs(DataId[idt])!= 11 && abs(DataId[idt])!= 13) && (abs(McId[imc])== 11 || abs(McId[imc])== 13) ) continue;
               if( (abs(DataId[idt])== 11 || abs(DataId[idt])== 13) && (abs(McId[imc])!= 11 && abs(McId[imc])!= 13) ) continue;
-	      //if(abs(DataId[idt])== 11 && (abs(McId[imc])!= 11 || abs(McId[imc])!= 13)) continue;
-	      //if(abs(DataId[idt])== 13 && (abs(McId[imc])!= 11 || abs(McId[imc])!= 13)) continue;
-	      //if(abs(McId[imc])== 11 && (abs(DataId[idt])!= 11 || abs(DataId[idt])!= 13)) continue;
-	      //if(abs(McId[imc])== 13 && (abs(DataId[idt])!= 11 || abs(DataId[idt])!= 13)) continue;
 	    }
 	    ///Compute preliminary particles distance
 	    Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
