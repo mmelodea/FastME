@@ -60,6 +60,8 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   return;
 }
 
+
+
 ///######################################## FastME Main Function ######################################################
 TTree *ComputePhsDR(FmeSetup Setup){
 
@@ -160,11 +162,12 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  Double_t min_particles_distance = 1.E15;
 	  Double_t particles_distance = -1.;
 	  int sel_data = -1;
-    
+
+	  bool repaired = false;    
 	  Int_t nsame_flavor = 0;
 	  Double_t tmp_dPt = 0, tmp_dEta = 0;
 	  for(int idt=0; idt<(int)DataId.GetSize(); idt++){
-	    if(DtObjFlag[idt] == 1) continue;///Skip data object already selected
+	    if(PhSDr_Method == "mindr" && DtObjFlag[idt] == 1) continue;///Skip data object already selected
 	      
 	    ///Avoid different Data-MC particles comparison
 	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
@@ -173,6 +176,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
               if( (abs(DataId[idt])!= 11 && abs(DataId[idt])!= 13) && (abs(McId[imc])== 11 || abs(McId[imc])== 13) ) continue;
               if( (abs(DataId[idt])== 11 || abs(DataId[idt])== 13) && (abs(McId[imc])!= 11 && abs(McId[imc])!= 13) ) continue;
 	    }
+
+
 	    ///Compute preliminary particles distance
 	    Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
 	    Double_t dEta = (DataEta[idt]-McEta[imc])/(scale_dEta);
@@ -192,19 +197,28 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  
   	  ///________________________ Only for media comparison method ________________________________________________
 	    if(PhSDr_Method == "media"){
-	      if(nsame_flavor == 0){
-		tmp_dPt  = dPt/scale_dPt;
-		tmp_dEta = dEta/scale_dEta;
+	      if(FlavorConstraint == "true"){
+		if(nsame_flavor == 0){
+		  tmp_dPt  = dPt;
+		  tmp_dEta = dEta;
+	        }
+	        else{
+		  ///Repair the previous one
+		  if(repaired != true){
+		    tmp_dPt  = 0.5*tmp_dPt;
+		    tmp_dEta = 0.5*tmp_dEta;
+		    repaired = true;
+		  }
+		  ///Append the new one
+		  tmp_dPt  += 0.5*dPt;
+		  tmp_dEta += 0.5*dEta;
+	        }
+	        nsame_flavor++;
 	      }
 	      else{
-		///Repair the previous one
-		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
-		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
-		///Append the new one
-		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
-		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
+                tmp_dPt  += 0.5*dPt;
+                tmp_dEta += 0.5*dEta;
 	      }
-	      nsame_flavor++;
 	      if( verbose == 3 )
 		std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<std::endl;
 	    }
@@ -226,7 +240,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    SumMin_dEta2 += pow( (DataEta[sel_data]-McEta[imc])/(scale_dEta), 2 );
 	  }
 	  
-	  if(PhSDr_Method == "media" && nsame_flavor == 1){
+	  if(PhSDr_Method == "media"){
 	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
 	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
 	  }
