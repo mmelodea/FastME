@@ -34,31 +34,36 @@
 
 
 
-void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta){  
+void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta, TString var){  
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
   for(Int_t isample=0; isample<(Int_t)Setup.vMCs.size(); isample++){
     TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
-    TString draw_pt = Setup.PtBranch+" >> stackpt";
-    ttmp->Draw(draw_pt);
-    TH1D *stackpt = (TH1D*)gDirectory->Get("stackpt");
-    if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
-    if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
-    
-    TString draw_eta = Setup.EtaBranch+" >> stacketa";
-    ttmp->Draw(draw_eta);
-    TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
-    if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());//Only in case you are in region shifted from 0!
-    if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
+    if(var == "pt" || var == "both"){
+      TString draw_pt = Setup.PtBranch+" >> stackpt";
+      ttmp->Draw(draw_pt);
+      TH1D *stackpt = (TH1D*)gDirectory->Get("stackpt");
+      if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
+      if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
+    }
+    if(var == "eta" || var == "both"){
+      TString draw_eta = Setup.EtaBranch+" >> stacketa";
+      ttmp->Draw(draw_eta);
+      TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
+      if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());//Only in case you are in region shifted from 0!
+      if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
+    }
   }
   
-  *f_scale_dPt  = pt_sum/total;
-  *f_scale_dEta = eta_sum/total;
+  if(var == "pt" || var == "both") *f_scale_dPt  = pt_sum/total;
+  if(var == "eta" || var == "both") *f_scale_dEta = eta_sum/total;
   
   std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
   return;
 }
+
+
 
 ///######################################## FastME Main Function ######################################################
 TTree *ComputePhsDR(FmeSetup Setup){
@@ -82,9 +87,14 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TString Scale_Method		= Setup.ScaleMethod;
   Int_t verbose			= Setup.Verbose;
 
-  std::cout<<":: ["<<ansi_yellow<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<ansi_reset<<"]"<<std::endl;  
-  if(scale_dPt == -1 || scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta);
 
+  ///Setting the scale factors
+  std::cout<<":: ["<<ansi_yellow<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<ansi_reset<<"]"<<std::endl;  
+  if(scale_dPt == -1 && scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta, "both");
+  else if(scale_dPt == -1 && scale_dEta != -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta, "pt");
+  else if(scale_dPt != -1 && scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta, "eta");
+
+  
   ///Timming full process
   std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Events Distance"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   
@@ -93,6 +103,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
   auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
 		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
+		     
+    std::cout<<ansi_yellow<<"::----->>> Activating core <<<-----::"<<ansi_reset<<std::endl;
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
@@ -160,11 +172,12 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  Double_t min_particles_distance = 1.E15;
 	  Double_t particles_distance = -1.;
 	  int sel_data = -1;
-    
+
+	  bool repaired = false;    
 	  Int_t nsame_flavor = 0;
 	  Double_t tmp_dPt = 0, tmp_dEta = 0;
 	  for(int idt=0; idt<(int)DataId.GetSize(); idt++){
-	    if(DtObjFlag[idt] == 1) continue;///Skip data object already selected
+	    if(PhSDr_Method == "mindr" && DtObjFlag[idt] == 1) continue;///Skip data object already selected
 	      
 	    ///Avoid different Data-MC particles comparison
 	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
@@ -173,6 +186,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
               if( (abs(DataId[idt])!= 11 && abs(DataId[idt])!= 13) && (abs(McId[imc])== 11 || abs(McId[imc])== 13) ) continue;
               if( (abs(DataId[idt])== 11 || abs(DataId[idt])== 13) && (abs(McId[imc])!= 11 && abs(McId[imc])!= 13) ) continue;
 	    }
+
+
 	    ///Compute preliminary particles distance
 	    Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
 	    Double_t dEta = (DataEta[idt]-McEta[imc])/(scale_dEta);
@@ -192,19 +207,28 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  
   	  ///________________________ Only for media comparison method ________________________________________________
 	    if(PhSDr_Method == "media"){
-	      if(nsame_flavor == 0){
-		tmp_dPt  = dPt/scale_dPt;
-		tmp_dEta = dEta/scale_dEta;
+	      if(FlavorConstraint == "true"){
+		if(nsame_flavor == 0){
+		  tmp_dPt  = dPt;
+		  tmp_dEta = dEta;
+	        }
+	        else{
+		  ///Repair the previous one
+		  if(repaired != true){
+		    tmp_dPt  = 0.5*tmp_dPt;
+		    tmp_dEta = 0.5*tmp_dEta;
+		    repaired = true;
+		  }
+		  ///Append the new one
+		  tmp_dPt  += 0.5*dPt;
+		  tmp_dEta += 0.5*dEta;
+	        }
+	        nsame_flavor++;
 	      }
 	      else{
-		///Repair the previous one
-		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
-		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
-		///Append the new one
-		SumMed_dPt2  += pow(0.5*tmp_dPt,2);
-		SumMed_dEta2 += pow(0.5*tmp_dEta,2);
+                tmp_dPt  += 0.5*dPt;
+                tmp_dEta += 0.5*dEta;
 	      }
-	      nsame_flavor++;
 	      if( verbose == 3 )
 		std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<std::endl;
 	    }
@@ -226,7 +250,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    SumMin_dEta2 += pow( (DataEta[sel_data]-McEta[imc])/(scale_dEta), 2 );
 	  }
 	  
-	  if(PhSDr_Method == "media" && nsame_flavor == 1){
+	  if(PhSDr_Method == "media"){
 	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
 	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
 	  }
