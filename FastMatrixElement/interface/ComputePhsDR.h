@@ -95,6 +95,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
   auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
 		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
+		     
+    std::cout<<ansi_yellow<<"::----->>> Activating core <<<-----::"<<ansi_reset<<std::endl;
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
