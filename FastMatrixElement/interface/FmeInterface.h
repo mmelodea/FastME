@@ -91,7 +91,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
           }
 	}
-        if(fme_keywords[k] == 		"data_path") 	Data_Path = line;
+        if(fme_keywords[k] == 		"data_path") 	Setup->vDatas.push_back(line);
 	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
 	if(fme_keywords[k] == 		  "mc_name")	MC_Names.push_back(line);
 	if(fme_keywords[k] == 		"tree_name")	Setup->TTreeName = line;
@@ -121,11 +121,13 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   ///__________________________________________________________________________________________________________________
   
   ///Getting some numbers
-  TFile *fData = TFile::Open(Data_Path);
+//for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
+  TFile *fData = TFile::Open((TString)Setup->vDatas[0]);
   TTreeReader tmpReader1(Setup->TTreeName,fData);
   Int_t nData = tmpReader1.GetEntries(true);
   if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
     nData = Setup->DTLimit;
+//}
 
   const Int_t N_MCT = MC_Names.size();
   const Int_t N_MC = Setup->vMCs.size();
@@ -153,7 +155,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   }
   ///--------------------------------------------------------------------------------------------------------------
   
-  Setup->DataFile = fData;
+  //Setup->DataFile = fData;
   Setup->NData = nData;
   Setup->NMCT = N_MCT;
   

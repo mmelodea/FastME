@@ -69,23 +69,23 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
 TTree *ComputePhsDR(FmeSetup Setup){
 
   std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Getting User Configuration"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
-  TFile *fData 			= Setup.DataFile;
-  Int_t nData 			= Setup.NData;
-  TString TreeName 		= Setup.TTreeName;
-  TString McType_branch 	= Setup.McTypeBranch;
-  TString Id_branch 		= Setup.IdBranch;
-  TString Pt_branch 		= Setup.PtBranch;
-  TString Eta_branch 		= Setup.EtaBranch;
-  std::vector<std::string> MCs 	= Setup.vMCs;
-  Int_t N_MCT			= Setup.NMCT;
-  UInt_t N_Cores		= Setup.NCores;
-  TString PhSDr_Method		= Setup.PhSDrMethod;
-  TString FlavorConstraint	= Setup.SetFlavorConstraint;
-  Float_t MC_Limit		= Setup.MCLimit;
-  Double_t scale_dPt		= Setup.ScaledPt;
-  Double_t scale_dEta		= Setup.ScaledEta;
-  TString Scale_Method		= Setup.ScaleMethod;
-  Int_t verbose			= Setup.Verbose;
+  std::vector<std::string> Datas = Setup.vDatas;
+  Int_t nData 			 = Setup.NData;
+  TString TreeName 		 = Setup.TTreeName;
+  TString McType_branch 	 = Setup.McTypeBranch;
+  TString Id_branch 		 = Setup.IdBranch;
+  TString Pt_branch 		 = Setup.PtBranch;
+  TString Eta_branch 		 = Setup.EtaBranch;
+  std::vector<std::string> MCs 	 = Setup.vMCs;
+  Int_t N_MCT			 = Setup.NMCT;
+  UInt_t N_Cores		 = Setup.NCores;
+  TString PhSDr_Method		 = Setup.PhSDrMethod;
+  TString FlavorConstraint	 = Setup.SetFlavorConstraint;
+  Float_t MC_Limit		 = Setup.MCLimit;
+  Double_t scale_dPt		 = Setup.ScaledPt;
+  Double_t scale_dEta		 = Setup.ScaledEta;
+  TString Scale_Method		 = Setup.ScaleMethod;
+  Int_t verbose			 = Setup.Verbose;
 
 
   ///Setting the scale factors
@@ -100,7 +100,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   
   
   ///TProcPool declaration to objects to be analised  
-  auto workItem = [fData, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
+  auto workItem = [Datas, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
 		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
 		     
@@ -114,23 +114,33 @@ TTree *ComputePhsDR(FmeSetup Setup){
     TTreeReaderArray<Double_t>	McEta(tread, Eta_branch);
     
     ///Addresses the Data branches to be used
-    TTreeReader refReader(TreeName,fData);
-    TTreeReaderArray<Int_t>	DataId(refReader, Id_branch);
-    TTreeReaderArray<Double_t>	DataPt(refReader, Pt_branch);
-    TTreeReaderArray<Double_t>	DataEta(refReader, Eta_branch);
+    //TTreeReader refReader(TreeName,fData);
+    //TTreeReaderArray<Int_t>	DataId(refReader, Id_branch);
+    //TTreeReaderArray<Float_t>	DataPt(refReader, Pt_branch);
+    //TTreeReaderArray<Float_t>	DataEta(refReader, Eta_branch);
 
 
     ///Tree to store the results from analysis
     Int_t iEvent, TMcType, Indice;
     Double_t Mdist;
     std::vector<Int_t> DtObjFlag, fDtObjFlag; 
-    TTree *fme_tree = new TTree("fme_tree","temporary");
+    TTree *fme_tree = new TTree("fme_tree","From FastME Phase Space Analysis");
     fme_tree->SetDirectory(0);
     fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
     fme_tree->Branch("Mdist",&Mdist,"Mdist/D");
     fme_tree->Branch("TMcType",&TMcType,"TMcType/I");
     fme_tree->Branch("Indice",&Indice,"Indice/I");
     fme_tree->Branch("DtObjFlag","std::vector<Int_t>",&fDtObjFlag);
+
+    for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
+     TFile *fData = TFile::Open( (TString)Datas.at(idata) );
+     std::cout<<"Analising file "<<fData->GetName()<<std::endl;
+
+    ///Addresses the Data branches to be used
+    TTreeReader refReader(TreeName,fData);
+    TTreeReaderArray<Int_t>     DataId(refReader, Id_branch);
+    TTreeReaderArray<Double_t>   DataPt(refReader, Pt_branch);
+    TTreeReaderArray<Double_t>   DataEta(refReader, Eta_branch);
 
     
     ///Loop on Data events
@@ -300,15 +310,17 @@ TTree *ComputePhsDR(FmeSetup Setup){
       
       fme_tree->Fill();
     }///End Data sample loop
-    
-    t2.Stop();
     delete fData;
+   }    
+    t2.Stop();
+    //delete fData;
     return fme_tree;
   };
   
   ///Calls analysis through TProcPool
   TProcPool workers(N_Cores);
   TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
+  //phs_trees.push_back(mtree);
 
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;

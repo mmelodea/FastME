@@ -25,7 +25,7 @@ static std::string ansi_reset  = "\x1b[0m";
 
 ///------- Define global struct to store user setup ----------
 struct FmeSetup{
-  TFile				*DataFile;
+  std::vector<std::string>	vDatas;
   Int_t				NData;
   TString			TTreeName;
   TString			McTypeBranch;

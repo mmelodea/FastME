@@ -90,23 +90,24 @@ int main(int argc, char *argv[]){
     rtree = ComputePhsDR(setup);
 
     ///Calls Discriminator
-    ftree = Discriminant(rtree, setup);
+    //ftree = Discriminant(rtree, setup);
 
     ///Stop timming
     t1.Stop();
     
-    ///Store results (be aware.. the file is handled relative to path where fastme software was called)
+    ///Store results (be aware.. the file is handled relative to path where fastme software is called)
     gSystem->Exec("mkdir -p "+setup.OutPath);
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
     TFile *ffile = new TFile(resulting_file,"recreate");
-    ftree->Write();
+    rtree->Write();
+    //ftree->Write();
     ffile->Close();
   
     ///-------------------------------------------------------------------------------------------------------------------
     std::cout<<ansi_blue;
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
-    std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
+    //std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
     std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: ";
     t1.Print();
     std::cout<<ansi_blue<<"==============================================================================================="<<std::endl;

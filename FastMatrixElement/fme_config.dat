@@ -22,17 +22,28 @@
 
 ############# User config ############
 ### Path of samples ###
-#data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
-data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_1.root
-mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_2.root
-mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_2.root
-mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_2.root
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part1.root
+mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part2.root
+mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part2.root
+mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part2.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part3.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part4.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part5.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part6.root
 
 #data_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_1_NewFormat.root
 #data_path ../../../../VBF_Samples_StdVectors/VBF_BKG_QED4_QCD0_plus_QED2_QCD2.root
 #mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_2_NewFormat.root
 #mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_BKG_FastME_2_NewFormat.root
 #mc_path ../../../../VBF_Samples_StdVectors/VBF_QED2_QCD2_BKG_FastME_2_NewFormat.root
+
+#data_path ../../../../Higgs_Ntuples/ToFastME/2e2mu/output_GluGluHToZZTo4L_M125_13TeV_powheg_JHUgen_pythia8.root
+#data_path ../../../../Higgs_Ntuples/ToFastME/2e2mu/output_VBF_HToZZTo4L_M125_13TeV_powheg_JHUgen_pythia8.root
+#mc_path ../../../../Higgs_Ntuples/ToFastME/4e/output_GluGluHToZZTo4L_M125_13TeV_powheg_JHUgen_pythia8.root
+#mc_path	../../../../Higgs_Ntuples/ToFastME/4e/output_VBF_HToZZTo4L_M125_13TeV_powheg_JHUgen_pythia8.root
+#mc_path	../../../../Higgs_Ntuples/ToFastME/4mu/output_GluGluHToZZTo4L_M125_13TeV_powheg_JHUgen_pythia8.root
+#mc_path	../../../../Higgs_Ntuples/ToFastME/4mu/output_VBF_HToZZTo4L_M125_13TeV_powheg_JHUgen_pythia8.root
 
 ### Name of MC samples ###
 mc_name SM_Higgs126
@@ -41,10 +52,14 @@ mc_name qqZZ
 #mc_name VBF_Higgs126
 #mc_name VBF_EW_bkg
 #mc_name VBF_QCD_bkg
+#mc_name ggH125
+#mc_name vbfH125
+
 
 ### Tree info ###
 tree_name Higgs
 #tree_name Vbf
+#tree_name HZZ4LeptonsAnalysisReduced
 id_branch_name ParticleId
 pt_branch_name ParticlePt
 eta_branch_name ParticleEta
@@ -52,18 +67,18 @@ mc_type_branch_name McType
 
 
 ############ FastME configs ##########
-outfile_name fme_results_sig_mindr
+outfile_name fme_test
 outfile_path tests
 phs_dr_method mindr
-flavor_constraint false
+flavor_constraint true
 n_cores 3
-data_limit 500
+data_limit 20
 #MC quantity is based on fraction to mantain cross section relation
-mc_limit 0.0165
+mc_limit 0.01
 scale_dPt -1
 scale_dEta -1
 scale_method extrem
 #To plot some results
-fme_files tests/fme_results_sig_mindr.root
-fme_files tests/fme_results_bkg_mindr.root
+fme_files tests/fme_results_ggH_media.root
+fme_files tests/fme_results_vbfH_media.root
 verbose_level 1
