@@ -121,13 +121,18 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   ///__________________________________________________________________________________________________________________
   
   ///Getting some numbers
-//for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
-  TFile *fData = TFile::Open((TString)Setup->vDatas[0]);
-  TTreeReader tmpReader1(Setup->TTreeName,fData);
-  Int_t nData = tmpReader1.GetEntries(true);
-  if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
+  const Int_t N_DT = Setup->vDatas.size();
+  Int_t NDATA[N_DT];
+  for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
+    TFile *fData = TFile::Open((TString)Setup->vDatas[nd]);
+    TTreeReader tmpReader1(Setup->TTreeName,fData);
+    Int_t nData = tmpReader1.GetEntries(true);
+    if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
     nData = Setup->DTLimit;
-//}
+
+    NDATA[nd] = nData;
+    fData->Close();
+  }
 
   const Int_t N_MCT = MC_Names.size();
   const Int_t N_MC = Setup->vMCs.size();
@@ -145,7 +150,11 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   }
   if(run_mode == normal && command != pr){
     std::cout<<ansi_yellow<<"______________________________________________________________________________________________"<<ansi_reset<<std::endl;
-    std::cout<< Form(":: Data Events:      %i",nData) <<std::endl;
+    std::cout<< Form(":: Data Samples:     %i\t[",N_DT);
+    for(Int_t nd=0; nd<N_DT; nd++){
+      if( nd<(N_DT-1) ) std::cout<< nd << "= " << NDATA[nd] << ",  ";
+      if( nd==(N_DT-1) ) std::cout<< nd << "= " << NDATA[nd] << "]" <<std::endl;
+    }
     std::cout<< Form(":: MC Samples:       %i\t[",N_MC); 
     for(Int_t ne=0; ne<N_MC; ne++){
       if( ne<(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << ",  ";
@@ -155,8 +164,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   }
   ///--------------------------------------------------------------------------------------------------------------
   
-  //Setup->DataFile = fData;
-  Setup->NData = nData;
+  
+  Setup->NData = N_DT;
   Setup->NMCT = N_MCT;
   
   return;

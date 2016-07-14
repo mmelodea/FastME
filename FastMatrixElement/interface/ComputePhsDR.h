@@ -70,7 +70,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
   std::cout<<ansi_blue<<"::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Getting User Configuration"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
   std::vector<std::string> Datas = Setup.vDatas;
-  Int_t nData 			 = Setup.NData;
+  Int_t nData 			 = Setup.DTLimit;
   TString TreeName 		 = Setup.TTreeName;
   TString McType_branch 	 = Setup.McTypeBranch;
   TString Id_branch 		 = Setup.IdBranch;
@@ -112,12 +112,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
     TTreeReaderArray<Int_t>	McId(tread, Id_branch);
     TTreeReaderArray<Double_t>	McPt(tread, Pt_branch);
     TTreeReaderArray<Double_t>	McEta(tread, Eta_branch);
-    
-    ///Addresses the Data branches to be used
-    //TTreeReader refReader(TreeName,fData);
-    //TTreeReaderArray<Int_t>	DataId(refReader, Id_branch);
-    //TTreeReaderArray<Float_t>	DataPt(refReader, Pt_branch);
-    //TTreeReaderArray<Float_t>	DataEta(refReader, Eta_branch);
 
 
     ///Tree to store the results from analysis
@@ -134,7 +128,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
     for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
      TFile *fData = TFile::Open( (TString)Datas.at(idata) );
-     std::cout<<"Analising file "<<fData->GetName()<<std::endl;
+     //std::cout<<"Analising file "<<fData->GetName()<<std::endl;
 
     ///Addresses the Data branches to be used
     TTreeReader refReader(TreeName,fData);
@@ -144,11 +138,13 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
     
     ///Loop on Data events
-    for(Int_t dt=0; dt<nData; dt++){
+    Int_t nDataEv = refReader.GetEntries(true);
+    if(nData != -1 && nData >= 1 && nData < nDataEv) nDataEv = nData;
+    for(Int_t dt=0; dt<nDataEv; dt++){
       refReader.SetEntry(dt); ///Move on Data loop                                                              
       
-      if( verbose != 0 && ((dt!= 0 && nData > 10 && dt%(nData/10) == 0) || (nData-dt) == 1) ){ 
-	std::cout<<":: ["<<ansi_violet<<"Remaining events from MC "<<*McType<<ansi_reset<<"]:  "<<nData-dt<<"\t\t["<<ansi_violet<<"Elapsed"<<ansi_reset<<"]:  ";
+      if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){ 
+	std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<ansi_reset<<"]:  "<<nDataEv-dt<<"\t\t["<<ansi_violet<<"Elapsed"<<ansi_reset<<"]:  ";
 	t2.Stop();
 	t2.Print();
 	t2.Continue();
