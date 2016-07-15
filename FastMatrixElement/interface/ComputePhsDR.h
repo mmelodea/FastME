@@ -69,6 +69,8 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
 
 
 
+
+
 ///######################################## FastME Main Function ######################################################
 TTree *ComputePhsDR(FmeSetup Setup){
 
@@ -118,90 +120,92 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
 
     ///Tree to store the results from analysis
-    Int_t iEvent, TMcType, Indice;
+    Int_t iEvent, TMcType, Indice, DataFile = -1;
     Double_t Mdist;
     std::vector<Int_t> DtObjFlag, fDtObjFlag; 
     TTree *fme_tree = new TTree("fme_tree","From FastME Phase Space Analysis");
     fme_tree->SetDirectory(0);
-    fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
-    fme_tree->Branch("MinDistance",&Mdist,"Mdist/D");
-    fme_tree->Branch("MCChosen",&Indice,"Indice/I");
-    fme_tree->Branch("PairedMcType",&TMcType,"TMcType/I");
+    fme_tree->Branch("DataFile",&DataFile,"DataFile/I");
+    fme_tree->Branch("Event",&iEvent,"Event/I");
+    fme_tree->Branch("MinDistance",&Mdist,"MinDistance/D");
+    fme_tree->Branch("PairedMC",&Indice,"PairedMC/I");
+    fme_tree->Branch("PairedMCType",&TMcType,"PairedMCType/I");
     fme_tree->Branch("DataObjFlag","std::vector<Int_t>",&fDtObjFlag);
 
-    for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
-     TFile *fData = TFile::Open( (TString)Datas.at(idata) );
-     //std::cout<<"Analising file "<<fData->GetName()<<std::endl;
 
-    ///Addresses the Data branches to be used
-    TTreeReader refReader(TreeName,fData);
-    TTreeReaderArray<Int_t>     DataId(refReader, Id_branch);
-    TTreeReaderArray<Double_t>   DataPt(refReader, Pt_branch);
-    TTreeReaderArray<Double_t>   DataEta(refReader, Eta_branch);
+    ///Loop over the different data files
+    for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
+      DataFile = idata;
+
+      TFile *fData = TFile::Open( (TString)Datas.at(idata) );
+      TTreeReader refReader(TreeName,fData);
+      TTreeReaderArray<Int_t>      DataId(refReader, Id_branch);
+      TTreeReaderArray<Double_t>   DataPt(refReader, Pt_branch);
+      TTreeReaderArray<Double_t>   DataEta(refReader, Eta_branch);
 
     
-    ///Loop on Data events
-    Int_t nDataEv = refReader.GetEntries(true);
-    if(nData != -1 && nData >= 1 && nData < nDataEv) nDataEv = nData;
-    for(Int_t dt=0; dt<nDataEv; dt++){
-      refReader.SetEntry(dt); ///Move on Data loop                                                              
+      ///Loop on Data events
+      Int_t nDataEv = refReader.GetEntries(true);
+      if(nData != -1 && nData >= 1 && nData < nDataEv) nDataEv = nData;
+      for(Int_t dt=0; dt<nDataEv; dt++){
+	refReader.SetEntry(dt); ///Move on Data loop                                                              
       
-      if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
-	std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg"<<std::endl;
-        t2.Continue();
-      }
+	if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
+	  std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg"<<std::endl;
+	  t2.Continue();
+	}
 
-      Double_t min_distance_Min = 1.e15;
-      Double_t min_distance_Med = 1.e15;
-      Int_t imc_min = -1;
-      Int_t f_type=-99;
-      Int_t nMonteCarlo = tread.GetEntries(true);
-      if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
-      if(MC_Limit != -1 && MC_Limit < 1) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
+	Double_t min_distance_Min = 1.e15;
+	Double_t min_distance_Med = 1.e15;
+	Int_t imc_min = -1;
+	Int_t f_type=-99;
+	Int_t nMonteCarlo = tread.GetEntries(true);
+	if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
+	if(MC_Limit != -1 && MC_Limit < 1) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
 
-      for(Int_t mc=0; mc<nMonteCarlo; mc++){
-	//Initialyze the vector
-	DtObjFlag.clear();
-	for(int sl=0; sl<(int)DataId.GetSize(); sl++) DtObjFlag.push_back(-1);
+	for(Int_t mc=0; mc<nMonteCarlo; mc++){
+	  //Initialyze the vector
+	  DtObjFlag.clear();
+	  for(int sl=0; sl<(int)DataId.GetSize(); sl++) DtObjFlag.push_back(-1);
 
-	tread.SetEntry(mc); ///Move on MC loop
-        bool acept = true;
+	  tread.SetEntry(mc); ///Move on MC loop
+	  bool acept = true;
 	
-      ///==============================================================================================================
-      ///::::::::::::::::::::::::: Fast Matrix Element methods to compute Data - MC distance ::::::::::::::::::::::::::
-      ///::::::::::::::::::::::::::::::::::::: Currently 2 Methods Available ::::::::::::::::::::::::::::::::::::::::::
-      ///==============================================================================================================
-	Double_t event_distance_Min= -99, event_distance_Med= -99;
-	Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
-	Double_t SumMin_dPt2 = 0, SumMin_dEta2 = 0;
+	  ///==============================================================================================================
+	  ///::::::::::::::::::::::::: Fast Matrix Element methods to compute Data - MC distance ::::::::::::::::::::::::::
+	  ///::::::::::::::::::::::::::::::::::::: Currently 2 Methods Available ::::::::::::::::::::::::::::::::::::::::::
+	  ///==============================================================================================================
+	  Double_t event_distance_Min= -99, event_distance_Med= -99;
+	  Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
+	  Double_t SumMin_dPt2 = 0, SumMin_dEta2 = 0;
 	
-	for(int imc=0; imc<(int)McId.GetSize(); imc++){
-	  Double_t min_particles_distance = 1.E15;
-	  Double_t particles_distance = -1.;
-	  int sel_data = -1;
+	  for(int imc=0; imc<(int)McId.GetSize(); imc++){
+	    Double_t min_particles_distance = 1.E15;
+	    Double_t particles_distance = -1.;
+	    int sel_data = -1;
 
-	  bool repaired = false;    
-	  Int_t nsame_flavor = 0;
-	  Double_t tmp_dPt = 0, tmp_dEta = 0;
-	  for(int idt=0; idt<(int)DataId.GetSize(); idt++){
-	    if(PhSDr_Method == "mindr" && DtObjFlag[idt] == 1) continue;///Skip data object already selected
+	    bool repaired = false;    
+	    Int_t nsame_flavor = 0;
+	    Double_t tmp_dPt = 0, tmp_dEta = 0;
+	    for(int idt=0; idt<(int)DataId.GetSize(); idt++){
+	      if(PhSDr_Method == "mindr" && DtObjFlag[idt] == 1) continue;///Skip data object already selected
 	      
-	    ///Avoid different Data-MC particles comparison
-	    if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
-	    ///Avoid leptons-jets comparison
-	    else if(FlavorConstraint == "false"){
-              if( (abs(DataId[idt])!= 11 && abs(DataId[idt])!= 13) && (abs(McId[imc])== 11 || abs(McId[imc])== 13) ) continue;
-              if( (abs(DataId[idt])== 11 || abs(DataId[idt])== 13) && (abs(McId[imc])!= 11 && abs(McId[imc])!= 13) ) continue;
-	    }
+	      ///Avoid different Data-MC particles comparison
+	      if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
+	      ///Avoid leptons-jets comparison
+	      else if(FlavorConstraint == "false"){
+		if( (abs(DataId[idt])!= 11 && abs(DataId[idt])!= 13) && (abs(McId[imc])== 11 || abs(McId[imc])== 13) ) continue;
+		if( (abs(DataId[idt])== 11 || abs(DataId[idt])== 13) && (abs(McId[imc])!= 11 && abs(McId[imc])!= 13) ) continue;
+	      }
 
 
-	    ///Compute preliminary particles distance
-	    Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
-	    Double_t dEta = (DataEta[idt]-McEta[imc])/(scale_dEta);
+	      ///Compute preliminary particles distance
+	      Double_t dPt  = (DataPt[idt]-McPt[imc])/(scale_dPt);
+	      Double_t dEta = (DataEta[idt]-McEta[imc])/(scale_dEta);
 	
 
-	  ///_______________________ For proximity comparison method __________________________________________________
-	    if( PhSDr_Method == "mindr"){
+	      ///_______________________ For proximity comparison method __________________________________________________
+	      if( PhSDr_Method == "mindr"){
 		particles_distance = sqrt(dPt*dPt + dEta*dEta);
 		if( verbose == 3 ) std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<"   part_dist: "<<particles_distance<<std::endl;
 		if(particles_distance < min_particles_distance){
@@ -209,115 +213,121 @@ TTree *ComputePhsDR(FmeSetup Setup){
 		  min_particles_distance = particles_distance;
 		}
 	      }
-	  ///¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+	      ///----------------------------------------------------------------------------------------------------------
 	  
 	  
-  	  ///________________________ Only for media comparison method ________________________________________________
-	    if(PhSDr_Method == "media"){
-	      if(FlavorConstraint == "true"){
-		if(nsame_flavor == 0){
-		  tmp_dPt  = dPt;
-		  tmp_dEta = dEta;
-	        }
-	        else{
-		  ///Repair the previous one
-		  if(repaired != true){
-		    tmp_dPt  = 0.5*tmp_dPt;
-		    tmp_dEta = 0.5*tmp_dEta;
-		    repaired = true;
+	      ///________________________ Only for media comparison method ________________________________________________
+	      if(PhSDr_Method == "media"){
+		if(FlavorConstraint == "true"){
+		  if(nsame_flavor == 0){
+		    tmp_dPt  = dPt;
+		    tmp_dEta = dEta;
 		  }
-		  ///Append the new one
+		  else{
+		    ///Repair the previous one
+		    if(repaired != true){
+		      tmp_dPt  = 0.5*tmp_dPt;
+		      tmp_dEta = 0.5*tmp_dEta;
+		      repaired = true;
+		    }
+		    ///Append the new one
+		    tmp_dPt  += 0.5*dPt;
+		    tmp_dEta += 0.5*dEta;
+		  }
+		  nsame_flavor++;
+		}
+		else{
 		  tmp_dPt  += 0.5*dPt;
 		  tmp_dEta += 0.5*dEta;
-	        }
-	        nsame_flavor++;
+		}
+		if( verbose == 3 )
+		  std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<std::endl;
 	      }
-	      else{
-                tmp_dPt  += 0.5*dPt;
-                tmp_dEta += 0.5*dEta;
+	      ///--------------------------------------------------------------------------------------------------------
+
+	    }///Ends Data event loop
+	  
+	    if(PhSDr_Method == "mindr"){
+	      ///Monitor of chosen MCs to avoid object recounting and wrong pairing
+	      if(sel_data == -1){
+		acept = false;
+		break;
 	      }
-	      if( verbose == 3 )
-		std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<McId[imc]<<std::endl;
-	    }
-	  ///¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+	      DtObjFlag[sel_data] = 1;///changes the flag for current Data object
 
-	  }///Ends Data event loop
-	  
-	  if(PhSDr_Method == "mindr"){
-	    ///Monitor of chosen MCs to avoid object recounting and wrong pairing
-	    if(sel_data == -1){
-	      acept = false;
-	      break;
+	      if( verbose == 3 ) std::cout<<"Chosen->>  DtPos: "<<sel_data<<"   ID: "<<DataId[sel_data]<<std::endl;
+	      ///For proximity comparison method
+	      SumMin_dPt2 += pow( (DataPt[sel_data]-McPt[imc])/(scale_dPt), 2 );
+	      SumMin_dEta2 += pow( (DataEta[sel_data]-McEta[imc])/(scale_dEta), 2 );
 	    }
-	    DtObjFlag[sel_data] = 1;///changes the flag for current Data object
-
-	    if( verbose == 3 ) std::cout<<"Chosen->>  DtPos: "<<sel_data<<"   ID: "<<DataId[sel_data]<<std::endl;
-	    ///For proximity comparison method
-	    SumMin_dPt2 += pow( (DataPt[sel_data]-McPt[imc])/(scale_dPt), 2 );
-	    SumMin_dEta2 += pow( (DataEta[sel_data]-McEta[imc])/(scale_dEta), 2 );
-	  }
 	  
-	  if(PhSDr_Method == "media"){
-	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
-	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
-	  }
-	}///Ends MC event loop
+	    if(PhSDr_Method == "media"){
+	      SumMed_dPt2  += tmp_dPt*tmp_dPt;
+	      SumMed_dEta2 += tmp_dEta*tmp_dEta;
+	    }
+	  }///Ends MC event loop
 	
-	///Compute final Data-MC events distance & searches for minimum distance
-	if(PhSDr_Method == "mindr" && acept == true){
-	  event_distance_Min = sqrt(SumMin_dPt2 + SumMin_dEta2);
-	  if(event_distance_Min < min_distance_Min){
-	    min_distance_Min = event_distance_Min;
-	    imc_min = mc;
-	    fDtObjFlag = DtObjFlag;
+	  ///Compute final Data-MC events distance & searches for minimum distance
+	  if(PhSDr_Method == "mindr" && acept == true){
+	    event_distance_Min = sqrt(SumMin_dPt2 + SumMin_dEta2);
+	    if(event_distance_Min < min_distance_Min){
+	      min_distance_Min = event_distance_Min;
+	      imc_min = mc;
+	      fDtObjFlag = DtObjFlag;
+	    }
+	    if( verbose > 2 ) std::cout<<"Event_distance(MinDr) = "<<event_distance_Min<<std::endl;  
 	  }
-	  if( verbose > 2 ) std::cout<<"Event_distance(MinDr) = "<<event_distance_Min<<std::endl;  
-	}
 	
-	if(PhSDr_Method == "media" && SumMed_dPt2 > 0){
-	  event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2);
-	  if(event_distance_Med < min_distance_Med){
-	    min_distance_Med = event_distance_Med;
-	    imc_min = mc;
+	  if(PhSDr_Method == "media" && SumMed_dPt2 > 0){
+	    event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2);
+	    if(event_distance_Med < min_distance_Med){
+	      min_distance_Med = event_distance_Med;
+	      imc_min = mc;
+	    }
+	    if( verbose > 2 ) std::cout<<"Event_distance (Media) = "<<event_distance_Med<<std::endl;  
 	  }
-	  if( verbose > 2 ) std::cout<<"Event_distance (Media) = "<<event_distance_Med<<std::endl;  
-	}
-	///Stores the MC type
-	f_type = *McType;
-      ///================================================================================================================
-      ///================================================================================================================
+
+	  ///Stores the MC type
+	  f_type = *McType;
+	  ///================================================================================================================
+	  ///================================================================================================================
 	
       }///End MC sample loop
 
       
-      ///Stores the minimum distances found
-      iEvent = dt;
-      if(PhSDr_Method == "mindr"){
-	Mdist = min_distance_Min;
-	TMcType = f_type;
-	Indice  = imc_min;
-	if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<std::endl;
-      }
-      if(PhSDr_Method == "media"){
-	Mdist = min_distance_Med;
-	TMcType = f_type;
-	Indice  = imc_min;
-	if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<std::endl;
-      }
-      
-      fme_tree->Fill();
-    }///End Data sample loop
-    delete fData;
-   }    
+	///Stores the minimum distances found
+	iEvent = dt;
+	if(PhSDr_Method == "mindr"){
+	  Mdist = min_distance_Min;
+	  TMcType = f_type;
+	  Indice  = imc_min;
+	  if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<std::endl;
+	}
+	if(PhSDr_Method == "media"){
+	  Mdist = min_distance_Med;
+	  TMcType = f_type;
+	  Indice  = imc_min;
+	  if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<std::endl;
+	}
+	
+	fme_tree->Fill();
+      }///End Data sample loop
+  
+      delete fData;
+    }///Ends the loop over data files
+    
+
     t2.Stop();
-    //delete fData;
     return fme_tree;
   };
+
   
+
+
   ///Calls analysis through TProcPool
   TProcPool workers(N_Cores);
   TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
-  //phs_trees.push_back(mtree);
+  
 
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;

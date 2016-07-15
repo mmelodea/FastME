@@ -25,12 +25,14 @@ Double_t GetPsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
 ///===================================================================
 
 
+
+
 ///_______________________ Compute discriminant from MDMCED _________________________________________________
 TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   
   UInt_t N_Cores	= Setup.NCores;
-  Int_t nData		= Setup.NData;
-  const Int_t N_MCT	= Setup.NMCT;
+  Int_t nData		= Setup.NData; //Total Number of data events
+  const Int_t N_MCT	= Setup.NMCT;  //Number of MC samples
   Int_t verbose		= Setup.Verbose;  
 
   TStopwatch t2;
@@ -38,14 +40,15 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   std::cout<<ansi_blue<<":::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Computing Discriminant"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::"<<ansi_reset<<std::endl;
 
   ///Set the input tree
-  Int_t iEvent, TMcType, Indice;
+  Int_t iEvent, TMcType, Indice, DtFile;
   Double_t Mdist;
   std::vector<Int_t> *oDtObjFlag=0;
-  mtree->SetBranchAddress("iEvent",&iEvent);
-  mtree->SetBranchAddress("Mdist",&Mdist);
-  mtree->SetBranchAddress("TMcType",&TMcType);
-  mtree->SetBranchAddress("Indice",&Indice);
-  mtree->SetBranchAddress("DtObjFlag",&oDtObjFlag);  
+  mtree->SetBranchAddress("DataFile",&DtFile);
+  mtree->SetBranchAddress("Event",&iEvent);
+  mtree->SetBranchAddress("MinDistance",&Mdist);
+  mtree->SetBranchAddress("PairedMCType",&TMcType);
+  mtree->SetBranchAddress("PairedMC",&Indice);
+  mtree->SetBranchAddress("DataObjFlag",&oDtObjFlag);  
   Int_t fentries = mtree->GetEntries();
 
   std::vector<Int_t> McIndex, McCat, DtObjFlag;
@@ -53,17 +56,17 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   std::vector<Double_t> MinDist, Local_PsbDist;
   TTree *ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
   ftree->SetDirectory(0);
-  ftree->Branch("McIndex","std::vector<Int_t>",&McIndex);
-  ftree->Branch("McCat","std::vector<Int_t>",&McCat);
-  ftree->Branch("DtObjFlag","std::vector<Int_t>",&DtObjFlag);
-  ftree->Branch("MinDist","std::vector<Double_t>",&MinDist);
+  ftree->Branch("PairedMC","std::vector<Int_t>",&McIndex);
+  ftree->Branch("PairedMCType","std::vector<Int_t>",&McCat);
+  ftree->Branch("DataObjFlag","std::vector<Int_t>",&DtObjFlag);
+  ftree->Branch("MinDistance","std::vector<Double_t>",&MinDist);
   ftree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
   ftree->Branch("Local_PsbDist","std::vector<Double_t> Local_PsbDist",&Local_PsbDist);
 
   ///Find the tree sectors
   Int_t TreeSectors[N_Cores];
   if(fentries % N_Cores != 0){
-    std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something gone wrong... non-integer tree sectors!!"<<std::endl;
+    std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something went wrong... non-integer tree sectors!!"<<std::endl;
     throw std::exception();
   }
   
@@ -96,10 +99,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
     }
     for(Int_t ic=0; ic<(Int_t)N_Cores; ic++){
       mtree->GetEntry(TreeSectors[ic]+data);//TreeSectors aligns the results from different cores
-      if(iEvent != data){
-	std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something gone wrong... iEvent != data"<<std::endl;
-	throw std::exception();
-      }
+      
       
       ///Finds closest MC Signal
       if(TMcType == 0)

@@ -123,14 +123,15 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   std::cout<<"\n:: "<<ansi_yellow<<"Checking inputs..."<<ansi_reset<<std::endl;
   const Int_t N_DT = Setup->vDatas.size();
   Int_t NDATA[N_DT];
+  Int_t nDtEv = 0;
   for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
     TFile *fData = TFile::Open((TString)Setup->vDatas[nd]);
     TTreeReader tmpReader1(Setup->TTreeName,fData);
     Int_t nData = tmpReader1.GetEntries(true);
     if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
     nData = Setup->DTLimit;
-
     NDATA[nd] = nData;
+    nDtEv += nData;
     fData->Close();
   }
 
@@ -165,7 +166,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   ///--------------------------------------------------------------------------------------------------------------
   
   
-  Setup->NData = N_DT;
+  Setup->NData = nDtEv;
   Setup->NMCT = N_MCT;
   
   return;
