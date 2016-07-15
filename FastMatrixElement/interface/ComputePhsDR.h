@@ -124,10 +124,10 @@ TTree *ComputePhsDR(FmeSetup Setup){
     TTree *fme_tree = new TTree("fme_tree","From FastME Phase Space Analysis");
     fme_tree->SetDirectory(0);
     fme_tree->Branch("iEvent",&iEvent,"iEvent/I");
-    fme_tree->Branch("Mdist",&Mdist,"Mdist/D");
-    fme_tree->Branch("TMcType",&TMcType,"TMcType/I");
-    fme_tree->Branch("Indice",&Indice,"Indice/I");
-    fme_tree->Branch("DtObjFlag","std::vector<Int_t>",&fDtObjFlag);
+    fme_tree->Branch("MinDistance",&Mdist,"Mdist/D");
+    fme_tree->Branch("MCChosen",&Indice,"Indice/I");
+    fme_tree->Branch("PairedMcType",&TMcType,"TMcType/I");
+    fme_tree->Branch("DataObjFlag","std::vector<Int_t>",&fDtObjFlag);
 
     for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
      TFile *fData = TFile::Open( (TString)Datas.at(idata) );
