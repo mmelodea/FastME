@@ -11,7 +11,6 @@
 #include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
 #include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
 #include "FastMatrixElement/FastMatrixElement/interface/StudyResults.h"
-#include "FastMatrixElement/FastMatrixElement/interface/FileFormater.h"
 #include "FastMatrixElement/FastMatrixElement/interface/ShowParticles.h"
 
 //c++ headers
@@ -63,15 +62,14 @@ int main(int argc, char *argv[]){
     else ConfigReader((std::string)argv[2], &setup, (std::string)argv[1], (std::string)argv[3]);
   }
 
-  ///--------------------- Interface manager ------------------------------
+  
   ///To show FastME usage
   if(argv[1] == help)           Helper();
+  
   
   ///To show number of cores available in the local machine
   else if(argv[1] == nc)        FindCores();
   
-  ///To format an ntuple in different format
-  else if(argv[1] == ff)        FileFormater(setup);
   
   ///To make the Fast Matrix Element analysis and compute discriminant
   else if(argv[1] == fa){
@@ -92,8 +90,6 @@ int main(int argc, char *argv[]){
     ///Calls Discriminator
     //ftree = Discriminant(rtree, setup);
 
-    ///Stop timming
-    t1.Stop();
     
     ///Store results (be aware.. the file is handled relative to path where fastme software is called)
     gSystem->Exec("mkdir -p "+setup.OutPath);
@@ -109,16 +105,19 @@ int main(int argc, char *argv[]){
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
     //std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
     std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: ";
-    t1.Print();
+    t1.Stop(); t1.Print();
     std::cout<<ansi_blue<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset<<"\n\n";
   }
 
+
   ///Calls FastME analyzer (plot discriminants, ROC curve, events/discriminant value)
   else if(argv[1] == pr )	StudyResults(setup);
+
   
   ///Calls event display
   else if(argv[1] == sp)	ShowParticles(setup);
+
   
   ///Wrong commands gets error and return the helper
   else{
@@ -127,7 +126,7 @@ int main(int argc, char *argv[]){
     Helper();
     return -1;
   }
-  ///----------------------------------------------------------------------  
+
  
   //if everything ok, finish well!
   return 0;

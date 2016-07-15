@@ -26,12 +26,11 @@
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", ff = "-f", fa = "-a", pr = "-p", sp = "-s";
+static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-p", sp = "-s";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file [flux options]"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
   std::cout<<"\t-c\t\tInform how many cores are available in the machine"<<std::endl;
-  std::cout<<"\t-f\t\tConvert a general root file to FastME root file format"<<ansi_yellow<<" (to be implemented)"<<ansi_reset<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
   std::cout<<"\t-p\t\tMake plots from the FastME results"<<std::endl;
   std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<ansi_yellow<<" (to be implemented)"<<ansi_reset<<std::endl;  
