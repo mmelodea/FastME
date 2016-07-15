@@ -43,7 +43,6 @@ struct FmeSetup{
   Float_t			MCLimit;
   Double_t			ScaledPt;
   Double_t			ScaledEta;
-  TString			ScaleMethod;
   std::vector<TString>		FmeFiles;
   Int_t				Verbose = 1;
 };
@@ -69,7 +68,6 @@ static std::vector<std::string> fme_keywords = {
   "mc_limit",
   "scale_dPt",
   "scale_dEta",
-  "scale_method",
   "fme_files",
   "verbose_level"
 };
@@ -92,7 +90,6 @@ static std::vector<int> ksize = {
   9,	///mc_limit
   10,	///scale_dPt
   11,	///scale_dEta
-  13,	///scale_method
   10,	///fme_files
   14	///verbose_level
 };

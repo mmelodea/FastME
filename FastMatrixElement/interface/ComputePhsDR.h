@@ -23,6 +23,7 @@
 #include <TMath.h>
 #include <TH1D.h>
 #include <TStopwatch.h>
+#include <TCanvas.h>
 
 ///Headers to TProcPool
 #include <TTreeReader.h>
@@ -34,32 +35,35 @@
 
 
 
-void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta, TString var){  
+void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_dEta){
+  gROOT->SetBatch();
+  TCanvas *temp = new TCanvas();
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
-  for(Int_t isample=0; isample<(Int_t)Setup.vMCs.size(); isample++){
+  for(Int_t isample=0; isample<(Int_t)total; isample++){
     TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
-    if(var == "pt" || var == "both"){
+    if(*f_scale_dPt < 0){
       TString draw_pt = Setup.PtBranch+" >> stackpt";
       ttmp->Draw(draw_pt);
       TH1D *stackpt = (TH1D*)gDirectory->Get("stackpt");
-      if(Setup.ScaleMethod == "mean")    pt_sum += stackpt->GetMean();
-      if(Setup.ScaleMethod == "extrem")  pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
+      if(*f_scale_dPt == -1) pt_sum += stackpt->GetMean();
+      if(*f_scale_dPt == -2) pt_sum += stackpt->GetBinCenter(stackpt->GetMaximumBin());
     }
-    if(var == "eta" || var == "both"){
+    if(*f_scale_dEta < 0){
       TString draw_eta = Setup.EtaBranch+" >> stacketa";
       ttmp->Draw(draw_eta);
       TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
-      if(Setup.ScaleMethod == "mean")    eta_sum += fabs(stacketa->GetMean());//Only in case you are in region shifted from 0!
-      if(Setup.ScaleMethod == "extrem")  eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
+      if(*f_scale_dEta == -1) eta_sum += fabs(stacketa->GetMean());//Only in case you are in region shifted from 0!
+      if(*f_scale_dEta == -2) eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
     }
   }
   
-  if(var == "pt" || var == "both") *f_scale_dPt  = pt_sum/total;
-  if(var == "eta" || var == "both") *f_scale_dEta = eta_sum/total;
+  if(*f_scale_dPt < 0)  *f_scale_dPt  = pt_sum/total;
+  if(*f_scale_dEta < 0) *f_scale_dEta = eta_sum/total;
   
   std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f and scale_dEta = %.3f",*f_scale_dPt,*f_scale_dEta)<<std::endl;
+  temp->Close();
   return;
 }
 
@@ -84,15 +88,14 @@ TTree *ComputePhsDR(FmeSetup Setup){
   Float_t MC_Limit		 = Setup.MCLimit;
   Double_t scale_dPt		 = Setup.ScaledPt;
   Double_t scale_dEta		 = Setup.ScaledEta;
-  TString Scale_Method		 = Setup.ScaleMethod;
   Int_t verbose			 = Setup.Verbose;
 
 
-  ///Setting the scale factors
-  std::cout<<":: ["<<ansi_yellow<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<ansi_reset<<"]"<<std::endl;  
-  if(scale_dPt == -1 && scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta, "both");
-  else if(scale_dPt == -1 && scale_dEta != -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta, "pt");
-  else if(scale_dPt != -1 && scale_dEta == -1) FindScaleFactors(Setup, &scale_dPt, &scale_dEta, "eta");
+  ///Verifying the scale factors
+  if(scale_dPt < 0 || scale_dEta < 0){
+    std::cout<<":: ["<<ansi_yellow<<"Initials scale_dPt and scale_dEta -----> "<<scale_dPt<<", "<<scale_dEta<<" @@Computing new scale factors..."<<ansi_reset<<"]"<<std::endl;
+    FindScaleFactors(Setup, &scale_dPt, &scale_dEta);
+  }
 
   
   ///Timming full process

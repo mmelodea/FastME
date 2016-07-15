@@ -108,7 +108,6 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	if(fme_keywords[k] == 		 "mc_limit")	Setup->MCLimit = stof(line);
         if(fme_keywords[k] == 		"scale_dPt")	Setup->ScaledPt = stof(line);
         if(fme_keywords[k] == 	       "scale_dEta")	Setup->ScaledEta = stof(line);
-	if(fme_keywords[k] == 	     "scale_method")	Setup->ScaleMethod = line;
 	if(fme_keywords[k] == 	     	"fme_files")	Setup->FmeFiles.push_back(line);
 	if(fme_keywords[k] == 	    "verbose_level")	Setup->Verbose = stoi(line);
       }
