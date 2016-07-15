@@ -80,4 +80,5 @@ scale_dEta -2
 #To plot some results
 fme_files tests/fme_results_ggH_media.root
 fme_files tests/fme_results_vbfH_media.root
+storePhSTree false
 verbose_level 1

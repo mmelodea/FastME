@@ -73,8 +73,8 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   ///Getting results from analysis
   for(Int_t data=0; data<nData; data++){
     if( verbose != 0 && nData > 10 && data%(nData/10) == 0){
-      std::cout<<":: ["<<ansi_violet<<"Remaining events"<<ansi_reset<<"]:  "<<nData-data<<"\t\t";
-      t2.Print();
+      std::cout<<":: ["<<ansi_violet<<"Remaining events/Elapsed"<<ansi_reset<<"]:  "<<nData-data<<Form("/%.3f seg", t2.RealTime())<<std::endl;
+      t2.Continue();
     }
 
     
@@ -151,7 +151,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<":: ["<<ansi_cyan<<"Computing Total Time"<<ansi_blue<<"]: "; t2.Stop(); t2.Print();
+  std::cout<<":: ["<<ansi_cyan<<"Computing Total Time"<<ansi_blue<<"]: "<<Form("%.3f seg", t2.RealTime())<<std::endl;
   std::cout<<":: ["<<ansi_cyan<<"Sending Discriminant Results"<<ansi_blue<<"]"<<std::endl;
   std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;

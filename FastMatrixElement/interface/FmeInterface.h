@@ -108,6 +108,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords[k] == 		"scale_dPt")	Setup->ScaledPt = stof(line);
         if(fme_keywords[k] == 	       "scale_dEta")	Setup->ScaledEta = stof(line);
 	if(fme_keywords[k] == 	     	"fme_files")	Setup->FmeFiles.push_back(line);
+        if(fme_keywords[k] ==        "storePhSTree")    Setup->StorePhSTree = line;
 	if(fme_keywords[k] == 	    "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
@@ -119,6 +120,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   ///__________________________________________________________________________________________________________________
   
   ///Getting some numbers
+  std::cout<<"\n:: "<<ansi_yellow<<"Checking inputs..."<<ansi_reset<<std::endl;
   const Int_t N_DT = Setup->vDatas.size();
   Int_t NDATA[N_DT];
   for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){

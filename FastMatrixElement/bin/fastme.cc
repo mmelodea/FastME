@@ -95,7 +95,7 @@ int main(int argc, char *argv[]){
     gSystem->Exec("mkdir -p "+setup.OutPath);
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
     TFile *ffile = new TFile(resulting_file,"recreate");
-    rtree->Write();
+    if(setup.StorePhSTree == "true") rtree->Write();
     //ftree->Write();
     ffile->Close();
   
@@ -104,8 +104,7 @@ int main(int argc, char *argv[]){
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
     //std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
-    std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: ";
-    t1.Stop(); t1.Print();
+    std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: "<<(Int_t)t1.RealTime()<<" seg"<<std::endl;
     std::cout<<ansi_blue<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset<<"\n\n";
   }

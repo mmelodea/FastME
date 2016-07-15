@@ -146,11 +146,9 @@ TTree *ComputePhsDR(FmeSetup Setup){
     for(Int_t dt=0; dt<nDataEv; dt++){
       refReader.SetEntry(dt); ///Move on Data loop                                                              
       
-      if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){ 
-	std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<ansi_reset<<"]:  "<<nDataEv-dt<<"\t\t["<<ansi_violet<<"Elapsed"<<ansi_reset<<"]:  ";
-	t2.Stop();
-	t2.Print();
-	t2.Continue();
+      if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
+	std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg"<<std::endl;
+        t2.Continue();
       }
 
       Double_t min_distance_Min = 1.e15;
