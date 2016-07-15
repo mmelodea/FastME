@@ -88,7 +88,7 @@ int main(int argc, char *argv[]){
     rtree = ComputePhsDR(setup);
 
     ///Calls Discriminator
-    ftree = Discriminant(rtree, setup);
+    //ftree = Discriminant(rtree, setup);
 
     
     ///Store results (be aware.. the file is handled relative to path where fastme software is called)
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]){
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
     TFile *ffile = new TFile(resulting_file,"recreate");
     if(setup.StorePhSTree == "true") rtree->Write();
-    ftree->Write();
+    //ftree->Write();
     ffile->Close();
   
     ///-------------------------------------------------------------------------------------------------------------------

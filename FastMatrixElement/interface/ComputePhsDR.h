@@ -40,7 +40,7 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   TCanvas *temp = new TCanvas();
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
   for(Int_t isample=0; isample<(Int_t)total; isample++){
-    TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
+    TFile *ftmp = TFile::Open((TString)Setup.vMCs.at(isample));
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
     if(*f_scale_dPt < 0){
@@ -113,35 +113,37 @@ TTree *ComputePhsDR(FmeSetup Setup){
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
-    TTreeReaderValue<Int_t>    	McType(tread, McType_branch); ///McType for Signal=0 and Background >0
-    TTreeReaderArray<Int_t>	McId(tread, Id_branch);
-    TTreeReaderArray<Double_t>	McPt(tread, Pt_branch);
-    TTreeReaderArray<Double_t>	McEta(tread, Eta_branch);
+    TTreeReaderValue<int>    	McType(tread, McType_branch); ///McType for Signal=0 and Background >0
+    TTreeReaderArray<int>	McId(tread, Id_branch);
+    TTreeReaderArray<double>	McPt(tread, Pt_branch);
+    TTreeReaderArray<double>	McEta(tread, Eta_branch);
 
 
     ///Tree to store the results from analysis
-    Int_t iEvent, TMcType, Indice, DataFile = -1;
-    Double_t Mdist;
-    std::vector<Int_t> DtObjFlag, fDtObjFlag; 
+    Int_t DataFile;
+    std::vector<double> Mdist;
+    std::vector<int> Indice, TMcType, DtObjFlag, fDtObjFlag; 
     TTree *fme_tree = new TTree("fme_tree","From FastME Phase Space Analysis");
     fme_tree->SetDirectory(0);
     fme_tree->Branch("DataFile",&DataFile,"DataFile/I");
-    fme_tree->Branch("Event",&iEvent,"Event/I");
-    fme_tree->Branch("MinDistance",&Mdist,"MinDistance/D");
-    fme_tree->Branch("PairedMC",&Indice,"PairedMC/I");
-    fme_tree->Branch("PairedMCType",&TMcType,"PairedMCType/I");
-    fme_tree->Branch("DataObjFlag","std::vector<Int_t>",&fDtObjFlag);
+    fme_tree->Branch("MinDistance","std::vector<double>",&Mdist);
+    fme_tree->Branch("PairedMC","std::vector<int>",&Indice);
+    fme_tree->Branch("PairedMCType","std::vector<int>",&TMcType);
+    fme_tree->Branch("DataObjFlag","std::vector<int>",&fDtObjFlag);
 
 
     ///Loop over the different data files
     for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
       DataFile = idata;
+      Mdist.clear();
+      Indice.clear();
+      TMcType.clear();
 
       TFile *fData = TFile::Open( (TString)Datas.at(idata) );
       TTreeReader refReader(TreeName,fData);
-      TTreeReaderArray<Int_t>      DataId(refReader, Id_branch);
-      TTreeReaderArray<Double_t>   DataPt(refReader, Pt_branch);
-      TTreeReaderArray<Double_t>   DataEta(refReader, Eta_branch);
+      TTreeReaderArray<int>      DataId(refReader, Id_branch);
+      TTreeReaderArray<double>   DataPt(refReader, Pt_branch);
+      TTreeReaderArray<double>   DataEta(refReader, Eta_branch);
 
     
       ///Loop on Data events
@@ -188,7 +190,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    Int_t nsame_flavor = 0;
 	    Double_t tmp_dPt = 0, tmp_dEta = 0;
 	    for(int idt=0; idt<(int)DataId.GetSize(); idt++){
-	      if(PhSDr_Method == "mindr" && DtObjFlag[idt] == 1) continue;///Skip data object already selected
+	      if(PhSDr_Method == "mindr" && DtObjFlag.at(idt) == 1) continue;///Skip data object already selected
 	      
 	      ///Avoid different Data-MC particles comparison
 	      if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
@@ -296,23 +298,23 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
       
 	///Stores the minimum distances found
-	iEvent = dt;
 	if(PhSDr_Method == "mindr"){
-	  Mdist = min_distance_Min;
-	  TMcType = f_type;
-	  Indice  = imc_min;
+	  Mdist.push_back(min_distance_Min);
+	  TMcType.push_back(f_type);
+	  Indice.push_back(imc_min);
 	  if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<std::endl;
 	}
 	if(PhSDr_Method == "media"){
-	  Mdist = min_distance_Med;
-	  TMcType = f_type;
-	  Indice  = imc_min;
+          Mdist.push_back(min_distance_Med);
+          TMcType.push_back(f_type);
+          Indice.push_back(imc_min);
 	  if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Med<<std::endl;
 	}
 	
-	fme_tree->Fill();
+	//fme_tree->Fill();
       }///End Data sample loop
   
+      fme_tree->Fill();
       delete fData;
     }///Ends the loop over data files
     
