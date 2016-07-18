@@ -56,6 +56,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   std::vector<Double_t> MinDist, Local_PsbDist;
   TTree *ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
   ftree->SetDirectory(0);
+  ftree->Branch("DataFile",&DtFile,"DataFile/I");
   ftree->Branch("PairedMC","std::vector<Int_t>",&McIndex);
   ftree->Branch("PairedMCType","std::vector<Int_t>",&McCat);
   ftree->Branch("DataObjFlag","std::vector<Int_t>",&DtObjFlag);

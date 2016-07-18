@@ -13,6 +13,7 @@
 #include <vector>
 
 
+
 ///System output colors
 static std::string ansi_red    = "\x1b[31m";
 static std::string ansi_green  = "\x1b[32m";
@@ -21,6 +22,8 @@ static std::string ansi_blue   = "\x1b[34m";
 static std::string ansi_violet = "\x1b[35m";
 static std::string ansi_cyan   = "\x1b[36m";
 static std::string ansi_reset  = "\x1b[0m";
+
+
 
 
 ///------- Define global struct to store user setup ----------
@@ -74,6 +77,8 @@ static std::vector<std::string> fme_keywords = {
   "storePhSTree",
   "verbose_level"
 };
+
+
 
 static std::vector<int> ksize = {
   10,	///data_path

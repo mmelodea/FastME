@@ -91,7 +91,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	}
         if(fme_keywords[k] == 		"data_path") 	Setup->vDatas.push_back(line);
 	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
-	if(fme_keywords[k] == 		  "mc_name")	Setup->MCName.push_back(line);
+        if(fme_keywords[k] ==             "mc_name")    Setup->MCName.push_back(line);
 	if(fme_keywords[k] == 		"tree_name")	Setup->TTreeName = line;
 	if(fme_keywords[k] == "mc_type_branch_name") 	Setup->McTypeBranch = line;
 	if(fme_keywords[k] == 	   "id_branch_name") 	Setup->IdBranch = line;

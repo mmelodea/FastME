@@ -105,8 +105,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
   
   
   ///TProcPool declaration to objects to be analised  
-  auto workItem = [Datas, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, N_MCT,
-		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
+  auto workItem = [Datas, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, 
+		   N_MCT, PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
 		     
     std::cout<<ansi_yellow<<"::----->>> Activating core <<<-----::"<<ansi_reset<<std::endl;
@@ -153,8 +153,10 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	refReader.SetEntry(dt); ///Move on Data loop                                                              
       
 	if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
-	  std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg"<<std::endl;
+	  std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg";
 	  t2.Continue();
+          if(nDataEv-dt == 1) std::cout<<ansi_yellow<<" <<-(Concluded!)"<<ansi_reset<<std::endl;
+	  else std::cout<<std::endl;
 	}
 
 	Double_t min_distance_Min = 1.e15;
