@@ -84,26 +84,28 @@ int main(int argc, char *argv[]){
     TStopwatch t1;
     t1.Start();
 
+
     ///Calls PhsDrComputer to compute events distance
     rtree = ComputePhsDR(setup);
 
-    ///Calls Discriminator
-    //ftree = Discriminant(rtree, setup);
 
-    
+    ///Calls Discriminator
+    ftree = Discriminant(rtree, setup);
+
+
     ///Store results (be aware.. the file is handled relative to path where fastme software is called)
     gSystem->Exec("mkdir -p "+setup.OutPath);
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
     TFile *ffile = new TFile(resulting_file,"recreate");
     if(setup.StorePhSTree == "true") rtree->Write();
-    //ftree->Write();
+    ftree->Write();
     ffile->Close();
   
     ///-------------------------------------------------------------------------------------------------------------------
     std::cout<<ansi_blue;
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
-    //std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
+    std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
     std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: "<<(Int_t)t1.RealTime()<<" seg"<<std::endl;
     std::cout<<ansi_blue<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset<<"\n\n";

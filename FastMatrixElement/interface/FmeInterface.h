@@ -62,7 +62,6 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   ///Define variables used in the analysis
   TString Data_Path;
-  std::vector<TString> MC_Names;
   
   ///______________ Extract the need info from txt file _______________________________________________________________
   ///Opens the config file to get the user configuration
@@ -92,7 +91,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	}
         if(fme_keywords[k] == 		"data_path") 	Setup->vDatas.push_back(line);
 	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
-	if(fme_keywords[k] == 		  "mc_name")	MC_Names.push_back(line);
+	if(fme_keywords[k] == 		  "mc_name")	Setup->MCName.push_back(line);
 	if(fme_keywords[k] == 		"tree_name")	Setup->TTreeName = line;
 	if(fme_keywords[k] == "mc_type_branch_name") 	Setup->McTypeBranch = line;
 	if(fme_keywords[k] == 	   "id_branch_name") 	Setup->IdBranch = line;
@@ -135,7 +134,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     fData->Close();
   }
 
-  const Int_t N_MCT = MC_Names.size();
+  const Int_t N_MCT = Setup->MCName.size();
   const Int_t N_MC = Setup->vMCs.size();
   Int_t NMCEV[N_MC];
   for(Int_t ne=0; ne<N_MC; ne++){

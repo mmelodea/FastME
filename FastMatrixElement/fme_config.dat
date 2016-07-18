@@ -22,8 +22,7 @@
 
 ############# User config ############
 ### Path of samples ###
-#data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
-data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part1.root
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_plus_qqZZ.root
 data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part1.root
 mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part2.root
 mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part2.root
@@ -73,9 +72,9 @@ outfile_path tests
 phs_dr_method mindr
 flavor_constraint true
 n_cores 3
-data_limit 2
+data_limit 5000
 #MC quantity is based on fraction to mantain cross section relation
-mc_limit 0.005
+mc_limit 0.05
 scale_dPt -2
 scale_dEta -2
 #To plot some results
