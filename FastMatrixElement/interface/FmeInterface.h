@@ -111,7 +111,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	if(fme_keywords[k] == 	    "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
-  }
+  }//While's end
   if(nkeys < ((int)fme_keywords.size()-2)){
     std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" Missing key-word! Check your input file!";
     throw std::exception();
@@ -148,6 +148,11 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
       NMCEV[ne] = Setup->MCLimit;
     fmc->Close();
   }
+  if(N_MC == 0){
+    std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" None MC template detected! Please, revise your input file!";
+    throw std::exception();
+  }
+
   if(run_mode == normal && command != pr){
     std::cout<<ansi_yellow<<"______________________________________________________________________________________________"<<ansi_reset<<std::endl;
     std::cout<< Form(":: Data Samples:     %i\t[",N_DT);

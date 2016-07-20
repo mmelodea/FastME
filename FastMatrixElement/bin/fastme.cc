@@ -34,6 +34,12 @@ int main(int argc, char *argv[]){
     Helper();
     return -1;
   }
+  ///Protection against wrong command spelling
+  if(argv[1] != help || argv[1] != sl || argv[1] != nc || argv[1] != fa || argv[1] != pr || argv[1] != sp){
+    std::cout<<"\nBad arguments...\n"<<std::endl;
+    Helper();
+    return -1;
+  }
   
   ///Checks for config file
   if(argc < 3 && (argv[1] != help && argv[1] != nc)){
