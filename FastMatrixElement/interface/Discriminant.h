@@ -175,14 +175,17 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   ///---------------------------------------------------------------------------------------------------------
 
 
-  //delete TMcType;
-  //delete Indice;
-  //delete Mdist;
-  //delete oDtObjFlag;
+  ///Clean memory from used pointers
+  delete TMcType;
+  delete Indice;
+  delete Mdist;
+  delete oDtObjFlag;
+
 
 
   ///Send the final tree to be stored with the full results from FastME analysis
   return ftree;
+
 }
 
 

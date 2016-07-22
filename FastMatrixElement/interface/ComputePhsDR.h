@@ -220,8 +220,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	      ///----------------------------------------------------------------------------------------------------------
 	  
 	  
-	      ///________________________ Only for media comparison method ________________________________________________
-	      if(PhSDr_Method == "media"){
+	      ///________________________ Only for mean comparison method ________________________________________________
+	      if(PhSDr_Method == "mean"){
 		if(FlavorConstraint == "true"){
 		  if(nsame_flavor == 0){
 		    tmp_dPt  = dPt;
@@ -265,7 +265,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	      SumMin_dEta2 += pow( (DataEta[sel_data]-McEta[imc])/(scale_dEta), 2 );
 	    }
 	  
-	    if(PhSDr_Method == "media"){
+	    if(PhSDr_Method == "mean"){
 	      SumMed_dPt2  += tmp_dPt*tmp_dPt;
 	      SumMed_dEta2 += tmp_dEta*tmp_dEta;
 	    }
@@ -279,16 +279,16 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	      imc_min = mc;
 	      fDtObjFlag = DtObjFlag;
 	    }
-	    if( verbose > 2 ) std::cout<<"Event_distance(MinDr) = "<<event_distance_Min<<std::endl;  
+	    if( verbose > 2 ) std::cout<<"Event_distance (MinDr) = "<<event_distance_Min<<std::endl;  
 	  }
 	
-	  if(PhSDr_Method == "media" && SumMed_dPt2 > 0){
+	  if(PhSDr_Method == "mean" && SumMed_dPt2 > 0){
 	    event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2);
 	    if(event_distance_Med < min_distance_Med){
 	      min_distance_Med = event_distance_Med;
 	      imc_min = mc;
 	    }
-	    if( verbose > 2 ) std::cout<<"Event_distance (Media) = "<<event_distance_Med<<std::endl;  
+	    if( verbose > 2 ) std::cout<<"Event_distance (Mean) = "<<event_distance_Med<<std::endl;  
 	  }
 
 	  ///Stores the MC type
@@ -306,7 +306,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  Indice.push_back(imc_min);
 	  if( verbose > 1 ) std::cout<<"dt: "<<dt<<"\tf_type: "<<f_type<<"\tmin_distance("<<imc_min<<"): "<<min_distance_Min<<std::endl;
 	}
-	if(PhSDr_Method == "media"){
+	if(PhSDr_Method == "mean"){
           Mdist.push_back(min_distance_Med);
           TMcType.push_back(f_type);
           Indice.push_back(imc_min);

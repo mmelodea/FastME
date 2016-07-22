@@ -82,7 +82,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         line.erase(line.begin(),line.begin()+ksize[k]);
 	if(run_mode == normal){
 	  if(command == pr){
-            if(fme_keywords[k] == "fme_files")
+            if(fme_keywords[k] == "fme_file")
 	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
           }
           else{
@@ -106,7 +106,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	if(fme_keywords[k] == 		 "mc_limit")	Setup->MCLimit = stof(line);
         if(fme_keywords[k] == 		"scale_dPt")	Setup->ScaledPt = stof(line);
         if(fme_keywords[k] == 	       "scale_dEta")	Setup->ScaledEta = stof(line);
-	if(fme_keywords[k] == 	     	"fme_files")	Setup->FmeFiles.push_back(line);
+	if(fme_keywords[k] == 	     	"fme_file")	Setup->FmeFile = line;
         if(fme_keywords[k] ==        "storePhSTree")    Setup->StorePhSTree = line;
 	if(fme_keywords[k] == 	    "verbose_level")	Setup->Verbose = stoi(line);
       }
@@ -117,37 +117,43 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     throw std::exception();
   }
   ///__________________________________________________________________________________________________________________
+
   
+
   ///Getting some numbers
   std::cout<<"\n:: "<<ansi_yellow<<"Checking inputs..."<<ansi_reset<<std::endl;
   const Int_t N_DT = Setup->vDatas.size();
   Int_t NDATA[N_DT];
   Int_t nDtEv = 0;
-  for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
-    TFile *fData = TFile::Open((TString)Setup->vDatas[nd]);
-    TTreeReader tmpReader1(Setup->TTreeName,fData);
-    Int_t nData = tmpReader1.GetEntries(true);
-    if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
-    nData = Setup->DTLimit;
-    NDATA[nd] = nData;
-    nDtEv += nData;
-    fData->Close();
-  }
+
+  if(command != pr)
+    for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
+      TFile *fData = TFile::Open((TString)Setup->vDatas[nd]);
+      TTreeReader tmpReader1(Setup->TTreeName,fData);
+      Int_t nData = tmpReader1.GetEntries(true);
+      if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
+      nData = Setup->DTLimit;
+      NDATA[nd] = nData;
+      nDtEv += nData;
+      fData->Close();
+    }
 
   const Int_t N_MCT = Setup->MCName.size();
   const Int_t N_MC = Setup->vMCs.size();
   Int_t NMCEV[N_MC];
-  for(Int_t ne=0; ne<N_MC; ne++){
-    TFile *fmc = TFile::Open((TString)Setup->vMCs[ne]);
-    TTreeReader tmpReader2(Setup->TTreeName,fmc);
-    if(Setup->MCLimit == -1)
-      NMCEV[ne] = tmpReader2.GetEntries(true);
-    if(Setup->MCLimit != -1 && Setup->MCLimit < 1)
-      NMCEV[ne] = (Int_t)(Setup->MCLimit*tmpReader2.GetEntries(true));
-    if(Setup->MCLimit != -1 && Setup->MCLimit >= 1)
-      NMCEV[ne] = Setup->MCLimit;
-    fmc->Close();
-  }
+
+  if(command != pr)
+    for(Int_t ne=0; ne<N_MC; ne++){
+      TFile *fmc = TFile::Open((TString)Setup->vMCs[ne]);
+      TTreeReader tmpReader2(Setup->TTreeName,fmc);
+      if(Setup->MCLimit == -1)
+        NMCEV[ne] = tmpReader2.GetEntries(true);
+      if(Setup->MCLimit != -1 && Setup->MCLimit < 1)
+        NMCEV[ne] = (Int_t)(Setup->MCLimit*tmpReader2.GetEntries(true));
+      if(Setup->MCLimit != -1 && Setup->MCLimit >= 1)
+        NMCEV[ne] = Setup->MCLimit;
+      fmc->Close();
+    }
   if(N_MC == 0){
     std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" None MC template detected! Please, revise your input file!";
     throw std::exception();
@@ -168,10 +174,11 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     std::cout<<ansi_yellow<<"----------------------------------------------------------------------------------------------"<<ansi_reset<<std::endl;
   }
   ///--------------------------------------------------------------------------------------------------------------
-  
-  
+
   Setup->NData = nDtEv;
   Setup->NMCT = N_MCT;
+  
+
   
   return;
 }

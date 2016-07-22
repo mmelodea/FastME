@@ -12,7 +12,7 @@
   -however, be carefull on comments;
   -use # if you want to ignore some key-word configuration (or just remove it);
 --Currently are available 2 phase space dr methods (how to compare data-mc objects):
-  mindr and media (when one has identical objects: compares the closest ones or get the media of combinations);
+  mindr and mean (when one has identical objects: compares the closest ones or get the media of combinations);
 --Number of final particles is in principle not restricted (but, only up to 6 was studied);
 --One can chose restrict (or not restrict) the comparison between leptons of same flavor;
 --There are 2 available methods to compute a scale factor: mean (option -1) and extrem (option -2, finds the maximum pT and minimum eta)
@@ -78,7 +78,7 @@ mc_limit 0.05
 scale_dPt -2
 scale_dEta -2
 #To plot some results
-fme_files tests/fme_results_ggH_media.root
-fme_files tests/fme_results_vbfH_media.root
+fme_files tests/fme_results_ggH_mindr.root
+fme_files tests/fme_results_vbfH_mindr.root
 storePhSTree true
 verbose_level 1
