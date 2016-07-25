@@ -24,7 +24,7 @@ The software produces 2 ROOT TTrees objects containing usefull information used 
 
 
 <h5>View from the Software Running</h5>
-<img align="center" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/.SoftwareRunning.png" width="800">
+<img align="center" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/.fme_running.png" width="800">
 
 
 <h5>Plots that can be done through the software for further studies</h5>
