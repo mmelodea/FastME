@@ -19,6 +19,7 @@
 #include <TH2D.h>
 #include <THStack.h>
 #include <TCanvas.h>
+#include <TPaveText.h>
 #include <TColor.h>
 #include <TStyle.h>
 #include <TGraph.h>
@@ -70,12 +71,12 @@ void StudyResults(FmeSetup UserSetup){
   
   //list files
   std::cout<<"Listing the files to be used: "<<std::endl;
-  std::cout<<"For Signal: ";
+  std::cout<<"For Signal:";
   for(int ifs=0; ifs<(int)sig_files.size(); ifs++)
-    std::cout<<sig_files.at(ifs);
-  std::cout<<"\nFor Background: ";
+    std::cout<<"  "<<sig_files.at(ifs);
+  std::cout<<"\nFor Background:";
   for(int ifb=0; ifb<(int)bkg_files.size(); ifb++)
-    std::cout<<bkg_files.at(ifb);
+    std::cout<<"  "<<bkg_files.at(ifb);
   std::cout<<std::endl;
   
   
@@ -146,7 +147,7 @@ void StudyResults(FmeSetup UserSetup){
   Int_t max_ssig_index = 0, max_sbkg_index = 0, max_bsig_index = 0, max_bbkg_index = 0;
   ///------------- Plot ROC curve for all MCs -----------------------------  
   Int_t jpoint = 0;
-  Double_t cutoff, integral=0;
+  Double_t cutoff, integral=0, max_sigma = 0, best_cut;
   const int discret = 1000;
   float TPR[discret], FPR[discret], TP, FP, TN, FN;
   std::cout<<"Performing results..."<<std::endl;
@@ -201,8 +202,13 @@ void StudyResults(FmeSetup UserSetup){
 
     ///Computing significancy of best cut
     if(TP+FP != 0){
-      sigma->SetPoint(jpoint,cutoff,sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]));
+      sigma->SetPoint(jpoint, cutoff, sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]));
       jpoint++;
+      if( (sqrt(TPR[j]+FPR[j])-sqrt(FPR[j])) > max_sigma ){
+        max_sigma = sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]);
+	best_cut = cutoff;
+	//std::cout<<"MaxS: "<<max_sigma<<"\tCut: "<<cutoff<<std::endl;
+      }
     }
 
   }//End loop over cuts
@@ -258,30 +264,37 @@ void StudyResults(FmeSetup UserSetup){
   leg->Draw();
 
   c1->cd(1);
-  TPad* pad2 = new TPad("pad2","2",0,0.05,1,0.4); pad2->Draw(); pad2->cd();
+  TPad* pad2 = new TPad("pad2","2",0,0.05,1,0.396); pad2->Draw(); pad2->cd();
   pad2->SetTopMargin(0.);
   pad2 -> SetGridx(true);
   pad2 -> SetGridy(true);
-  sigma->Draw("AL");
+  sigma->Draw("AP");
+  sigma->GetXaxis()->SetLimits(-0.05,1.05);
   sigma->GetXaxis()->SetTitle("Cut Value");
   sigma->GetXaxis()->SetTitleSize(0.1);
   sigma->GetXaxis()->SetLabelSize(0.09);
-  sigma->GetYaxis()->SetTitle("#sigma = N_{s}/#sqrt{N_{s}+N_{b}}");
+  sigma->GetYaxis()->SetTitle("Significance");
   sigma->GetYaxis()->SetTitleSize(0.1);
   sigma->GetYaxis()->SetTitleOffset(0.2);
   sigma->GetYaxis()->SetLabelSize(0.);
   sigma->SetLineColor(kViolet);
   sigma->SetMarkerColor(kViolet);
+
+  TPaveText sigInfo(0.7,0.8,0.9,0.9,"NDC");
+  sigInfo.SetFillStyle(0);
+  sigInfo.SetBorderSize(0);
+  sigInfo.AddText(Form("Best: %.3f",best_cut));
+  sigInfo.Draw();
   gPad->Update();  
   
   ///--------------- ROC plot ---------------------------------------
   std::cout<<Form("Area under ROC curve = %.3f",integral)<<std::endl;
+  std::cout<<Form("Best significance at cut = %.3f",best_cut)<<std::endl;
   
   TGraph *roc = new TGraph(discret,FPR,TPR);
   roc->SetTitle(Form("ROC Plot - Area under curve = %.3f",integral));
-  roc->SetMarkerStyle(4);
-  roc->SetMarkerSize(0.9);
-  roc->SetMarkerColor(kOrange);
+  roc->SetLineColor(kOrange);
+  roc->SetLineWidth(2);
   roc->GetXaxis()->SetTitle("False Positive Rate");
   roc->GetXaxis()->SetRangeUser(0,1.);
   roc->GetYaxis()->SetTitle("True Positive Rate");
@@ -298,7 +311,7 @@ void StudyResults(FmeSetup UserSetup){
   TLine *l100 = new TLine(0,1.,1,1.);           l100->SetLineStyle(2);
   
   c1->cd(4);
-  roc->Draw("AP");
+  roc->Draw("AL");
   l3->Draw();
   l50->Draw();
   l80->Draw();
@@ -309,13 +322,13 @@ void StudyResults(FmeSetup UserSetup){
   
   
   c1->cd(2);
-  TPad* pad7 = new TPad("pad7","7",0,0.57,1,0.95); pad7->Draw(); pad7->cd();
+  TPad* pad7 = new TPad("pad7","7",0,0.55,1,0.95); pad7->Draw(); pad7->cd();
   pad7->SetBottomMargin(0.);
   pad7->SetGridx(true);
   pad7->SetGridy(true);
   SigDrMins->Draw("Colz");
   c1->cd(2);
-  TPad* pad8 = new TPad("pad8","8",0,0.1,1,0.52); pad8->Draw(); pad8->cd();
+  TPad* pad8 = new TPad("pad8","8",0,0.05,1,0.5); pad8->Draw(); pad8->cd();
   pad8->SetTopMargin(0.);
   pad8->SetGridx(true);
   pad8->SetGridy(true);
@@ -327,7 +340,7 @@ void StudyResults(FmeSetup UserSetup){
 
 
   c1->cd(3);
-  TPad* pad3 = new TPad("pad3","3",0,0.57,1,0.95); pad3->Draw(); pad3->cd();
+  TPad* pad3 = new TPad("pad3","3",0,0.55,1,0.95); pad3->Draw(); pad3->cd();
   pad3->SetBottomMargin(0.);
   SSigPairedfrequency1D->SetFillColor(kBlue);
   SSigPairedfrequency1D->SetLineColor(kBlue);
@@ -340,14 +353,14 @@ void StudyResults(FmeSetup UserSetup){
   SBkgPairedfrequency1D->GetXaxis()->SetTitle("Event Index");
   SSigPairedfrequency1D->Draw();
   c1->cd(3);
-  TPad* pad4 = new TPad("pad4","4",0,0.1,1,0.52); pad4->Draw(); pad4->cd();
+  TPad* pad4 = new TPad("pad4","4",0,0.05,1,0.5); pad4->Draw(); pad4->cd();
   pad4->SetTopMargin(0.);
   SBkgPairedfrequency1D->Draw();
 
 
   
   c1->cd(6);
-  TPad* pad5 = new TPad("pad5","5",0,0.57,1,0.95); pad5->Draw(); pad5->cd();
+  TPad* pad5 = new TPad("pad5","5",0,0.55,1,0.95); pad5->Draw(); pad5->cd();
   pad5->SetBottomMargin(0.);
   BSigPairedfrequency1D->SetFillColor(kBlue);
   BSigPairedfrequency1D->SetLineColor(kBlue);
@@ -360,7 +373,7 @@ void StudyResults(FmeSetup UserSetup){
   BBkgPairedfrequency1D->GetXaxis()->SetTitle("Event Index");
   BSigPairedfrequency1D->Draw();
   c1->cd(6);
-  TPad* pad6 = new TPad("pad6","6",0,0.1,1,0.52); pad6->Draw(); pad6->cd();
+  TPad* pad6 = new TPad("pad6","6",0,0.05,1,0.5); pad6->Draw(); pad6->cd();
   pad6->SetTopMargin(0.);
   BBkgPairedfrequency1D->Draw();
 
