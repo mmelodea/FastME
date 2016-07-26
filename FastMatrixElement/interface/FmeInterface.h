@@ -24,6 +24,17 @@
 #include <iomanip>
 
 
+///Test file existence
+void file_check(std::string file_address){
+  std::ifstream exists(file_address.c_str());
+  if(!exists){
+    std::cout<<"File "<<file_address<<" not found!"<<std::endl;
+    throw std::exception();
+  }
+  return;
+}
+
+
 
 ///Contains the menu of available commands
 static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-p", sp = "-s";
@@ -77,38 +88,38 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   while( getline(inFile,line) ){
     if(line.find("#") != std::string::npos) continue;
     for(int k=0; k<(int)fme_keywords.size(); k++){
-      if(line.find(fme_keywords[k]) != std::string::npos){
+      if(line.find(fme_keywords.at(k)) != std::string::npos){
 	nkeys++;
-        line.erase(line.begin(),line.begin()+ksize[k]);
+        line.erase(line.begin(),line.begin()+ksize.at(k));
 	if(run_mode == normal){
 	  if(command == pr){
-            if(fme_keywords[k] == "fme_file")
-	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
+            if(fme_keywords.at(k) == "fme_file")
+	      std::cout << ":: " << ansi_cyan << fme_keywords.at(k) << ":  " << ansi_reset << line << std::endl;
           }
           else{
-    	      std::cout << ":: " << ansi_cyan << fme_keywords[k] << ":  " << ansi_reset << line << std::endl;
+    	      std::cout << ":: " << ansi_cyan << fme_keywords.at(k) << ":  " << ansi_reset << line << std::endl;
           }
 	}
-        if(fme_keywords[k] == 		"data_path") 	Setup->vDatas.push_back(line);
-	if(fme_keywords[k] == 		  "mc_path")	Setup->vMCs.push_back(line);
-        if(fme_keywords[k] ==             "mc_name")    Setup->MCName.push_back(line);
-	if(fme_keywords[k] == 		"tree_name")	Setup->TTreeName = line;
-	if(fme_keywords[k] == "mc_type_branch_name") 	Setup->McTypeBranch = line;
-	if(fme_keywords[k] == 	   "id_branch_name") 	Setup->IdBranch = line;
-	if(fme_keywords[k] == 	   "pt_branch_name") 	Setup->PtBranch = line;
-	if(fme_keywords[k] == 	  "eta_branch_name") 	Setup->EtaBranch = line;
-	if(fme_keywords[k] == 	     "outfile_name")	Setup->OutName = line;
-	if(fme_keywords[k] == 	     "outfile_path")	Setup->OutPath = line;
-	if(fme_keywords[k] == 	    "phs_dr_method")	Setup->PhSDrMethod = line;
-	if(fme_keywords[k] == 	"flavor_constraint")	Setup->SetFlavorConstraint = line;
-	if(fme_keywords[k] == 		  "n_cores")	Setup->NCores = stoi(line);
-	if(fme_keywords[k] == 	       "data_limit")	Setup->DTLimit = stoi(line);
-	if(fme_keywords[k] == 		 "mc_limit")	Setup->MCLimit = stof(line);
-        if(fme_keywords[k] == 		"scale_dPt")	Setup->ScaledPt = stof(line);
-        if(fme_keywords[k] == 	       "scale_dEta")	Setup->ScaledEta = stof(line);
-	if(fme_keywords[k] == 	     	"fme_file")	Setup->FmeFile = line;
-        if(fme_keywords[k] ==        "storePhSTree")    Setup->StorePhSTree = line;
-	if(fme_keywords[k] == 	    "verbose_level")	Setup->Verbose = stoi(line);
+        if(fme_keywords.at(k) ==             "data_path")	Setup->vDatas.push_back(line);
+	if(fme_keywords.at(k) ==               "mc_path")	Setup->vMCs.push_back(line);
+        if(fme_keywords.at(k) ==               "mc_name")	Setup->MCName.push_back(line);
+	if(fme_keywords.at(k) ==             "tree_name")	Setup->TTreeName = line;
+	if(fme_keywords.at(k) ==   "mc_type_branch_name")	Setup->McTypeBranch = line;
+	if(fme_keywords.at(k) ==        "id_branch_name")	Setup->IdBranch = line;
+	if(fme_keywords.at(k) ==        "pt_branch_name")	Setup->PtBranch = line;
+	if(fme_keywords.at(k) ==       "eta_branch_name")	Setup->EtaBranch = line;
+	if(fme_keywords.at(k) ==          "outfile_name")	Setup->OutName = line;
+	if(fme_keywords.at(k) ==          "outfile_path")	Setup->OutPath = line;
+	if(fme_keywords.at(k) ==         "phs_dr_method")	Setup->PhSDrMethod = line;
+	if(fme_keywords.at(k) ==     "flavor_constraint")	Setup->SetFlavorConstraint = line;
+	if(fme_keywords.at(k) ==               "n_cores")	Setup->NCores = stoi(line);
+	if(fme_keywords.at(k) ==            "data_limit")	Setup->DTLimit = stoi(line);
+	if(fme_keywords.at(k) ==              "mc_limit")	Setup->MCLimit = stof(line);
+        if(fme_keywords.at(k) ==             "scale_dPt")	Setup->ScaledPt = stof(line);
+        if(fme_keywords.at(k) ==            "scale_dEta")	Setup->ScaledEta = stof(line);
+	if(fme_keywords.at(k) ==              "fme_file")	Setup->FmeFile = line;
+        if(fme_keywords.at(k) ==          "storePhSTree")	Setup->StorePhSTree = line;
+	if(fme_keywords.at(k) ==         "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
   }//While's end
@@ -128,7 +139,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   if(command != pr)
     for(Int_t nd=0; nd<(Int_t)Setup->vDatas.size(); nd++){
-      TFile *fData = TFile::Open((TString)Setup->vDatas[nd]);
+      file_check(Setup->vDatas.at(nd));
+      TFile *fData = TFile::Open((TString)Setup->vDatas.at(nd));
       TTreeReader tmpReader1(Setup->TTreeName,fData);
       Int_t nData = tmpReader1.GetEntries(true);
       if(Setup->DTLimit != -1 && Setup->DTLimit <= nData)
@@ -144,7 +156,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   if(command != pr)
     for(Int_t ne=0; ne<N_MC; ne++){
-      TFile *fmc = TFile::Open((TString)Setup->vMCs[ne]);
+      file_check(Setup->vMCs.at(ne));
+      TFile *fmc = TFile::Open((TString)Setup->vMCs.at(ne));
       TTreeReader tmpReader2(Setup->TTreeName,fmc);
       if(Setup->MCLimit == -1)
         NMCEV[ne] = tmpReader2.GetEntries(true);
