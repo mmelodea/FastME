@@ -70,6 +70,10 @@ void StudyResults(FmeSetup UserSetup){
   }
   
   //list files
+  if(sig_files.size() == 0 || bkg_files.size() == 0){
+    std::cout<<"Inputs not properly inserted!"<<std::endl;
+    throw std::exception();
+  }
   std::cout<<"Listing the files to be used: "<<std::endl;
   std::cout<<"For Signal:";
   for(int ifs=0; ifs<(int)sig_files.size(); ifs++)

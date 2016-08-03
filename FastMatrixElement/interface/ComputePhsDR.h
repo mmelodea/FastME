@@ -115,8 +115,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
     ///Addresses the MC branches to be used
     TTreeReaderValue<int>    	McType(tread, McType_branch); ///McType for Signal=0 and Background >0
     TTreeReaderArray<int>	McId(tread, Id_branch);
-    TTreeReaderArray<double>	McPt(tread, Pt_branch);
-    TTreeReaderArray<double>	McEta(tread, Eta_branch);
+    TTreeReaderArray<float>	McPt(tread, Pt_branch);
+    TTreeReaderArray<float>	McEta(tread, Eta_branch);
 
 
     ///Tree to store the results from analysis
@@ -141,9 +141,9 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
       TFile *fData = TFile::Open( (TString)Datas.at(idata) );
       TTreeReader refReader(TreeName,fData);
-      TTreeReaderArray<int>      DataId(refReader, Id_branch);
-      TTreeReaderArray<double>   DataPt(refReader, Pt_branch);
-      TTreeReaderArray<double>   DataEta(refReader, Eta_branch);
+      TTreeReaderArray<int>     DataId(refReader, Id_branch);
+      TTreeReaderArray<float>   DataPt(refReader, Pt_branch);
+      TTreeReaderArray<float>   DataEta(refReader, Eta_branch);
 
     
       ///Loop on Data events
