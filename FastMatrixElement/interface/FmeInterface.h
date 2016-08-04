@@ -131,8 +131,13 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   
 
-  ///Getting some numbers
+  ///Getting some info
   std::cout<<"\n:: "<<ansi_yellow<<"Checking inputs..."<<ansi_reset<<std::endl;
+  if(Setup->NCores != N_MC){
+    std::cout<<ansi_red<<"[ERROR] Number of cores doesn't match to the number of MCs"<<ansi_reset<<std::endl;
+    throw std::exception();
+  }
+
   const Int_t N_DT = Setup->vDatas.size();
   Int_t NDATA[N_DT];
   Int_t nDtEv = 0;
@@ -190,7 +195,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   Setup->NData = nDtEv;
   Setup->NMCT = N_MCT;
-  
+
 
   
   return;

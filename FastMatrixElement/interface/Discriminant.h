@@ -32,7 +32,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   
 
   Int_t nDtFiles	= Setup.vDatas.size(); //Number of data files
-  const Int_t NMCT	= Setup.MCName.size(); //Number of MC types
+  const Int_t NMCT	= Setup.vMCs.size(); //Number of MC types
   Int_t verbose		= Setup.Verbose;  
 
   TStopwatch t2;
@@ -69,6 +69,9 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   Int_t TreeSectors[NMCT];
   if(fentries % NMCT != 0){
     std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something went wrong... non-integer tree sectors!!"<<std::endl;
+    std::cout<<"Entries on internal tree: "<<fentries<<std::endl;
+    std::cout<<"Number of MCs: "<<NMCT<<std::endl;
+    std::cout<<"(fentries%NMCT): "<< fentries % NMCT <<std::endl;
     throw std::exception();
   }
                      

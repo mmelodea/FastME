@@ -38,7 +38,7 @@ struct FmeSetup{
   std::vector<std::string>	vMCs;
   Int_t				NMCT;
   std::vector<TString>		MCName;
-  UInt_t			NCores;
+  Int_t				NCores;
   TString			PhSDrMethod;
   TString			SetFlavorConstraint;
   TString			OutName;
