@@ -70,7 +70,11 @@ void StudyResults(FmeSetup UserSetup){
   }
   
   //list files
+<<<<<<< HEAD
   if(sig_files.size() == 0 || bkg_files.size() == 0){
+=======
+  if(sig_files.size() == 0 || bkg_files.size()){
+>>>>>>> 4eaf2b521b3c663b8ece7dc072d2cf33a10a4f66
     std::cout<<"Inputs not properly inserted!"<<std::endl;
     throw std::exception();
   }
