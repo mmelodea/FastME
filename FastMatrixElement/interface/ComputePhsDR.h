@@ -7,6 +7,7 @@
 #ifndef ComputePhsDR_h
 #define ComputePhsDR_h
 
+
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
 #include <iostream>
@@ -78,7 +79,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
   std::vector<std::string> Datas = Setup.vDatas;
   Int_t nData 			 = Setup.DTLimit;
   TString TreeName 		 = Setup.TTreeName;
-  TString McType_branch 	 = Setup.McTypeBranch;
   TString Id_branch 		 = Setup.IdBranch;
   TString Pt_branch 		 = Setup.PtBranch;
   TString Eta_branch 		 = Setup.EtaBranch;
@@ -104,7 +104,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   
   
   ///TProcPool declaration to objects to be analised  
-  auto workItem = [Datas, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, 
+  auto workItem = [Datas, nData, TreeName, Id_branch, Pt_branch, Eta_branch, 
 		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
 		     
@@ -112,7 +112,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
-    TTreeReaderValue<int>    	McType(tread, McType_branch); ///McType for Signal=0 and Background >0
+    TTreeReaderValue<int>    	McType(tread, "McFileIndex"); ///McType for Signal=0 and Background >0
     TTreeReaderArray<int>	McId(tread, Id_branch);
     TTreeReaderArray<float>	McPt(tread, Pt_branch);
     TTreeReaderArray<float>	McEta(tread, Eta_branch);

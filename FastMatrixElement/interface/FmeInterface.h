@@ -10,6 +10,7 @@
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 #include "FastMatrixElement/FastMatrixElement/interface/InitScreen.h"
+#include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -191,6 +192,13 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   Setup->NData = nDtEv;
 
+  
+  if(run_mode == normal && command != pr){
+    std::string index;
+    std::cout<<"Index MC files (y/n)? ";
+    std::cin >> index;
+    if(index == "y") Indexer(*Setup);
+  }
 
   
   return;
