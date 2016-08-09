@@ -36,8 +36,6 @@ struct FmeSetup{
   TString			PtBranch;
   TString			EtaBranch;
   std::vector<std::string>	vMCs;
-  Int_t				NMCT;
-  std::vector<TString>		MCName;
   Int_t				NCores;
   TString			PhSDrMethod;
   TString			SetFlavorConstraint;
@@ -58,7 +56,6 @@ struct FmeSetup{
 static std::vector<std::string> fme_keywords = {
   "data_path",
   "mc_path",
-  "mc_name",
   "tree_name",
   "mc_type_branch_name",
   "id_branch_name",
@@ -83,7 +80,6 @@ static std::vector<std::string> fme_keywords = {
 static std::vector<int> ksize = {
   10,	///data_path
   8,	///mc_path
-  8,	///mc_name
   10,	///tree_name
   20,	///mc_type_branch_name
   15,	///id_branch_name

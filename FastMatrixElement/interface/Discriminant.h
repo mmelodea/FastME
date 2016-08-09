@@ -32,7 +32,7 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   
 
   Int_t nDtFiles	= Setup.vDatas.size(); //Number of data files
-  const Int_t NMCT	= Setup.vMCs.size(); //Number of MC types
+  Int_t nMcFiles	= Setup.vMCs.size(); //Number of MC files
   Int_t verbose		= Setup.Verbose;  
 
   TStopwatch t2;
@@ -66,16 +66,16 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   ///Find the tree sectors (sections of tree for each MC)
   ///The data repeats for every MC type inserted in the analysis
-  Int_t TreeSectors[NMCT];
-  if(fentries % NMCT != 0){
+  Int_t TreeSectors[nMcFiles];
+  if(fentries % nMcFiles != 0){
     std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something went wrong... non-integer tree sectors!!"<<std::endl;
     std::cout<<"Entries on internal tree: "<<fentries<<std::endl;
-    std::cout<<"Number of MCs: "<<NMCT<<std::endl;
-    std::cout<<"(fentries%NMCT): "<< fentries % NMCT <<std::endl;
+    std::cout<<"Number of MCs: "<<nMcFiles<<std::endl;
+    std::cout<<"(fentries%nMcFiles): "<< fentries % nMcFiles <<std::endl;
     throw std::exception();
   }
                      
-  for(Int_t ic=0; ic<(Int_t)NMCT; ic++) TreeSectors[ic] = ic*nDtFiles;
+  for(Int_t ic=0; ic<(Int_t)nMcFiles; ic++) TreeSectors[ic] = ic*nDtFiles;
   
   ///Getting results from analysis
   ///Each tree row has all events from a data file
@@ -94,24 +94,16 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
     
       Int_t MinSigIndex = -99, smin_ic = -1, bmin_ic = -1;
       Double_t min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
-      Double_t local_min_dr_bkg[NMCT], local_min_bkg_index[NMCT];
+      //Double_t local_min_dr_bkg[nMcFiles], local_min_bkg_index[nMcFiles];
       McIndex.clear();
       McCat.clear();
       MinDist.clear();
       Local_PsbDist.clear();
       DtObjFlag.clear();
-      for(Int_t p=0; p<NMCT; p++){
-        local_min_bkg_index[p] = -99;
-        local_min_dr_bkg[p] = 1.e15;
-        McCat.push_back( -99 );
-        McIndex.push_back( -99 );
-        MinDist.push_back( -99. );
-        Local_PsbDist.push_back( -99. );
-      }
 
 
       ///Looping over the MC sectors
-      for(Int_t ic=0; ic<(Int_t)NMCT; ic++){
+      for(Int_t ic=0; ic<(Int_t)nMcFiles; ic++){
         mtree->GetEntry(ifile + TreeSectors[ic]); //TreeSectors aligns the results from different MCs
 
 	if(verbose > 1)
@@ -122,38 +114,38 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
         if( (*TMcType).at(ievent) == 0 ){
    	  if( (*Mdist).at(ievent) < min_dr_sig ){
 	    min_dr_sig = (*Mdist).at(ievent);
+            MinDist.push_back( (*Mdist).at(ievent) );
 	    MinSigIndex = (*Indice).at(ievent);
-	    McCat[0] = 0;
-            smin_ic = ic;
+	    McCat.push_back( 0 );
+	    smin_ic = ic;
 	  }
         }
 
-        ///Finds closet MC Background
+        ///Finds closest MC Background
         if( (*TMcType).at(ievent) > 0 ){
 	  ///The general closest Background MC
           if( (*Mdist).at(ievent) < global_min_dr_bkg ){
             global_min_dr_bkg = (*Mdist).at(ievent);
             bmin_ic = ic;
 	  }
+          MinDist.push_back( (*Mdist).at(ievent) );
+	  McCat.push_back( (*TMcType).at(ievent) );
 	  ///Each MC Background
-	  if( (*Mdist).at(ievent) < local_min_dr_bkg[(*TMcType).at(ievent)] ){
-	    McCat[(*TMcType).at(ievent)] = (*TMcType).at(ievent);
-	    local_min_dr_bkg[(*TMcType).at(ievent)] = (*Mdist).at(ievent);
-	    local_min_bkg_index[(*TMcType).at(ievent)] = (*Indice).at(ievent);
-	  }
+	  //if( (*Mdist).at(ievent) < local_min_dr_bkg[(*TMcType).at(ievent)] ){
+	    //McCat[(*TMcType).at(ievent)] = (*TMcType).at(ievent);
+	    //local_min_dr_bkg[(*TMcType).at(ievent)] = (*Mdist).at(ievent);
+	    //local_min_bkg_index[(*TMcType).at(ievent)] = (*Indice).at(ievent);
+	  //}
         }
 
       }//Ending the full verification for a event
 
-      MinDist[0] = min_dr_sig;
-      McIndex[0] = MinSigIndex;
       Global_PsbDist = GetPsbD(min_dr_sig, global_min_dr_bkg);
 
-      for(Int_t im=1; im<NMCT; im++){
-        McIndex[im] = local_min_bkg_index[im];
-        MinDist[im] = local_min_dr_bkg[im];
-        Local_PsbDist[im] = GetPsbD(min_dr_sig, local_min_dr_bkg[im]);
-      }
+      //for(Int_t im=1; im<nMcFiles; im++){
+        
+        //Local_PsbDist[im] = GetPsbD(min_dr_sig, local_min_dr_bkg[im]);
+      //}
       if( verbose > 1 )
         std::cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", min_dr_sig, global_min_dr_bkg, Global_PsbDist) << std::endl;
 

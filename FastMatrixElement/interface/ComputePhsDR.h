@@ -83,7 +83,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TString Pt_branch 		 = Setup.PtBranch;
   TString Eta_branch 		 = Setup.EtaBranch;
   std::vector<std::string> MCs 	 = Setup.vMCs;
-  Int_t N_MCT			 = Setup.NMCT;
   UInt_t N_Cores		 = Setup.NCores;
   TString PhSDr_Method		 = Setup.PhSDrMethod;
   TString FlavorConstraint	 = Setup.SetFlavorConstraint;
@@ -106,7 +105,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   
   ///TProcPool declaration to objects to be analised  
   auto workItem = [Datas, nData, TreeName, McType_branch, Id_branch, Pt_branch, Eta_branch, 
-		   N_MCT, PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
+		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
 		     
     std::cout<<ansi_yellow<<"::----->>> Activating core <<<-----::"<<ansi_reset<<std::endl;
@@ -328,9 +327,41 @@ TTree *ComputePhsDR(FmeSetup Setup){
   
 
 
-  ///Calls analysis through TProcPool
-  TProcPool workers(N_Cores);
-  TTree *mtree = (TTree*)workers.ProcTree(MCs, workItem);
+
+
+  ///Spliting samples in mini-batches
+  Int_t nMcSamples = MCs.size();
+  const Int_t PrimaryDivision = nMcSamples/N_Cores;
+  Int_t Resting = nMcSamples % N_Cores;
+  Int_t nBatches = (Resting >= 1)? PrimaryDivision+1 : PrimaryDivision;
+  TTree *TreeBatches[nBatches];
+
+  for(Int_t ib=0; ib<nBatches; ib++){
+    std::cout<<":: Processing MC Batch: "<<ib<<std::endl;
+    std::vector<std::string> McBatches;
+
+    if(ib < PrimaryDivision){
+      for(Int_t iS=0; iS<(Int_t)N_Cores; iS++)
+        McBatches.push_back( MCs.at(ib*N_Cores+iS) );
+      TProcPool workers(N_Cores);
+      TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
+    }
+    else{
+      for(Int_t iS=0; iS<(Int_t)Resting; iS++)
+        McBatches.push_back( MCs.at(ib*N_Cores+iS) );
+      TProcPool workers(Resting);
+      TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
+    }
+  }
+
+
+  ///Merge the trees
+  TList *list = new TList;
+  for(Int_t item=0; item<nBatches; item++)
+    list->Add( TreeBatches[item] );
+  TTree *mtree = TTree::MergeTrees(list);
+  mtree->SetName("FastME_PhSTree");
+
   
 
   ///________________________________ Stoping timming ________________________________________________________

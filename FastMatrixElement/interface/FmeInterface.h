@@ -102,7 +102,6 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	}
         if(fme_keywords.at(k) ==             "data_path")	Setup->vDatas.push_back(line);
 	if(fme_keywords.at(k) ==               "mc_path")	Setup->vMCs.push_back(line);
-        if(fme_keywords.at(k) ==               "mc_name")	Setup->MCName.push_back(line);
 	if(fme_keywords.at(k) ==             "tree_name")	Setup->TTreeName = line;
 	if(fme_keywords.at(k) ==   "mc_type_branch_name")	Setup->McTypeBranch = line;
 	if(fme_keywords.at(k) ==        "id_branch_name")	Setup->IdBranch = line;
@@ -133,10 +132,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   ///Getting some info
   std::cout<<"\n:: "<<ansi_yellow<<"Checking inputs..."<<ansi_reset<<std::endl;
-  if(Setup->NCores != N_MC){
-    std::cout<<ansi_red<<"[ERROR] Number of cores doesn't match to the number of MCs"<<ansi_reset<<std::endl;
-    throw std::exception();
-  }
+  
 
   const Int_t N_DT = Setup->vDatas.size();
   Int_t NDATA[N_DT];
@@ -155,7 +151,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
       fData->Close();
     }
 
-  const Int_t N_MCT = Setup->MCName.size();
+
   const Int_t N_MC = Setup->vMCs.size();
   Int_t NMCEV[N_MC];
 
@@ -194,7 +190,6 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   ///--------------------------------------------------------------------------------------------------------------
 
   Setup->NData = nDtEv;
-  Setup->NMCT = N_MCT;
 
 
   
