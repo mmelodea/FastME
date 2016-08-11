@@ -13,8 +13,19 @@
 #include <iostream>
 #include <vector>
 
+#include <TFile.h>
 #include <TTree.h>
 #include <TStopwatch.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <THStack.h>
+#include <TCanvas.h>
+#include <TPaveText.h>
+#include <TColor.h>
+#include <TStyle.h>
+#include <TGraph.h>
+#include <TLine.h>
+#include <TLegend.h>
 
 
 ///================ Discriminant Based on Distance ===================
@@ -28,7 +39,7 @@ Double_t GetPsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
 
 
 ///_______________________ Compute discriminant from MDMCED _________________________________________________
-TTree *Discriminant(TTree *mtree, FmeSetup Setup){
+void Discriminant(FmeSetup Setup){
   
 
   Int_t nDtFiles	= Setup.vDatas.size(); //Number of data files
@@ -41,32 +52,24 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
 
   ///Set the input tree
   Int_t DtFile;
-  std::vector<int> *TMcType=0, *Indice=0;
+  std::vector<int> *McFile=0;
   std::vector<double> *Mdist=0;
-  std::vector<int> *oDtObjFlag=0;
+  TFile *fmeFile = TFile::Open(Setup.FmeFile,"update");
+  TTree *mtree = (TTree*)fmeFile->Get("FastME_PhSTree");
   mtree->SetBranchAddress("DataFile",&DtFile);
   mtree->SetBranchAddress("MinDistance",&Mdist);
-  mtree->SetBranchAddress("PairedMCType",&TMcType);
-  mtree->SetBranchAddress("PairedMC",&Indice);
-  mtree->SetBranchAddress("DataObjFlag",&oDtObjFlag);  
+  mtree->SetBranchAddress("McFile",&McFile);
   Int_t fentries = mtree->GetEntries();
 
-  std::vector<Int_t> McIndex, McCat, DtObjFlag;
+  Int_t fDtFile;
   Double_t Global_PsbDist;
-  std::vector<Double_t> MinDist, Local_PsbDist;
-  TTree *ftree = new TTree("FastME","Fast Matrix Element Analysis Results");
+  TTree *ftree = new TTree("Discriminant","Discriminant from FastME");
   ftree->SetDirectory(0);
-  ftree->Branch("DataFile",&DtFile,"DataFile/I");
-  ftree->Branch("PairedMC","std::vector<Int_t>",&McIndex);
-  ftree->Branch("PairedMCType","std::vector<Int_t>",&McCat);
-  ftree->Branch("DataObjFlag","std::vector<Int_t>",&DtObjFlag);
-  ftree->Branch("MinDistance","std::vector<Double_t>",&MinDist);
+  ftree->Branch("DataFile",&fDtFile,"DataFile/I");
   ftree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
-  ftree->Branch("Local_PsbDist","std::vector<Double_t> Local_PsbDist",&Local_PsbDist);
 
   ///Find the tree sectors (sections of tree for each MC)
   ///The data repeats for every MC type inserted in the analysis
-  Int_t TreeSectors[nMcFiles];
   if(fentries % nMcFiles != 0){
     std::cout<<ansi_red<<"[Error]"<<ansi_reset<<" Something went wrong... non-integer tree sectors!!"<<std::endl;
     std::cout<<"Entries on internal tree: "<<fentries<<std::endl;
@@ -74,13 +77,24 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
     std::cout<<"(fentries%nMcFiles): "<< fentries % nMcFiles <<std::endl;
     throw std::exception();
   }
-                     
+  Int_t TreeSectors[nMcFiles];
   for(Int_t ic=0; ic<(Int_t)nMcFiles; ic++) TreeSectors[ic] = ic*nDtFiles;
   
   ///Getting results from analysis
   ///Each tree row has all events from a data file
   std::cout<<":: Detected "<<nDtFiles<<" data files..."<<std::endl;
   for(Int_t ifile=0; ifile<nDtFiles; ifile++){
+
+    ///Detect if signal or background
+    bool is_dsig = false;
+    bool is_dbkg = false;
+    for(Int_t idsig = 0; idsig < (Int_t)Setup.SigData.size(); idsig++)
+      if( Setup.SigData.at(idsig) == ifile ) is_dsig = true;
+    for(Int_t idbkg = 0; idbkg < (Int_t)Setup.BkgData.size(); idbkg++)
+      if( Setup.BkgData.at(idbkg) == ifile ) is_dbkg = true;
+
+    fDtFile = (is_dsig == true && is_dbkg == false)? 0:1;
+    
 
 
     ///Goes over the events from current file
@@ -92,68 +106,45 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
         t2.Continue();
       }
     
-      Int_t MinSigIndex = -99, smin_ic = -1, bmin_ic = -1;
-      Double_t min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
-      //Double_t local_min_dr_bkg[nMcFiles], local_min_bkg_index[nMcFiles];
-      McIndex.clear();
-      McCat.clear();
-      MinDist.clear();
-      Local_PsbDist.clear();
-      DtObjFlag.clear();
 
 
+      Double_t global_min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
       ///Looping over the MC sectors
       for(Int_t ic=0; ic<(Int_t)nMcFiles; ic++){
         mtree->GetEntry(ifile + TreeSectors[ic]); //TreeSectors aligns the results from different MCs
 
 	if(verbose > 1)
-          std::cout<<"Loading entry "<<ifile + TreeSectors[ic]<<"\tDataFile/Event/MCCat "<<ifile<<"/"<<ievent<<"/"<<(*TMcType).at(ievent)<<std::endl;
+          std::cout<<"Loading entry "<<ifile + TreeSectors[ic]<<"\tDataFile/Event/MCCat "<<ifile<<"/"<<ievent<<"/"<<(*McFile).at(ievent)<<std::endl;
       
       
-        ///Finds closest MC Signal
-        if( (*TMcType).at(ievent) == 0 ){
-   	  if( (*Mdist).at(ievent) < min_dr_sig ){
-	    min_dr_sig = (*Mdist).at(ievent);
-            MinDist.push_back( (*Mdist).at(ievent) );
-	    MinSigIndex = (*Indice).at(ievent);
-	    McCat.push_back( 0 );
-	    smin_ic = ic;
+	///Detect if signal or background
+	bool is_sig = false;
+	bool is_bkg = false;
+        for(Int_t isig = 0; isig < (Int_t)Setup.SigMC.size(); isig++)
+	  if( Setup.SigMC.at(isig) == (*McFile).at(ievent) ) is_sig = true;
+        for(Int_t ibkg = 0; ibkg < (Int_t)Setup.BkgMC.size(); ibkg++)
+          if( Setup.BkgMC.at(ibkg) == (*McFile).at(ievent) ) is_bkg = true;
+
+
+	///Finds closest MC Signal
+        if( is_sig == true ){
+   	  if( (*Mdist).at(ievent) < global_min_dr_sig ){
+	    global_min_dr_sig = (*Mdist).at(ievent);
 	  }
         }
 
         ///Finds closest MC Background
-        if( (*TMcType).at(ievent) > 0 ){
-	  ///The general closest Background MC
+        if( is_bkg == true ){
           if( (*Mdist).at(ievent) < global_min_dr_bkg ){
             global_min_dr_bkg = (*Mdist).at(ievent);
-            bmin_ic = ic;
 	  }
-          MinDist.push_back( (*Mdist).at(ievent) );
-	  McCat.push_back( (*TMcType).at(ievent) );
-	  ///Each MC Background
-	  //if( (*Mdist).at(ievent) < local_min_dr_bkg[(*TMcType).at(ievent)] ){
-	    //McCat[(*TMcType).at(ievent)] = (*TMcType).at(ievent);
-	    //local_min_dr_bkg[(*TMcType).at(ievent)] = (*Mdist).at(ievent);
-	    //local_min_bkg_index[(*TMcType).at(ievent)] = (*Indice).at(ievent);
-	  //}
         }
 
       }//Ending the full verification for a event
 
-      Global_PsbDist = GetPsbD(min_dr_sig, global_min_dr_bkg);
-
-      //for(Int_t im=1; im<nMcFiles; im++){
-        
-        //Local_PsbDist[im] = GetPsbD(min_dr_sig, local_min_dr_bkg[im]);
-      //}
+      Global_PsbDist = GetPsbD(global_min_dr_sig, global_min_dr_bkg);
       if( verbose > 1 )
-        std::cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", min_dr_sig, global_min_dr_bkg, Global_PsbDist) << std::endl;
-
-      ///Set the final flags to the Data objects
-      Int_t loadTTree_ic = (min_dr_sig < global_min_dr_bkg)? smin_ic : bmin_ic;
-      mtree->GetEntry(ifile + TreeSectors[loadTTree_ic]);
-      for(Int_t iobj=0; iobj<(Int_t)oDtObjFlag->size(); iobj++)
-        DtObjFlag.push_back( (*oDtObjFlag).at(iobj) );
+        std::cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", global_min_dr_sig, global_min_dr_bkg, Global_PsbDist) << std::endl;
 
     
       ftree->Fill();
@@ -164,22 +155,208 @@ TTree *Discriminant(TTree *mtree, FmeSetup Setup){
   std::cout<<ansi_blue<<std::endl;
   std::cout<<"::::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]:::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<":: ["<<ansi_cyan<<"Computing Total Time"<<ansi_blue<<"]: "<<Form("%.3f seg", t2.RealTime())<<std::endl;
-  std::cout<<":: ["<<ansi_cyan<<"Sending Discriminant Results"<<ansi_blue<<"]"<<std::endl;
+  std::cout<<":: ["<<ansi_cyan<<"Producing plot results..."<<ansi_blue<<"]"<<std::endl;
   std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;
-  ///---------------------------------------------------------------------------------------------------------
+  ///--------------------------------------------------------------------------------------------------------
+
+
+
+
+  ///Producing some plots
+  //To get better colors
+  Int_t palette[5];
+  palette[0] = 1;
+  palette[1] = 2;
+  palette[2] = 3;
+  palette[3] = 4;
+  palette[4] = 5;
+  palette[5] = 6;
+  palette[6] = 7;
+  palette[7] = 8;
+  palette[8] = 9;
+  palette[9] = 10;
+  gStyle->SetPalette(10,palette);
+
+  const Int_t Number = 3;
+  Double_t Red[Number]    = { 1.00, 0.00, 0.00};
+  Double_t Green[Number]  = { 0.00, 1.00, 0.00};
+  Double_t Blue[Number]   = { 1.00, 0.00, 1.00};
+  Double_t Length[Number] = { 0.00, 0.50, 1.00 };
+  Int_t nb=50;
+  TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);  
+
+  //----------------------------------------------------------------
+  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",100,-0.05,1.05);
+  hsig->SetLineColor(9);
+  hsig->SetFillColor(9);
+  hsig->SetFillStyle(3001);
+  hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
+  hsig->GetYaxis()->SetTitle("Events/0.01");
+
+  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,-0.05,1.05);
+  hbkg->SetLineColor(2);
+  hbkg->SetFillColor(2);
+  hbkg->SetFillStyle(3001);
+  hbkg->GetXaxis()->SetTitle("P_{SB}(Distance)");
+  hbkg->GetYaxis()->SetTitle("Events/0.01");
+    
+  TLegend *leg = new TLegend(0.57,0.77,0.87,0.87);
+  leg->AddEntry(hsig,"Signal","f");
+  leg->AddEntry(hbkg,"Background","f");
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.05);
+  ///----------------------------------------------------------------------  
+
+
+  ///------------ Graph for significancy of cut ------------------------
+  TGraph *sigma = new TGraph();
+
+
+  ///------------- Plot ROC curve for all MCs -----------------------------  
+  Int_t jpoint = 0;
+  Double_t cutoff, integral=0, max_sigma = 0, best_cut;
+  const int discret = 1000;
+  float TPR[discret], FPR[discret], TP, FP, TN, FN;
+  std::cout<<"Performing results..."<<std::endl;
+  for(int j=0; j<discret; j++){
+    cutoff = j/float(discret);
+    TP = FP = TN = FN = 0;
+    for(Int_t i=0; i<(Int_t)ftree->GetEntries(); i++){
+      ftree->GetEntry(i);
+	  
+      
+	if(fDtFile == 0){
+	  if( Global_PsbDist > cutoff ) TP++;
+	  if( Global_PsbDist < cutoff ) FN++;
+	  if( j == 0)
+	    hsig->Fill(Global_PsbDist);
+	}
+      
+
+
+	if(fDtFile == 1){
+	  if( Global_PsbDist > cutoff ) FP++;
+	  if( Global_PsbDist < cutoff ) TN++;
+	  if( j == 0)
+	    hbkg->Fill(Global_PsbDist);
+	}
+      
+
+    }//End loop over events
+    TPR[j] = TP/float(TP + FN);
+    FPR[j] = FP/float(FP + TN);
+    if(j>0)
+     integral += fabs(FPR[j-1]-FPR[j])*TPR[j];
+
+    ///Computing significancy of best cut
+    if(TP+FP != 0){
+      sigma->SetPoint(jpoint, cutoff, sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]));
+      jpoint++;
+      if( (sqrt(TPR[j]+FPR[j])-sqrt(FPR[j])) > max_sigma ){
+        max_sigma = sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]);
+	best_cut = cutoff;
+	//std::cout<<"MaxS: "<<max_sigma<<"\tCut: "<<cutoff<<std::endl;
+      }
+    }
+
+  }//End loop over cuts
+
+
+  //Does not show on fly
+  gROOT->SetBatch(kTRUE);
+  gStyle->SetOptStat(0);
+  TCanvas *c1 = new TCanvas("Discriminant_distributions","",0,0,800,800);
+  ///----------- Discriminants plot -------------------
+  c1->cd();
+  TPad* pad1 = new TPad("pad1","1",0,0.4,1,0.95); pad1->Draw(); pad1->cd();
+  pad1->SetBottomMargin(0.);
+  if(hsig->GetMaximum() > hbkg->GetMaximum()){
+    hsig->Draw();
+    hbkg->Draw("same");
+  }
+  else{
+    hbkg->Draw();
+    hsig->Draw("same");
+  }
+  leg->Draw();
+
+  c1->cd();
+  TPad* pad2 = new TPad("pad2","2",0,0.05,1,0.396); pad2->Draw(); pad2->cd();
+  pad2->SetTopMargin(0.);
+  pad2 -> SetGridx(true);
+  pad2 -> SetGridy(true);
+  sigma->Draw("AP");
+  sigma->GetXaxis()->SetLimits(-0.05,1.05);
+  sigma->GetXaxis()->SetTitle("Cut Value");
+  sigma->GetXaxis()->SetTitleSize(0.1);
+  sigma->GetXaxis()->SetLabelSize(0.09);
+  sigma->GetYaxis()->SetTitle("Significance");
+  sigma->GetYaxis()->SetTitleSize(0.1);
+  sigma->GetYaxis()->SetTitleOffset(0.2);
+  sigma->GetYaxis()->SetLabelSize(0.);
+  sigma->SetLineColor(kViolet);
+  sigma->SetMarkerColor(kViolet);
+
+  TPaveText sigInfo(0.7,0.8,0.9,0.9,"NDC");
+  sigInfo.SetFillStyle(0);
+  sigInfo.SetBorderSize(0);
+  sigInfo.AddText(Form("Best: %.3f",best_cut));
+  sigInfo.Draw();
+  gPad->Update();  
+  c1->Write();
+  c1->Close();
+
+
+
+  TCanvas *c2 = new TCanvas("ROC Curve","",0,0,800,800);  
+  ///--------------- ROC plot ---------------------------------------
+  std::cout<<Form("Area under ROC curve = %.3f",integral)<<std::endl;
+  std::cout<<Form("Best significance at cut = %.3f",best_cut)<<std::endl;
+  
+  TGraph *roc = new TGraph(discret,FPR,TPR);
+  roc->SetTitle(Form("ROC Plot - Area under curve = %.3f",integral));
+  roc->SetLineColor(kOrange);
+  roc->SetLineWidth(2);
+  roc->GetXaxis()->SetTitle("False Positive Rate");
+  roc->GetXaxis()->SetRangeUser(0,1.);
+  roc->GetYaxis()->SetTitle("True Positive Rate");
+  roc->GetYaxis()->SetRangeUser(0,1.1);
+  
+  TLine *l3 = new TLine(0,0,1,1);
+  l3->SetLineColor(kGreen-6);
+  l3->SetLineStyle(2);
+
+  TLine *l50  = new TLine(0,0.5,1,0.5);		l50->SetLineStyle(2);
+  TLine *l80  = new TLine(0,0.8,1,0.8);         l80->SetLineStyle(2);
+  TLine *l90  = new TLine(0,0.9,1,0.9);         l90->SetLineStyle(2);
+  TLine *l95  = new TLine(0,0.95,1,0.95);       l95->SetLineStyle(2);
+  TLine *l100 = new TLine(0,1.,1,1.);           l100->SetLineStyle(2);
+  
+  //c1->cd(4);
+  roc->Draw("AL");
+  l3->Draw();
+  l50->Draw();
+  l80->Draw();
+  l90->Draw();
+  l95->Draw();
+  l100->Draw();
+  c2->Write();
+  c2->Close();
+  ///----------------------------------------------------------------------
+
+
+  ftree->Write();
+  fmeFile->Close();
 
 
   ///Clean memory from used pointers
-  delete TMcType;
-  delete Indice;
+  delete McFile;
   delete Mdist;
-  delete oDtObjFlag;
 
-
-
-  ///Send the final tree to be stored with the full results from FastME analysis
-  return ftree;
+  return;
 
 }
 

@@ -58,6 +58,8 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
       if(*f_scale_dEta == -1) eta_sum += fabs(stacketa->GetMean());//Only in case you are in region shifted from 0!
       if(*f_scale_dEta == -2) eta_sum += fabs(stacketa->GetBinCenter(stacketa->GetMinimum()));
     }
+   
+    ftmp->Close();
   }
   
   if(*f_scale_dPt < 0)  *f_scale_dPt  = pt_sum/total;
@@ -114,8 +116,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
     ///Addresses the MC branches to be used
     TTreeReaderValue<int>    	McType(tread, "McFileIndex"); ///McType for Signal=0 and Background >0
     TTreeReaderArray<int>	McId(tread, Id_branch);
-    TTreeReaderArray<float>	McPt(tread, Pt_branch);
-    TTreeReaderArray<float>	McEta(tread, Eta_branch);
+    TTreeReaderArray<double>	McPt(tread, Pt_branch);
+    TTreeReaderArray<double>	McEta(tread, Eta_branch);
 
 
     ///Tree to store the results from analysis
@@ -127,7 +129,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
     fme_tree->Branch("DataFile",&DataFile,"DataFile/I");
     fme_tree->Branch("MinDistance","std::vector<double>",&Mdist);
     fme_tree->Branch("PairedMC","std::vector<int>",&Indice);
-    fme_tree->Branch("PairedMCType","std::vector<int>",&TMcType);
+    fme_tree->Branch("McFile","std::vector<int>",&TMcType);
     fme_tree->Branch("DataObjFlag","std::vector<int>",&fDtObjFlag);
 
 
@@ -141,8 +143,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
       TFile *fData = TFile::Open( (TString)Datas.at(idata) );
       TTreeReader refReader(TreeName,fData);
       TTreeReaderArray<int>     DataId(refReader, Id_branch);
-      TTreeReaderArray<float>   DataPt(refReader, Pt_branch);
-      TTreeReaderArray<float>   DataEta(refReader, Eta_branch);
+      TTreeReaderArray<double>   DataPt(refReader, Pt_branch);
+      TTreeReaderArray<double>   DataEta(refReader, Eta_branch);
 
     
       ///Loop on Data events
@@ -334,7 +336,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
   const Int_t PrimaryDivision = nMcSamples/N_Cores;
   Int_t Resting = nMcSamples % N_Cores;
   Int_t nBatches = (Resting >= 1)? PrimaryDivision+1 : PrimaryDivision;
-  TTree *TreeBatches[nBatches];
+  //TTree *TreeBatches[nBatches];
+  TList *list = new TList;
 
   for(Int_t ib=0; ib<nBatches; ib++){
     std::cout<<":: Processing MC Batch: "<<ib<<std::endl;
@@ -344,23 +347,25 @@ TTree *ComputePhsDR(FmeSetup Setup){
       for(Int_t iS=0; iS<(Int_t)N_Cores; iS++)
         McBatches.push_back( MCs.at(ib*N_Cores+iS) );
       TProcPool workers(N_Cores);
-      TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
+      //TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
+      list->Add( (TTree*)workers.ProcTree(McBatches, workItem) );
     }
     else{
       for(Int_t iS=0; iS<(Int_t)Resting; iS++)
         McBatches.push_back( MCs.at(ib*N_Cores+iS) );
       TProcPool workers(Resting);
-      TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
+      //TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
+      list->Add( (TTree*)workers.ProcTree(McBatches, workItem) );
     }
   }
 
 
   ///Merge the trees
-  TList *list = new TList;
-  for(Int_t item=0; item<nBatches; item++)
-    list->Add( TreeBatches[item] );
-  TTree *mtree = TTree::MergeTrees(list);
-  mtree->SetName("FastME_PhSTree");
+  //TList *list = new TList;
+  //for(Int_t item=0; item<nBatches; item++)
+    //list->Add( TreeBatches[item] );
+  TTree *phs_tree = TTree::MergeTrees(list);
+  phs_tree->SetName("FastME_PhSTree");
 
   
 
@@ -374,7 +379,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 
   
   ///Send final tree merged from trees coming from all cores used
-  return mtree;
+  return phs_tree;
 }
 
 #endif

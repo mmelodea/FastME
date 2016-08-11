@@ -31,7 +31,6 @@ struct FmeSetup{
   std::vector<std::string>	vDatas;
   Int_t				NData;
   TString			TTreeName;
-  TString			McTypeBranch;
   TString			IdBranch;
   TString			PtBranch;
   TString			EtaBranch;
@@ -46,7 +45,10 @@ struct FmeSetup{
   Double_t			ScaledPt;
   Double_t			ScaledEta;
   TString			FmeFile;
-  TString			StorePhSTree;
+  std::vector<int>		SigData;
+  std::vector<int>              BkgData;
+  std::vector<int>              SigMC;
+  std::vector<int>              BkgMC;
   Int_t				Verbose = 1;
 };
 
@@ -57,7 +59,6 @@ static std::vector<std::string> fme_keywords = {
   "data_path",
   "mc_path",
   "tree_name",
-  "mc_type_branch_name",
   "id_branch_name",
   "pt_branch_name",
   "eta_branch_name",
@@ -71,7 +72,10 @@ static std::vector<std::string> fme_keywords = {
   "scale_dPt",
   "scale_dEta",
   "fme_file",
-  "storePhSTree",
+  "sig_data",
+  "bkg_data",
+  "sig_mc",
+  "bkg_mc",
   "verbose_level"
 };
 
@@ -81,7 +85,6 @@ static std::vector<int> ksize = {
   10,	///data_path
   8,	///mc_path
   10,	///tree_name
-  20,	///mc_type_branch_name
   15,	///id_branch_name
   15,	///pt_branch_name
   16,	///eta_branch_name
@@ -95,7 +98,10 @@ static std::vector<int> ksize = {
   10,	///scale_dPt
   11,	///scale_dEta
   9,	///fme_file
-  13,	///storePhSTree
+  9,	///sig_data
+  9,	///bkg_data
+  7,	///sig_mc
+  7,	///bkg_mc
   14	///verbose_level
 };
 

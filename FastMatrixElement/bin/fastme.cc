@@ -10,7 +10,6 @@
 #include "FastMatrixElement/FastMatrixElement/interface/FmeInterface.h"
 #include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
 #include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
-#include "FastMatrixElement/FastMatrixElement/interface/StudyResults.h"
 #include "FastMatrixElement/FastMatrixElement/interface/ShowParticles.h"
 
 //c++ headers
@@ -48,8 +47,7 @@ int main(int argc, char *argv[]){
   }
   
   ///Instantiate the needed variables
-  FmeSetup setup; //Class to handle with FastME setups
-  TTree *rtree, *ftree;
+  FmeSetup setup; //Class to handle with FastME setup
 
   ///Takes the config input file and converts it to FastME readable format
   if(argv[1] != help && argv[1] != nc){
@@ -92,19 +90,14 @@ int main(int argc, char *argv[]){
 
 
     ///Calls PhsDrComputer to compute events distance
-    rtree = ComputePhsDR(setup);
-
-
-    ///Calls Discriminator
-    //ftree = Discriminant(rtree, setup);
+    TTree *rtree = ComputePhsDR(setup);
 
 
     ///Store results (be aware.. the file is handled relative to path where fastme software is called)
     gSystem->Exec("mkdir -p "+setup.OutPath);
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
     TFile *ffile = new TFile(resulting_file,"recreate");
-    if(setup.StorePhSTree == "true") rtree->Write();
-    //ftree->Write();
+    rtree->Write();
     ffile->Close();
   
     ///-------------------------------------------------------------------------------------------------------------------
@@ -118,8 +111,10 @@ int main(int argc, char *argv[]){
   }
 
 
-  ///Calls FastME analyzer (plot discriminants, ROC curve, events/discriminant value)
-  else if(argv[1] == pr )	StudyResults(setup);
+  ///Calls the Discriminator
+  else if (argv[1] == pr){
+    Discriminant(setup);
+  }
 
   
   ///Calls event display

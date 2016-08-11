@@ -1,3 +1,8 @@
+///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::[ Librarian - Handles the MC files indexing ]:::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. de Almeida ]:::::::::::::::::::::::::::::::::::
+///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 #ifndef Librarian_h
 #define Librarian_h
 
@@ -8,6 +13,7 @@
 #include <TTree.h>
 #include <TBranch.h>
 
+
 void Indexer(FmeSetup Setup){
 
   ///Inserts a branch into the file to store its index in the config file
@@ -15,7 +21,7 @@ void Indexer(FmeSetup Setup){
 
   for(Int_t ifile = 0; ifile < (Int_t)Setup.vMCs.size(); ifile++){
 
-    TFile *org_file = new TFile( (TString)Setup.vMCs.at(ifile), "update" );
+    TFile *org_file = TFile::Open( (TString)Setup.vMCs.at(ifile), "update" );
     TTree *org_tree = (TTree*)org_file->Get(Setup.TTreeName);
     Int_t McFileIndex = ifile;
     TBranch *file_index = org_tree->Branch("McFileIndex",&McFileIndex,"McFileIndex/I");
@@ -23,16 +29,17 @@ void Indexer(FmeSetup Setup){
 
     for(Int_t i = 0; i < Nentries; i++)
       file_index->Fill();
-    org_tree->Write();
+
+    org_tree->Write("", TObject::kOverwrite);
 
     std::cout<<ansi_green<<"[READY] "<<ansi_reset<<org_file->GetName()<<std::endl;
-    delete org_file;
+    org_file->Close();
   }
-
 
   return;
 
 }
+
 
 
 #endif

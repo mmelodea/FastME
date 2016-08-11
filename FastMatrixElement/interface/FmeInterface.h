@@ -38,13 +38,13 @@ void file_check(std::string file_address){
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-p", sp = "-s";
+static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-d", sp = "-s";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file [flux options]"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
   std::cout<<"\t-c\t\tInform how many cores are available in the machine"<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
-  std::cout<<"\t-p\t\tMake plots from the FastME results"<<std::endl;
+  std::cout<<"\t-d\t\tCompute discriminant and produce plots from the FastME results"<<std::endl;
   std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<ansi_yellow<<" (to be implemented)"<<ansi_reset<<std::endl;  
   std::cout<<"Flux options:"<<std::endl;
   std::cout<<"\t-quiet\t\tRun program without show the config file and avoid user check config file"<<std::endl;
@@ -104,7 +104,6 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords.at(k) ==             "data_path")	Setup->vDatas.push_back(line);
 	if(fme_keywords.at(k) ==               "mc_path")	Setup->vMCs.push_back(line);
 	if(fme_keywords.at(k) ==             "tree_name")	Setup->TTreeName = line;
-	if(fme_keywords.at(k) ==   "mc_type_branch_name")	Setup->McTypeBranch = line;
 	if(fme_keywords.at(k) ==        "id_branch_name")	Setup->IdBranch = line;
 	if(fme_keywords.at(k) ==        "pt_branch_name")	Setup->PtBranch = line;
 	if(fme_keywords.at(k) ==       "eta_branch_name")	Setup->EtaBranch = line;
@@ -118,7 +117,10 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords.at(k) ==             "scale_dPt")	Setup->ScaledPt = stof(line);
         if(fme_keywords.at(k) ==            "scale_dEta")	Setup->ScaledEta = stof(line);
 	if(fme_keywords.at(k) ==              "fme_file")	Setup->FmeFile = line;
-        if(fme_keywords.at(k) ==          "storePhSTree")	Setup->StorePhSTree = line;
+        if(fme_keywords.at(k) ==              "sig_data")       Setup->SigData.push_back(stoi(line));
+        if(fme_keywords.at(k) ==              "bkg_data")       Setup->BkgData.push_back(stoi(line));
+        if(fme_keywords.at(k) ==                "sig_mc")       Setup->SigMC.push_back(stoi(line));
+        if(fme_keywords.at(k) ==                "bkg_mc")       Setup->BkgMC.push_back(stoi(line));
 	if(fme_keywords.at(k) ==         "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
