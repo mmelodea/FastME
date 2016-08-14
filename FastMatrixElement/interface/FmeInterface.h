@@ -194,13 +194,8 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   Setup->NData = nDtEv;
 
-  
-  if(run_mode == normal && command != pr){
-    std::string index;
-    std::cout<<"Index MC files (y/n)? ";
-    std::cin >> index;
-    if(index == "y") Indexer(Setup);
-  }
+  ///Get files order and insert a branch inside them to handle in different CPU cores
+  if(run_mode == normal && command != pr)  Indexer(Setup);
 
   
   return;
