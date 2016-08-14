@@ -153,7 +153,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
       for(Int_t dt=0; dt<nDataEv; dt++){
 	refReader.SetEntry(dt); ///Move on Data loop                                                              
       
-	if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
+	//if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
+	if(nDataEv-dt == 1){
 	  std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg";
 	  t2.Continue();
           if(nDataEv-dt == 1) std::cout<<ansi_yellow<<" <<-(Concluded!)"<<ansi_reset<<std::endl;
@@ -167,6 +168,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	Int_t nMonteCarlo = tread.GetEntries(true);
 	if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
 	if(MC_Limit != -1 && MC_Limit < 1) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
+        if(nMonteCarlo == 0) nMonteCarlo = std::min(10, (int)tread.GetEntries(true));
 
 	for(Int_t mc=0; mc<nMonteCarlo; mc++){
 	  //Initialyze the vector
@@ -336,7 +338,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
   const Int_t PrimaryDivision = nMcSamples/N_Cores;
   Int_t Resting = nMcSamples % N_Cores;
   Int_t nBatches = (Resting >= 1)? PrimaryDivision+1 : PrimaryDivision;
-  //TTree *TreeBatches[nBatches];
   TList *list = new TList;
 
   for(Int_t ib=0; ib<nBatches; ib++){
@@ -347,23 +348,18 @@ TTree *ComputePhsDR(FmeSetup Setup){
       for(Int_t iS=0; iS<(Int_t)N_Cores; iS++)
         McBatches.push_back( MCs.at(ib*N_Cores+iS) );
       TProcPool workers(N_Cores);
-      //TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
       list->Add( (TTree*)workers.ProcTree(McBatches, workItem) );
     }
     else{
       for(Int_t iS=0; iS<(Int_t)Resting; iS++)
         McBatches.push_back( MCs.at(ib*N_Cores+iS) );
       TProcPool workers(Resting);
-      //TreeBatches[ib] = (TTree*)workers.ProcTree(McBatches, workItem);
       list->Add( (TTree*)workers.ProcTree(McBatches, workItem) );
     }
   }
 
 
   ///Merge the trees
-  //TList *list = new TList;
-  //for(Int_t item=0; item<nBatches; item++)
-    //list->Add( TreeBatches[item] );
   TTree *phs_tree = TTree::MergeTrees(list);
   phs_tree->SetName("FastME_PhSTree");
 

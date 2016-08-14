@@ -199,7 +199,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
     std::string index;
     std::cout<<"Index MC files (y/n)? ";
     std::cin >> index;
-    if(index == "y") Indexer(*Setup);
+    if(index == "y") Indexer(Setup);
   }
 
   

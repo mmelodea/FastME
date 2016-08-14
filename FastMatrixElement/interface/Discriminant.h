@@ -79,38 +79,58 @@ void Discriminant(FmeSetup Setup){
   }
   Int_t TreeSectors[nMcFiles];
   for(Int_t ic=0; ic<(Int_t)nMcFiles; ic++) TreeSectors[ic] = ic*nDtFiles;
+
+
+  ///To store the local distributions
+  TH2D *Local_SigPsbDist = new TH2D("Local_SigPsbDist","Discriminant from Sig to each Bkg",100,-0.05,1.05,nMcFiles,0,nMcFiles);
+  TH2D *Local_BkgPsbDist = new TH2D("Local_BkgPsbDist","Discriminant from Bkg to each Sig",100,-0.05,1.05,nMcFiles,0,nMcFiles);
+  
   
   ///Getting results from analysis
   ///Each tree row has all events from a data file
   std::cout<<":: Detected "<<nDtFiles<<" data files..."<<std::endl;
-  for(Int_t ifile=0; ifile<nDtFiles; ifile++){
+  for(Int_t ifile = 0; ifile < nDtFiles; ifile++){
+    ///Goes over the events from current file
+    mtree->GetEntry(ifile);    
+    const Int_t nevents = Mdist->size();
 
     ///Detect if signal or background
     bool is_dsig = false;
     bool is_dbkg = false;
-    for(Int_t idsig = 0; idsig < (Int_t)Setup.SigData.size(); idsig++)
-      if( Setup.SigData.at(idsig) == ifile ) is_dsig = true;
-    for(Int_t idbkg = 0; idbkg < (Int_t)Setup.BkgData.size(); idbkg++)
-      if( Setup.BkgData.at(idbkg) == ifile ) is_dbkg = true;
+    for(Int_t idsig = 0; idsig < (Int_t)Setup.SigData.size(); idsig++){
+      if( Setup.SigData.at(idsig) == DtFile ) is_dsig = true;
+      //std::cout<<"DtFile/sigData: "<<DtFile<<"/"<<Setup.SigData.at(idsig)<<std::endl;
+    }
+    for(Int_t idbkg = 0; idbkg < (Int_t)Setup.BkgData.size(); idbkg++){
+      if( Setup.BkgData.at(idbkg) == DtFile ) is_dbkg = true;
+      //std::cout<<"DtFile/bkgData: "<<DtFile<<"/"<<Setup.BkgData.at(idbkg)<<std::endl;
+    }
 
-    fDtFile = (is_dsig == true && is_dbkg == false)? 0:1;
+         if(is_dsig == true && is_dbkg == false) fDtFile = 0;
+    else if(is_dsig == false && is_dbkg == true) fDtFile = 1;
+    else std::cout<<"Something went wrong! Data mis-classified!"<<std::endl;
     
 
 
-    ///Goes over the events from current file
-    mtree->GetEntry(ifile);
-    const Int_t nevents = Mdist->size();
-    for(Int_t ievent=0; ievent<nevents; ievent++){
+    std::vector<Int_t> sig_mc_file, bkg_mc_file;
+    std::vector<Double_t> local_min_dr_sig, local_min_dr_bkg;
+    for(Int_t ievent = 0; ievent < nevents; ievent++){
       if(ievent >= 10 && ievent%(nevents/10) == 0){
         std::cout<<":: ["<<ansi_violet<<"Remaning DataFile/Events"<<ansi_reset<<"]:  "<<Form("%i/%i/ %.3fseg",ifile,nevents-ievent,t2.RealTime())<<std::endl;
         t2.Continue();
       }
     
 
+      //Reseting the storage
+      sig_mc_file.clear();
+      bkg_mc_file.clear();
+      local_min_dr_sig.clear();
+      local_min_dr_bkg.clear();
+
 
       Double_t global_min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
       ///Looping over the MC sectors
-      for(Int_t ic=0; ic<(Int_t)nMcFiles; ic++){
+      for(Int_t ic = 0; ic < (Int_t)nMcFiles; ic++){
         mtree->GetEntry(ifile + TreeSectors[ic]); //TreeSectors aligns the results from different MCs
 
 	if(verbose > 1)
@@ -128,6 +148,8 @@ void Discriminant(FmeSetup Setup){
 
 	///Finds closest MC Signal
         if( is_sig == true ){
+          sig_mc_file.push_back( (*McFile).at(ievent) );
+          local_min_dr_sig.push_back( (*Mdist).at(ievent) );
    	  if( (*Mdist).at(ievent) < global_min_dr_sig ){
 	    global_min_dr_sig = (*Mdist).at(ievent);
 	  }
@@ -135,6 +157,8 @@ void Discriminant(FmeSetup Setup){
 
         ///Finds closest MC Background
         if( is_bkg == true ){
+          bkg_mc_file.push_back( (*McFile).at(ievent) );
+          local_min_dr_bkg.push_back( (*Mdist).at(ievent) );
           if( (*Mdist).at(ievent) < global_min_dr_bkg ){
             global_min_dr_bkg = (*Mdist).at(ievent);
 	  }
@@ -143,13 +167,26 @@ void Discriminant(FmeSetup Setup){
       }//Ending the full verification for a event
 
       Global_PsbDist = GetPsbD(global_min_dr_sig, global_min_dr_bkg);
+      //if( Global_PsbDist == 0) std::cout<<"@@@@@@@@@ ifile/ievent/min_dr_sig/min_dr_bkg: "<<ifile<<"/"<<ievent<<"/"<<global_min_dr_sig<<"/"<<global_min_dr_bkg<<std::endl;
+
+      if(fDtFile == 0){
+	for(Int_t ist = 0; ist < (Int_t)bkg_mc_file.size(); ist++){
+	  Local_SigPsbDist->Fill( GetPsbD(global_min_dr_sig, local_min_dr_bkg.at(ist)), bkg_mc_file.at(ist), 1 );
+	}
+      }
+      if(fDtFile == 1){
+        for(Int_t ist = 0; ist < (Int_t)sig_mc_file.size(); ist++){
+          Local_BkgPsbDist->Fill( GetPsbD(local_min_dr_sig.at(ist), global_min_dr_bkg), sig_mc_file.at(ist), 1 );
+        }
+      }
+
       if( verbose > 1 )
         std::cout<< Form("GSigMin:   %f\t\tGBkgMin:   %f\t\tGPsbDMinDist:   %f", global_min_dr_sig, global_min_dr_bkg, Global_PsbDist) << std::endl;
 
     
       ftree->Fill();
-    }
-  }
+    }//End of loop over events
+  }//End of loop over data files
   
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
@@ -162,6 +199,11 @@ void Discriminant(FmeSetup Setup){
 
 
 
+  std::cout<<"Define the path: ";
+  TString dir_name;
+  std::cin >> dir_name;
+  fmeFile->mkdir(dir_name);
+  fmeFile->cd(dir_name);
 
   ///Producing some plots
   //To get better colors
@@ -348,6 +390,8 @@ void Discriminant(FmeSetup Setup){
   ///----------------------------------------------------------------------
 
 
+  Local_SigPsbDist->Write();
+  Local_BkgPsbDist->Write(); 
   ftree->Write();
   fmeFile->Close();
 
