@@ -28,6 +28,10 @@ void Indexer(FmeSetup *Setup){
 
     TFile *org_file = TFile::Open( (TString)Setup->vMCs.at(ifile) );
     TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
+    org_tree->SetBranchStatus("*",kFALSE);
+    org_tree->SetBranchStatus(Setup->IdBranch,kTRUE);
+    org_tree->SetBranchStatus(Setup->PtBranch,kTRUE);
+    org_tree->SetBranchStatus(Setup->EtaBranch,kTRUE);
 
     TFile *fin_file = new TFile( Form("IndexedFiles/Indexed_file_from_original_file_%i.root",ifile), "recreate" );
     TTree *fin_tree = org_tree->CloneTree();

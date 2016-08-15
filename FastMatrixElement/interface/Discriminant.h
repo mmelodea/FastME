@@ -83,7 +83,16 @@ void Discriminant(FmeSetup Setup){
 
   ///To store the local distributions
   TH2D *Local_SigPsbDist = new TH2D("Local_SigPsbDist","Discriminant from Sig to each Bkg",100,-0.05,1.05,nMcFiles,0,nMcFiles);
+  Local_SigPsbDist->GetXaxis()->SetTitle("Discriminant");
+  Local_SigPsbDist->GetYaxis()->SetTitle("MC file");
+
   TH2D *Local_BkgPsbDist = new TH2D("Local_BkgPsbDist","Discriminant from Bkg to each Sig",100,-0.05,1.05,nMcFiles,0,nMcFiles);
+  Local_BkgPsbDist->GetXaxis()->SetTitle("Discriminant");
+  Local_BkgPsbDist->GetYaxis()->SetTitle("MC file");
+
+  TH2D *MinDistances = new TH2D("MinDistances","Minimum Distances",nDtFiles,0,nDtFiles,nMcFiles,0,nMcFiles);
+  MinDistances->GetXaxis()->SetTitle("Input file");
+  MinDistances->GetYaxis()->SetTitle("MC file");
   
   
   ///Getting results from analysis
@@ -115,7 +124,7 @@ void Discriminant(FmeSetup Setup){
     std::vector<Int_t> sig_mc_file, bkg_mc_file;
     std::vector<Double_t> local_min_dr_sig, local_min_dr_bkg;
     for(Int_t ievent = 0; ievent < nevents; ievent++){
-      if(ievent >= 10 && ievent%(nevents/10) == 0){
+      if(ievent >= 10 && ievent%(nevents/2) == 0){
         std::cout<<":: ["<<ansi_violet<<"Remaning DataFile/Events"<<ansi_reset<<"]:  "<<Form("%i/%i/ %.3fseg",ifile,nevents-ievent,t2.RealTime())<<std::endl;
         t2.Continue();
       }
@@ -164,6 +173,8 @@ void Discriminant(FmeSetup Setup){
 	  }
         }
 
+        
+        MinDistances->Fill(DtFile, (*McFile).at(ievent), (*Mdist).at(ievent)/float(nevents));
       }//Ending the full verification for a event
 
       Global_PsbDist = GetPsbD(global_min_dr_sig, global_min_dr_bkg);
@@ -392,6 +403,7 @@ void Discriminant(FmeSetup Setup){
 
   Local_SigPsbDist->Write();
   Local_BkgPsbDist->Write(); 
+  MinDistances->Write();
   ftree->Write();
   fmeFile->Close();
 

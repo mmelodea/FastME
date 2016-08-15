@@ -40,8 +40,8 @@ void FindScaleFactors(FmeSetup Setup, Double_t *f_scale_dPt, Double_t *f_scale_d
   gROOT->SetBatch();
   TCanvas *temp = new TCanvas();
   Double_t pt_sum = 0, eta_sum = 0, total = Setup.vMCs.size();
-  for(Int_t isample=0; isample<(Int_t)total; isample++){
-    TFile *ftmp = TFile::Open((TString)Setup.vMCs.at(isample));
+  for(Int_t isample = 0; isample < (Int_t)total; isample++){
+    TFile *ftmp = TFile::Open((TString)Setup.vMCs[isample]);
     TTree *ttmp = (TTree*)ftmp->Get(Setup.TTreeName);
     
     if(*f_scale_dPt < 0){
@@ -115,7 +115,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
-    TTreeReaderValue<int>    	McType(tread, "McFileIndex"); ///McType for Signal=0 and Background >0
+    TTreeReaderValue<int>    	McType(tread, "McFileIndex");
     TTreeReaderArray<int>	McId(tread, Id_branch);
     TTreeReaderArray<double>	McPt(tread, Pt_branch);
     TTreeReaderArray<double>	McEta(tread, Eta_branch);
@@ -124,26 +124,26 @@ TTree *ComputePhsDR(FmeSetup Setup){
     ///Tree to store the results from analysis
     Int_t DataFile;
     std::vector<double> Mdist;
-    std::vector<int> Indice, TMcType, DtObjFlag, fDtObjFlag; 
+    std::vector<int> Indice, TMcType;// DtObjFlag, fDtObjFlag; 
     TTree *fme_tree = new TTree("fme_tree","From FastME Phase Space Analysis");
     fme_tree->SetDirectory(0);
     fme_tree->Branch("DataFile",&DataFile,"DataFile/I");
     fme_tree->Branch("MinDistance","std::vector<double>",&Mdist);
     fme_tree->Branch("PairedMC","std::vector<int>",&Indice);
     fme_tree->Branch("McFile","std::vector<int>",&TMcType);
-    fme_tree->Branch("DataObjFlag","std::vector<int>",&fDtObjFlag);
+    //fme_tree->Branch("DataObjFlag","std::vector<int>",&fDtObjFlag);
 
 
     ///Loop over the different data files
-    for(Int_t idata=0; idata<(Int_t)Datas.size(); idata++){
+    for(Int_t idata = 0; idata < (Int_t)Datas.size(); idata++){
       DataFile = idata;
       Mdist.clear();
       Indice.clear();
       TMcType.clear();
 
-      TFile *fData = TFile::Open( (TString)Datas.at(idata) );
+      TFile *fData = TFile::Open( (TString)Datas[idata] );
       TTreeReader refReader(TreeName,fData);
-      TTreeReaderArray<int>     DataId(refReader, Id_branch);
+      TTreeReaderArray<int>      DataId(refReader, Id_branch);
       TTreeReaderArray<double>   DataPt(refReader, Pt_branch);
       TTreeReaderArray<double>   DataEta(refReader, Eta_branch);
 
@@ -151,7 +151,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
       ///Loop on Data events
       Int_t nDataEv = refReader.GetEntries(true);
       if(nData != -1 && nData >= 1 && nData < nDataEv) nDataEv = nData;
-      for(Int_t dt=0; dt<nDataEv; dt++){
+      for(Int_t dt = 0; dt < nDataEv; dt++){
 	refReader.SetEntry(dt); ///Move on Data loop                                                              
       
 	//if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
@@ -167,17 +167,20 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	Int_t imc_min = -1;
 	Int_t f_type=-99;
 	Int_t nMonteCarlo = tread.GetEntries(true);
-	if(MC_Limit != -1 && MC_Limit >= 1) nMonteCarlo = MC_Limit;
-	if(MC_Limit != -1 && MC_Limit < 1) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
-        if(nMonteCarlo == 0) nMonteCarlo = std::min(10, (int)tread.GetEntries(true));
+	     if(MC_Limit != -1 && MC_Limit >= 1 && MC_Limit <= nMonteCarlo) nMonteCarlo = MC_Limit;
+	else if(MC_Limit != -1 && MC_Limit < 1 && MC_Limit*nMonteCarlo != 0) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
+        else nMonteCarlo = std::min(10, nMonteCarlo);
 
-	for(Int_t mc=0; mc<nMonteCarlo; mc++){
-	  //Initialyze the vector
-	  DtObjFlag.clear();
-	  for(int sl=0; sl<(int)DataId.GetSize(); sl++) DtObjFlag.push_back(-1);
-
+	for(Int_t mc = 0; mc < nMonteCarlo; mc++){
 	  tread.SetEntry(mc); ///Move on MC loop
+          Int_t nDataParticles = DataId.GetSize();
+	  Int_t nMcParticles   = McId.GetSize();
+	  if( nDataParticles != nMcParticles ) continue;
 	  bool acept = true;
+
+          //Initialyze the vector
+          //DtObjFlag.clear();
+          //for(int sl=0; sl<(int)DataId.GetSize(); sl++) DtObjFlag.push_back(-1);
 	
 	  ///==============================================================================================================
 	  ///::::::::::::::::::::::::: Fast Matrix Element methods to compute Data - MC distance ::::::::::::::::::::::::::
@@ -187,7 +190,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
 	  Double_t SumMin_dPt2 = 0, SumMin_dEta2 = 0;
 	
-	  for(int imc=0; imc<(int)McId.GetSize(); imc++){
+	  for(Int_t imc = 0; imc < nMcParticles; imc++){
 	    Double_t min_particles_distance = 1.E15;
 	    Double_t particles_distance = -1.;
 	    int sel_data = -1;
@@ -195,8 +198,8 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    bool repaired = false;    
 	    Int_t nsame_flavor = 0;
 	    Double_t tmp_dPt = 0, tmp_dEta = 0;
-	    for(int idt=0; idt<(int)DataId.GetSize(); idt++){
-	      if(PhSDr_Method == "mindr" && DtObjFlag.at(idt) == 1) continue;///Skip data object already selected
+	    for(int idt = 0; idt < nDataParticles; idt++){
+	      //if(PhSDr_Method == "mindr" && DtObjFlag[idt] == 1) continue;///Skip data object already selected
 	      
 	      ///Avoid different Data-MC particles comparison
 	      if(FlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
@@ -261,7 +264,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 		acept = false;
 		break;
 	      }
-	      DtObjFlag[sel_data] = 1;///changes the flag for current Data object
+	      //DtObjFlag[sel_data] = 1;///changes the flag for current Data object
 
 	      if( verbose == 3 ) std::cout<<"Chosen->>  DtPos: "<<sel_data<<"   ID: "<<DataId[sel_data]<<std::endl;
 	      ///For proximity comparison method
@@ -281,7 +284,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	    if(event_distance_Min < min_distance_Min){
 	      min_distance_Min = event_distance_Min;
 	      imc_min = mc;
-	      fDtObjFlag = DtObjFlag;
+	      //fDtObjFlag = DtObjFlag;
 	    }
 	    if( verbose > 2 ) std::cout<<"Event_distance (MinDr) = "<<event_distance_Min<<std::endl;  
 	  }
@@ -300,7 +303,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	  ///================================================================================================================
 	  ///================================================================================================================
 	
-      }///End MC sample loop
+        }///End MC sample loop
 
       
 	///Stores the minimum distances found
@@ -341,19 +344,19 @@ TTree *ComputePhsDR(FmeSetup Setup){
   Int_t nBatches = (Resting >= 1)? PrimaryDivision+1 : PrimaryDivision;
   TList *list = new TList;
 
-  for(Int_t ib=0; ib<nBatches; ib++){
+  for(Int_t ib = 0; ib < nBatches; ib++){
     std::cout<<":: Processing MC Batch: "<<ib<<std::endl;
     std::vector<std::string> McBatches;
 
     if(ib < PrimaryDivision){
-      for(Int_t iS=0; iS<(Int_t)N_Cores; iS++)
-        McBatches.push_back( MCs.at(ib*N_Cores+iS) );
+      for(Int_t iS = 0; iS < (Int_t)N_Cores; iS++)
+        McBatches.push_back( MCs[ib*N_Cores+iS] );
       TProcPool workers(N_Cores);
       list->Add( (TTree*)workers.ProcTree(McBatches, workItem) );
     }
     else{
-      for(Int_t iS=0; iS<(Int_t)Resting; iS++)
-        McBatches.push_back( MCs.at(ib*N_Cores+iS) );
+      for(Int_t iS = 0; iS < (Int_t)Resting; iS++)
+        McBatches.push_back( MCs[ib*N_Cores+iS] );
       TProcPool workers(Resting);
       list->Add( (TTree*)workers.ProcTree(McBatches, workItem) );
     }
@@ -369,7 +372,6 @@ TTree *ComputePhsDR(FmeSetup Setup){
   ///________________________________ Stoping timming ________________________________________________________
   std::cout<<ansi_blue<<std::endl;
   std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<":: ["<<ansi_cyan<<"Sending PhsDrComputer Results to Discriminant Computer"<<ansi_blue<<"]"<<std::endl;
   std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
   std::cout<<ansi_reset<<std::endl;
   ///---------------------------------------------------------------------------------------------------------
