@@ -101,7 +101,7 @@ int main(int argc, char *argv[]){
     ffile->Close();
   
     ///-------------------------------------------------------------------------------------------------------------------
-    std::cout<<ansi_blue;
+    std::cout<<ansi_blue<<std::endl;
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
     std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;

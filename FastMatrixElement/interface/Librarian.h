@@ -18,22 +18,52 @@
 
 void Indexer(FmeSetup *Setup){
 
-  
-  std::cout<<":: Indexing files: "<<std::endl;  
-  gSystem->Exec("mkdir -p IndexedFiles");
-  gSystem->Exec("rm -r IndexedFiles/");
-  gSystem->Exec("mkdir IndexedFiles");
+  ///Creates a temporally folder to keep data to be used by FastME
+  gSystem->Exec("mkdir FME_USAGE");
+  gSystem->Exec("mkdir FME_USAGE/DATA");
+  gSystem->Exec("mkdir FME_USAGE/MC_TEMPLATES");
 
-  for(Int_t ifile = 0; ifile < (Int_t)Setup->vMCs.size(); ifile++){
 
-    TFile *org_file = TFile::Open( (TString)Setup->vMCs.at(ifile) );
+  ///Preparing the MC templates
+  std::cout<<":: Reducing data files: "<<std::endl;  
+  std::cout<<"::------------------------------------------------------------::"<<std::endl;
+  for(Int_t ifile = 0; ifile < (Int_t)Setup->vDatas.size(); ifile++){
+
+    TFile *org_file = TFile::Open( (TString)Setup->vDatas[ifile] );
     TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
     org_tree->SetBranchStatus("*",kFALSE);
     org_tree->SetBranchStatus(Setup->IdBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->PtBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->EtaBranch,kTRUE);
 
-    TFile *fin_file = new TFile( Form("IndexedFiles/Indexed_file_from_original_file_%i.root",ifile), "recreate" );
+    TFile *fin_file = new TFile( Form("FME_USAGE/DATA/Reduced_file_from_original_data_file_%i.root",ifile), "recreate" );
+    TTree *fin_tree = org_tree->CloneTree();
+    org_file->Close();
+    
+    fin_tree->Write();
+    fin_file->Close();
+    std::cout<<ansi_green<<"[REDUCED] "<<ansi_reset<<Setup->vDatas[ifile]<<std::endl;
+  }
+
+  for(Int_t ifile = 0; ifile<(Int_t)Setup->vMCs.size(); ifile++)
+    Setup->vDatas[ifile] = Form("FME_USAGE/DATA/Reduced_file_from_original_data_file_%i.root",ifile);
+
+
+  
+  
+  ///Preparing the MC templates
+  std::cout<<":: Indexing MC files: "<<std::endl;
+  std::cout<<"::------------------------------------------------------------::"<<std::endl;
+  for(Int_t ifile = 0; ifile < (Int_t)Setup->vMCs.size(); ifile++){
+
+    TFile *org_file = TFile::Open( (TString)Setup->vMCs[ifile] );
+    TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
+    org_tree->SetBranchStatus("*",kFALSE);
+    org_tree->SetBranchStatus(Setup->IdBranch,kTRUE);
+    org_tree->SetBranchStatus(Setup->PtBranch,kTRUE);
+    org_tree->SetBranchStatus(Setup->EtaBranch,kTRUE);
+
+    TFile *fin_file = new TFile( Form("FME_USAGE/MC_TEMPLATES/Indexed_file_from_original_MC_file_%i.root",ifile), "recreate" );
     TTree *fin_tree = org_tree->CloneTree();
     org_file->Close();
 
@@ -45,14 +75,17 @@ void Indexer(FmeSetup *Setup){
     for(Int_t i = 0; i < Nentries; i++)
       file_index->Fill();
 
-    
+
     fin_tree->Write();
     fin_file->Close();
-    std::cout<<ansi_green<<"[INDEXED] "<<ansi_reset<<Setup->vMCs.at(ifile)<<std::endl;
+    std::cout<<ansi_green<<"[INDEXED] "<<ansi_reset<<Setup->vMCs[ifile]<<std::endl;
   }
 
-  for(Int_t ifile = 0; ifile<(Int_t)Setup->vMCs.size(); ifile++)
-    Setup->vMCs.at(ifile) = Form("IndexedFiles/Indexed_file_from_original_file_%i.root",ifile);
+  for(Int_t ifile = 0; ifile < (Int_t)Setup->vMCs.size(); ifile++)
+    Setup->vMCs[ifile] = Form("FME_USAGE/MC_TEMPLATES/Indexed_file_from_original_MC_file_%i.root",ifile);
+
+
+
 
   return;
 

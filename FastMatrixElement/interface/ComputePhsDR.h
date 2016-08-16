@@ -16,6 +16,7 @@
 #include <vector>
 #include <exception>
 #include <cmath>
+#include <iomanip>
 
 #include <TROOT.h>
 #include <TString.h>
@@ -111,7 +112,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
 		   PhSDr_Method, FlavorConstraint, MC_Limit, scale_dPt, scale_dEta, verbose]
 		   (TTreeReader &tread) -> TObject* {
 		     
-    std::cout<<ansi_yellow<<"::----->>> Activating core <<<-----::"<<ansi_reset<<std::endl;
+    //std::cout<<ansi_yellow<<"::----->>> Activating core <<<-----::"<<ansi_reset<<std::endl;
     TStopwatch t2;
         
     ///Addresses the MC branches to be used
@@ -154,12 +155,9 @@ TTree *ComputePhsDR(FmeSetup Setup){
       for(Int_t dt = 0; dt < nDataEv; dt++){
 	refReader.SetEntry(dt); ///Move on Data loop                                                              
       
-	//if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
-	if(nDataEv-dt == 1){
-	  std::cout<<":: ["<<ansi_violet<<"Remaining from "<<fData->GetName()<<" for MC "<<*McType<<"/Elapsed"<<ansi_reset<<"]:    "<<nDataEv-dt<<"/ "<<(Int_t)t2.RealTime()<<"seg";
-	  t2.Continue();
-          if(nDataEv-dt == 1) std::cout<<ansi_yellow<<" <<-(Concluded!)"<<ansi_reset<<std::endl;
-	  else std::cout<<std::endl;
+	if( verbose != 0 && ((dt!= 0 && nDataEv > 10 && dt%(nDataEv/10) == 0) || (nDataEv-dt) == 1) ){
+	  std::string infos = Form("%i/%i/%i",idata,*McType,nDataEv-dt);
+	  std::cout<<"\r:: DataFile/MC/Remaining: "<<infos<<std::flush;
 	}
 
 	Double_t min_distance_Min = 1.e15;
@@ -167,9 +165,10 @@ TTree *ComputePhsDR(FmeSetup Setup){
 	Int_t imc_min = -1;
 	Int_t f_type=-99;
 	Int_t nMonteCarlo = tread.GetEntries(true);
-	     if(MC_Limit != -1 && MC_Limit >= 1 && MC_Limit <= nMonteCarlo) nMonteCarlo = MC_Limit;
-	else if(MC_Limit != -1 && MC_Limit < 1 && MC_Limit*nMonteCarlo != 0) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
-        else nMonteCarlo = std::min(10, nMonteCarlo);
+	if(MC_Limit != -1 && MC_Limit >= 1 && MC_Limit <= nMonteCarlo) nMonteCarlo = MC_Limit;
+	if(MC_Limit != -1 && MC_Limit < 1 && (Int_t)MC_Limit*nMonteCarlo != 0) nMonteCarlo = (Int_t)(MC_Limit*nMonteCarlo);
+	
+        
 
 	for(Int_t mc = 0; mc < nMonteCarlo; mc++){
 	  tread.SetEntry(mc); ///Move on MC loop
@@ -345,7 +344,7 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TList *list = new TList;
 
   for(Int_t ib = 0; ib < nBatches; ib++){
-    std::cout<<":: Processing MC Batch: "<<ib<<std::endl;
+    std::cout<<"\n:: Processing MC Batch: "<<ib<<std::endl;
     std::vector<std::string> McBatches;
 
     if(ib < PrimaryDivision){
@@ -367,17 +366,11 @@ TTree *ComputePhsDR(FmeSetup Setup){
   TTree *phs_tree = TTree::MergeTrees(list);
   phs_tree->SetName("FastME_PhSTree");
 
-  
 
-  ///________________________________ Stoping timming ________________________________________________________
-  std::cout<<ansi_blue<<std::endl;
-  std::cout<<":::::::::::::::::::::::::::::::::::[ "<<ansi_cyan<<"Process Finished"<<ansi_blue<<" ]::::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"<<std::endl;
-  std::cout<<ansi_reset<<std::endl;
-  ///---------------------------------------------------------------------------------------------------------
-
+  ///Cleaning the temporary folder
+  gSystem->Exec("rm -r FME_USAGE");
   
-  ///Send final tree merged from trees coming from all cores used
+  ///Send final tree merged from trees coming from all used cores
   return phs_tree;
 }
 
