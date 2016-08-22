@@ -4,8 +4,9 @@
 ///::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-#ifndef FmeInterface_h
-#define FmeInterface_h
+
+#ifndef Interfacer_h
+#define Interfacer_h
 
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
@@ -25,6 +26,8 @@
 #include <iomanip>
 
 
+
+
 ///Test file existence
 void file_check(std::string file_address){
   std::ifstream exists(file_address.c_str());
@@ -32,26 +35,27 @@ void file_check(std::string file_address){
     std::cout<<"File "<<file_address<<" not found!"<<std::endl;
     throw std::exception();
   }
+
   return;
 }
 
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-d", sp = "-s";
+static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-d";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file [flux options]"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
   std::cout<<"\t-c\t\tInform how many cores are available in the machine"<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
   std::cout<<"\t-d\t\tCompute discriminant and produce plots from the FastME results"<<std::endl;
-  std::cout<<"\t-s\t\tDisplay the particles disposition on FastME phase space"<<ansi_yellow<<" (to be implemented)"<<ansi_reset<<std::endl;  
   std::cout<<"Flux options:"<<std::endl;
   std::cout<<"\t-quiet\t\tRun program without show the config file and avoid user check config file"<<std::endl;
   std::cout<<"\nFor more info access https://github.com/mmelodea/FastMatrixElement"<<std::endl;
 
   return;
 }
+
 
 
 ///Return how many cores are available in the machine
@@ -177,17 +181,21 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   }
 
   if(run_mode == normal && command != pr){
+    Int_t n_dataev = 0, n_mcev = 0;
     std::cout<<ansi_yellow<<"______________________________________________________________________________________________"<<ansi_reset<<std::endl;
     std::cout<< Form(":: Data Samples:     %i\t[",N_DT);
-    for(Int_t nd=0; nd<N_DT; nd++){
+    for(Int_t nd = 0; nd < N_DT; ++nd){
       if( nd<(N_DT-1) ) std::cout<< nd << "= " << NDATA[nd] << ",  ";
       if( nd==(N_DT-1) ) std::cout<< nd << "= " << NDATA[nd] << "]" <<std::endl;
+      n_dataev += NDATA[nd];
     }
     std::cout<< Form(":: MC Samples:       %i\t[",N_MC); 
-    for(Int_t ne=0; ne<N_MC; ne++){
+    for(Int_t ne = 0; ne < N_MC; ++ne){
       if( ne<(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << ",  ";
       if( ne==(N_MC-1) ) std::cout<< ne << "= " << NMCEV[ne] << "]" <<std::endl;
+      n_mcev += NMCEV[ne];
     }
+    std::cout<< Form(":: Going to analyze %i through %i Monte Carlo events", n_dataev, n_mcev) <<std::endl;
     std::cout<<ansi_yellow<<"----------------------------------------------------------------------------------------------"<<ansi_reset<<std::endl;
   }
   ///--------------------------------------------------------------------------------------------------------------
@@ -195,6 +203,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
   Setup->NData = nDtEv;
 
   ///Get files order and insert a branch inside them to handle in different CPU cores
+  ///Indexer function defined into Librarian header
   if(run_mode == normal && command != pr)  Indexer(Setup);
 
   

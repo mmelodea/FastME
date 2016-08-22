@@ -5,8 +5,9 @@
 
 
 
-#ifndef Discriminant_h
-#define Discriminant_h
+#ifndef Arbiter_h
+#define Arbiter_h
+
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
 
@@ -28,6 +29,8 @@
 #include <TLegend.h>
 
 
+
+
 ///================ Discriminant Based on Distance ===================
 Double_t GetPsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
   Double_t DD = min_dr_bkg/(min_dr_sig + min_dr_bkg);
@@ -39,11 +42,11 @@ Double_t GetPsbD(Double_t min_dr_sig, Double_t min_dr_bkg){
 
 
 ///_______________________ Compute discriminant from MDMCED _________________________________________________
-void Discriminant(FmeSetup Setup){
+void Arbiter(FmeSetup Setup){
   
 
   Int_t nDtFiles	= Setup.vDatas.size(); //Number of data files
-  Int_t nMcFiles	= Setup.vMCs.size(); //Number of MC files
+  Int_t nMcFiles	= Setup.vMCs.size();   //Number of MC files
   Int_t verbose		= Setup.Verbose;  
 
   TStopwatch t2;

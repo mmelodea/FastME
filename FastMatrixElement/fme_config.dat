@@ -22,26 +22,6 @@
 
 ############# User config ############
 ### Path of samples ###
-#data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part1.root
-#data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part1.root
-#data_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part1.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part2.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part2.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part2.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part3.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part4.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part5.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part6.root
-
-#sig_data 0
-#bkg_data 1
-#bkg_data 2
-#sig_mc 0
-#bkg_mc 1
-#bkg_mc 2
-
-
-
 #data_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_1_NewFormat.root
 #data_path ../../../../VBF_Samples_StdVectors/VBF_BKG_QED4_QCD0_plus_QED2_QCD2.root
 #mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_2_NewFormat.root
@@ -55,190 +35,15 @@
 
 
 
-###### For Data emulation 3 final state #################################
-sig_data 0
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
-
-sig_data 1
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_VBF_HToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
-
-sig_data 2
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUgenV6_pythia8.root
-
-sig_data 3
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WminusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
-
-sig_data 4
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WplusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
-
-sig_data 5
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ZH_HToZZ_4LFilter_M125_13TeV_powheg2-minlo-HZJ_JHUgenV6_pythia8.root
-
-bkg_data 6
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root
-
-bkg_data 7
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo2e2mu_BackgroundOnly_13TeV_MCFM.root
-
-bkg_data 8
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo2e2tau_BackgroundOnly_13TeV_MCFM.root
-
-bkg_data 9
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo2mu2tau_BackgroundOnly_13TeV_MCFM.root
-
-bkg_data 10
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo4e_BackgroundOnly_13TeV_MCFM.root
-
-bkg_data 11
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo4mu_BackgroundOnly_13TeV_MCFM.root
-
-bkg_data 12
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo4tau_BackgroundOnly_13TeV_MCFM.root
-
-bkg_data 13
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP1000_MA0300.root
-
-bkg_data 14
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP1200_MA0300.root
-
-bkg_data 15
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP1400_MA0300.root
-
-bkg_data 16
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP1700_MA0300.root
-
-bkg_data 17
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP2000_MA0300.root
-
-bkg_data 18
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP2500_MA0300.root
-
-bkg_data 19
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP600_MA0300.root
-
-bkg_data 20
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_MZP800_MA0300.root
-
-##bkg_data 21
-##data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1.root
-
-bkg_data 21
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_TTTo2L2Nu_13TeV-powheg.root
-
-##bkg_data 23
-##data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root
-
-##bkg_data 24
-##data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WWTo2L2Nu_13TeV-powheg.root
-
-bkg_data 22
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WZ_TuneCUETP8M1_13TeV-pythia8.root
-
-bkg_data 23
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ZH_ll_h2l2v_M125_13TeV_MadGraph_private.root
-
-bkg_data 24
-data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ZZTo4L_13TeV_powheg_pythia8.root
-
-
-#### MC Templates ##########################################################
-sig_mc 0
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
-
-sig_mc 1
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_VBF_HToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
-
-sig_mc 2
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUgenV6_pythia8.root
-
-sig_mc 3
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_WminusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
-
-sig_mc 4
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_WplusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
-
-sig_mc 5
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_ZH_HToZZ_4LFilter_M125_13TeV_powheg2-minlo-HZJ_JHUgenV6_pythia8.root
-
-bkg_mc 6
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root
-
-bkg_mc 7
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluToZZTo2e2mu_BackgroundOnly_13TeV_MCFM.root
-
-bkg_mc 8
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluToZZTo2e2tau_BackgroundOnly_13TeV_MCFM.root
-
-bkg_mc 9
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluToZZTo2mu2tau_BackgroundOnly_13TeV_MCFM.root
-
-bkg_mc 10
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluToZZTo4e_BackgroundOnly_13TeV_MCFM.root
-
-bkg_mc 11
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluToZZTo4mu_BackgroundOnly_13TeV_MCFM.root
-
-bkg_mc 12
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_GluGluToZZTo4tau_BackgroundOnly_13TeV_MCFM.root
-
-bkg_mc 13
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP1000_MA0300.root
-
-bkg_mc 14
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP1200_MA0300.root
-
-bkg_mc 15
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP1400_MA0300.root
-
-bkg_mc 16
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP1700_MA0300.root
-
-bkg_mc 17
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP2000_MA0300.root
-
-bkg_mc 18
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP2500_MA0300.root
-
-bkg_mc 19
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP600_MA0300.root
-
-bkg_mc 20
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_MZP800_MA0300.root
-
-##bkg_mc 21
-##mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1.root
-
-bkg_mc 21
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_TTTo2L2Nu_13TeV-powheg.root
-
-##bkg_mc 23
-##mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root
-
-##bkg_mc 24
-##mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_WWTo2L2Nu_13TeV-powheg.root
-
-bkg_mc 22
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_WZ_TuneCUETP8M1_13TeV-pythia8.root
-
-bkg_mc 23
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_ZH_ll_h2l2v_M125_13TeV_MadGraph_private.root
-
-bkg_mc 24
-mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplates/4l/output_ZZTo4L_13TeV_powheg_pythia8.root
-
-
-
 ### Tree info ###
-#tree_name Higgs
 #tree_name Vbf
-tree_name HZZ4LeptonsAnalysisReduced
 id_branch_name ParticleId
 pt_branch_name ParticlePt
 eta_branch_name ParticleEta
 
 
 ############ FastME configs ##########
-outfile_name higgs_13TeV
+outfile_name higgs_vbf
 outfile_path tests
 phs_dr_method mindr
 flavor_constraint false
@@ -249,5 +54,5 @@ mc_limit 0.1
 scale_dPt -2
 scale_dEta -2
 #To plot some results
-fme_file tests/higgs_13TeV.root
+fme_file tests/higgs_vbf.root
 verbose_level 1

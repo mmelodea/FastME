@@ -27,7 +27,8 @@ void Indexer(FmeSetup *Setup){
   ///Preparing the MC templates
   std::cout<<":: Reducing data files: "<<std::endl;  
   std::cout<<"::------------------------------------------------------------::"<<std::endl;
-  for(Int_t ifile = 0; ifile < (Int_t)Setup->vDatas.size(); ifile++){
+  Int_t nDataFiles = Setup->vDatas.size();
+  for(Int_t ifile = 0; ifile < nDataFiles; ++ifile){
 
     TFile *org_file = TFile::Open( (TString)Setup->vDatas[ifile] );
     TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
@@ -43,10 +44,10 @@ void Indexer(FmeSetup *Setup){
     fin_tree->Write();
     fin_file->Close();
     std::cout<<ansi_green<<"[REDUCED] "<<ansi_reset<<Setup->vDatas[ifile]<<std::endl;
+    Setup->vDatas[ifile] = Form("FME_USAGE/DATA/Reduced_file_from_original_data_file_%i.root",ifile);
   }
 
-  for(Int_t ifile = 0; ifile<(Int_t)Setup->vMCs.size(); ifile++)
-    Setup->vDatas[ifile] = Form("FME_USAGE/DATA/Reduced_file_from_original_data_file_%i.root",ifile);
+    
 
 
   
@@ -54,7 +55,8 @@ void Indexer(FmeSetup *Setup){
   ///Preparing the MC templates
   std::cout<<":: Indexing MC files: "<<std::endl;
   std::cout<<"::------------------------------------------------------------::"<<std::endl;
-  for(Int_t ifile = 0; ifile < (Int_t)Setup->vMCs.size(); ifile++){
+  Int_t nMcFiles = Setup->vMCs.size();
+  for(Int_t ifile = 0; ifile < nMcFiles; ++ifile){
 
     TFile *org_file = TFile::Open( (TString)Setup->vMCs[ifile] );
     TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
@@ -72,17 +74,14 @@ void Indexer(FmeSetup *Setup){
     Int_t Nentries = fin_tree->GetEntries();
 
 
-    for(Int_t i = 0; i < Nentries; i++)
-      file_index->Fill();
+    for(Int_t i = 0; i < Nentries; ++i) file_index->Fill();
 
 
     fin_tree->Write();
     fin_file->Close();
     std::cout<<ansi_green<<"[INDEXED] "<<ansi_reset<<Setup->vMCs[ifile]<<std::endl;
-  }
-
-  for(Int_t ifile = 0; ifile < (Int_t)Setup->vMCs.size(); ifile++)
     Setup->vMCs[ifile] = Form("FME_USAGE/MC_TEMPLATES/Indexed_file_from_original_MC_file_%i.root",ifile);
+  }
 
 
 

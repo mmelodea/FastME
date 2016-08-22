@@ -7,14 +7,11 @@
 
 ///My Own headers
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
-#include "FastMatrixElement/FastMatrixElement/interface/FmeInterface.h"
-#include "FastMatrixElement/FastMatrixElement/interface/ComputePhsDR.h"
-#include "FastMatrixElement/FastMatrixElement/interface/Discriminant.h"
-#include "FastMatrixElement/FastMatrixElement/interface/ShowParticles.h"
+#include "FastMatrixElement/FastMatrixElement/interface/Interfacer.h"
+#include "FastMatrixElement/FastMatrixElement/interface/Cartographer.h"
+#include "FastMatrixElement/FastMatrixElement/interface/Arbiter.h"
+#include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"
 
-//c++ headers
-#include <iostream>
-#include <string>
 
 //ROOT headers
 #include <TString.h>
@@ -22,6 +19,12 @@
 #include <TTree.h>
 #include <TStopwatch.h>
 #include <TSystem.h>
+
+
+//c++ headers
+#include <iostream>
+#include <string>
+
 
 
 //FastME global manager function
@@ -34,7 +37,7 @@ int main(int argc, char *argv[]){
     return -1;
   }
   ///Protection against wrong command spelling
-  if(argv[1] != help && argv[1] != sl && argv[1] != nc && argv[1] != fa && argv[1] != pr && argv[1] != sp){
+  if(argv[1] != help && argv[1] != sl && argv[1] != nc && argv[1] != fa && argv[1] != pr){
     std::cout<<"\nBad arguments...\n"<<std::endl;
     Helper();
     return -1;
@@ -90,11 +93,11 @@ int main(int argc, char *argv[]){
 
 
     ///Calls PhsDrComputer to compute events distance
-    TTree *rtree = ComputePhsDR(setup);
+    TTree *rtree = Cartographer(setup);
 
 
     ///Store results (be aware.. the file is handled relative to path where fastme software is called)
-    gSystem->Exec("mkdir -p "+setup.OutPath);
+    gSystem->Exec("mkdir -p " + setup.OutPath);
     TString resulting_file = setup.OutPath+"/"+setup.OutName+".root";
     TFile *ffile = new TFile(resulting_file,"recreate");
     rtree->Write();
@@ -105,7 +108,7 @@ int main(int argc, char *argv[]){
     std::cout<<"==============================================================================================="<<std::endl;
     std::cout<<"::::::::::::::::::::::::::[ "<<ansi_cyan<<"Fast Matrix Element Analysis Finalized"<<ansi_blue<<" ]:::::::::::::::::::::::::::"<<std::endl;
     std::cout<<":: "<<ansi_yellow<<"Analysis file saved: "<<resulting_file<<std::endl;
-    std::cout<<ansi_blue<<":: "<<ansi_yellow<<"Total Time Analysis: "<<(Int_t)t1.RealTime()<<" seg"<<std::endl;
+    std::cout<<ansi_blue<<":: "<<ansi_yellow<< Form("Total Time Analysis: %.2f",t1.RealTime()) <<std::endl;
     std::cout<<ansi_blue<<"==============================================================================================="<<std::endl;
     std::cout<<ansi_reset<<"\n\n";
   }
@@ -113,12 +116,8 @@ int main(int argc, char *argv[]){
 
   ///Calls the Discriminator
   else if (argv[1] == pr){
-    Discriminant(setup);
+    Arbiter(setup);
   }
-
-  
-  ///Calls event display
-  else if(argv[1] == sp)	ShowParticles(setup);
 
   
   ///Wrong commands gets error and return the helper
