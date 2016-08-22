@@ -13,4 +13,4 @@ cmsenv
 echo -e "\nCompiling FastME package..."
 scram b
 
-echo -e "\n*** Proccess finished! ***"
+echo -e "\n*** Process finished! ***"
