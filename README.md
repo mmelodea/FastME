@@ -14,9 +14,9 @@ The software produces essencially a ROOT TTree object containing usefull informa
 
 The 2 main options to use the software are:
 
-<h7>fastme -a fme_config.dat</h7>
+<h6>fastme -a fme_config.dat</h6>
 This option will run the software to find the closest MC events to each data event and it will store in the tree fme_tree the data file analised, the MC file matched to the data events, the minimum distances found.
 
 
-<h7> fastme -d fme_config.dat</h7>
+<h6> fastme -d fme_config.dat</h6>
 This option will take the previous file created and the tree stored in it and it will compute the discriminant acording to the scheme defined by the user (set of sig/bkg_data and sig/bkg_mc). It also will provide the discriminant variation for each MC file, which allows one to know which of the MC is more similar/different to the analised data.
