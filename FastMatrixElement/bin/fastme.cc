@@ -6,11 +6,12 @@
 
 
 ///My Own headers
-#include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
-#include "FastMatrixElement/FastMatrixElement/interface/Interfacer.h"
-#include "FastMatrixElement/FastMatrixElement/interface/Cartographer.h"
-#include "FastMatrixElement/FastMatrixElement/interface/Arbiter.h"
-#include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"
+#include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h" //Basic FastME private variables
+#include "FastMatrixElement/FastMatrixElement/interface/Interfacer.h"     //Config file handler
+#include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"      //Handle the original files for reduction and input order indexing
+#include "FastMatrixElement/FastMatrixElement/interface/Cartographer.h"   //Mapper real event to MC event
+#include "FastMatrixElement/FastMatrixElement/interface/Arbiter.h"        //Discriminator
+
 
 
 //ROOT headers
