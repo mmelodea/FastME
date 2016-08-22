@@ -18,7 +18,8 @@
 
 void Indexer(FmeSetup *Setup){
 
-  ///Creates a temporally folder to keep data to be used by FastME
+  ///Create a folder to keep data to be used by FastME
+  ///Only the important branches and the defined events quantity are keept
   gSystem->Exec("mkdir FME_USAGE");
   gSystem->Exec("mkdir FME_USAGE/DATA");
   gSystem->Exec("mkdir FME_USAGE/MC_TEMPLATES");
