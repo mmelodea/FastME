@@ -55,22 +55,22 @@ void FindScaleFactors(std::vector<std::string> vMCs, TString TTreeName, TString 
       TString draw_pt = PtBranch + " >> stackpt";
       ttmp->Draw(draw_pt);
       TH1D *stackpt = (TH1D*)gDirectory->Get("stackpt");
-      if( *ScaledPt == -1) pt_sum += stackpt->GetMean();
-      if( *ScaledPt == -2) pt_sum += stackpt->GetBinCenter( stackpt->GetMaximumBin() );
+      if( *ScaledPt == -1 ) pt_sum += stackpt->GetMean();
+      if( *ScaledPt == -2 ) pt_sum += stackpt->GetBinCenter( stackpt->GetMaximumBin() );
     }
     if( *ScaledEta < 0){
       TString draw_eta = EtaBranch+" >> stacketa";
       ttmp->Draw(draw_eta);
       TH1D *stacketa = (TH1D*)gDirectory->Get("stacketa");
-      if( *ScaledEta == -1) eta_sum += fabs( stacketa->GetMean() );//Should be used only in case you are in region shifted from 0!
-      if( *ScaledEta == -2) eta_sum += fabs( stacketa->GetBinCenter(stacketa->GetMinimum()) );
+      if( *ScaledEta == -1 ) eta_sum += fabs( stacketa->GetMean() );//Should be used only in case you are in region shifted from 0!
+      if( *ScaledEta == -2 ) eta_sum += fabs( stacketa->GetBinCenter(stacketa->GetMinimum()) );
     }
     if( *ScaledPhi < 0){
       TString draw_phi = PhiBranch+" >> stackphi";
       ttmp->Draw(draw_phi);
       TH1D *stackphi = (TH1D*)gDirectory->Get("stackphi");
-      if( *ScaledPhi == -1) phi_sum += fabs( stackphi->GetMean() );//Should be used only in case you are in region shifted from 0!
-      if( *ScaledPhi == -2) phi_sum += fabs( stackphi->GetBinCenter(stackphi->GetMinimum()) );
+      if( *ScaledPhi == -1 ) phi_sum += fabs( stackphi->GetMean() );//Should be used only in case you are in region shifted from 0!
+      if( *ScaledPhi == -2 ) phi_sum += fabs( stackphi->GetBinCenter(stackphi->GetMinimum()) );
     }
    
     ftmp->Close();
@@ -205,12 +205,12 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  ///Avoid different final state comparison
 	  Int_t nMcParticles = McId.GetSize();
 	  if( nDataParticles != nMcParticles ) continue;
-	  	
+	  std::vector<int> McFlag = (nMcParticles,0);
 	  
 	  //Loop over the particles in the data event
 	  //std::cout<<"Going over data objects..."<<std::endl;
-	  Int_t n_matched_paticles = 0;
-	  Double_t Min_dPt2 = 0, Min_dEta2 = 0, Min_dPhi2 = 0, Sum_dPt2_dEta2_dPhi2 = 0;
+	  Int_t n_matched_particles = 0;
+	  Double_t Min_dPt2_dEta2_dPhi2 = 0, Sum_dPt2_dEta2_dPhi2 = 0;
 	  for(int idt = 0; idt < nDataParticles; ++idt){
 	    Double_t min_particles_distance = 1.e15;
 	    Int_t sel_mc_part = -1;
@@ -221,7 +221,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	      //std::cout<<"Data "<<idt<<"--- Mc "<<imc<<std::endl;
 
 	      ///Avoid MC flaged as "used"
-	      if(McId[imc] == 0) continue;
+	      if(McFlag[imc] == 1) continue;
 	      
 	      ///Avoid different Data-MC particles comparison in case of flavor constraint
 	      if(SetFlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
@@ -236,25 +236,23 @@ TTree *Cartographer(FmeSetup UserConfig){
 	      if(particles_distance < min_particles_distance){
 		sel_mc_part = imc;
 		min_particles_distance = particles_distance;
-		Min_dPt2  = dPt2;
-		Min_dEta2 = dEta2;
-		Min_dPhi2 = dPhi2;
+		Min_dPt2_dEta2_dPhi2 = dPt2 + dEta2 + dPhi2;
 	      }
 	    }///Ends loop over MC particles
 
 	    //Flags a chosen MC as "used" and saves deltas
 	    //std::cout<<"Selected MC "<<sel_mc_part<<std::endl;
 	    if(sel_mc_part != -1){
-	      McId[sel_mc_part] = 0;
-	      ++n_matched_paticles;
+	      McFlag[sel_mc_part] = 0;
+	      ++n_matched_particles;
 	      //Start to sum for final event distance
-	      Sum_dPt2_dEta2_dPhi2 += Min_dPt2 + Min_dEta2 + Min_dPhi2;
+	      Sum_dPt2_dEta2_dPhi2 += Min_dPt2_dEta2_dPhi2;
 	    }
 	  }///Ends loop over DATA particles
 	
 	  
 	  //Computes the final event distance
-	  if(sqrt(Sum_dPt2_dEta2_dPhi2) < min_distance_Min && n_matched_paticles == nDataParticles){
+	  if(sqrt(Sum_dPt2_dEta2_dPhi2) < min_distance_Min && n_matched_particles == nDataParticles){
 	    min_distance_Min = sqrt(Sum_dPt2_dEta2_dPhi2);
 	    imc_min = mc;
 	    f_type = *McType;	
