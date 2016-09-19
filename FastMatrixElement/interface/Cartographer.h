@@ -40,7 +40,7 @@
 
 ///Compute scale factors to normalize the deltas
 void FindScaleFactors(std::vector<std::string> vMCs, TString TTreeName, TString PtBranch, TString EtaBranch, 
-		      TString PhiBranch, Double_t *ScaledPt, Double_t *ScaledEta, Double_t *scale_dPhi){
+		      TString PhiBranch, Double_t *ScaledPt, Double_t *ScaledEta, Double_t *ScaledPhi){
   
   gROOT->SetBatch();
   TCanvas *temp = new TCanvas();
@@ -116,7 +116,7 @@ TTree *Cartographer(FmeSetup UserConfig){
   
   ///Verifying the scale factors
   if(ScaledPt < 0 || ScaledEta < 0 || ScaledPhi < 0){
-    std::cout<<":: ["<<ansi_yellow<<"Initials [scale_dPt/scale_dEta/scale_dPhi] -----> ["<<ScaledPt<<"/"<<ScaledEta<<"/"<<scale_dPhi<<"] @@Computing new scale factors..."<<ansi_reset<<"]"<<std::endl;
+    std::cout<<":: ["<<ansi_yellow<<"Initials [scale_dPt/scale_dEta/scale_dPhi] -----> ["<<ScaledPt<<"/"<<ScaledEta<<"/"<<ScaledPhi<<"] @@Computing new scale factors..."<<ansi_reset<<"]"<<std::endl;
     FindScaleFactors(vMCs, TTreeName, PtBranch, EtaBranch, PhiBranch, &ScaledPt, &ScaledEta, &ScaledPhi);
     std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f, scale_dEta = %.3f, scale_dPhi = %.3f", ScaledPt, ScaledEta, ScaledPhi)<<std::endl;
   }
