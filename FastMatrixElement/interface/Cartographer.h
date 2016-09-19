@@ -115,9 +115,9 @@ TTree *Cartographer(FmeSetup UserConfig){
   
   
   ///Verifying the scale factors
-  if(ScaledPt < 0 || ScaledEta < 0 || scale_dPhi < 0){
+  if(ScaledPt < 0 || ScaledEta < 0 || ScaledPhi < 0){
     std::cout<<":: ["<<ansi_yellow<<"Initials [scale_dPt/scale_dEta/scale_dPhi] -----> ["<<ScaledPt<<"/"<<ScaledEta<<"/"<<scale_dPhi<<"] @@Computing new scale factors..."<<ansi_reset<<"]"<<std::endl;
-    FindScaleFactors(vMCs, TTreeName, PtBranch, EtaBranch, PhiBranch, &ScaledPt, &ScaledEta, &scale_dPhi);
+    FindScaleFactors(vMCs, TTreeName, PtBranch, EtaBranch, PhiBranch, &ScaledPt, &ScaledEta, &ScaledPhi);
     std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f, scale_dEta = %.3f, scale_dPhi = %.3f", ScaledPt, ScaledEta, ScaledPhi)<<std::endl;
   }
   
@@ -139,7 +139,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     TTreeReaderArray<int>	McId(tread, IdBranch);
     TTreeReaderArray<double>	McPt(tread, PtBranch);
     TTreeReaderArray<double>	McEta(tread, EtaBranch);
-    TTreeReaderArray<double>	McEta(tread, PhiBranch);
+    TTreeReaderArray<double>	McPhi(tread, PhiBranch);
 
 
     ///Tree to store the results from analysis
@@ -169,7 +169,7 @@ TTree *Cartographer(FmeSetup UserConfig){
       TTreeReaderArray<int>      DataId(refReader, IdBranch);
       TTreeReaderArray<double>   DataPt(refReader, PtBranch);
       TTreeReaderArray<double>   DataEta(refReader, EtaBranch);
-      TTreeReaderArray<double>   DataEta(refReader, PhiBranch);
+      TTreeReaderArray<double>   DataPhi(refReader, PhiBranch);
 
     
       ///Loop on Data events

@@ -45,7 +45,7 @@ struct FmeSetup{
   Float_t			MCLimit;
   Double_t			ScaledPt;
   Double_t			ScaledEta;
-  Double_t			scaledPhi;
+  Double_t			ScaledPhi;
   TString			FmeFile;
   std::vector<int>		SigData;
   std::vector<int>              BkgData;
