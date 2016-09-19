@@ -58,7 +58,7 @@ void Arbiter(FmeSetup Setup){
   std::vector<int> *McFile=0;
   std::vector<double> *Mdist=0;
   TFile *fmeFile = TFile::Open(Setup.FmeFile,"update");
-  TTree *mtree = (TTree*)fmeFile->Get("FastME_PhSTree");
+  TTree *mtree = (TTree*)fmeFile->Get("CartographerResults");
   mtree->SetBranchAddress("DataFile",&DtFile);
   mtree->SetBranchAddress("MinDistance",&Mdist);
   mtree->SetBranchAddress("McFile",&McFile);
