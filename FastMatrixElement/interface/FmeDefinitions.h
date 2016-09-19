@@ -34,6 +34,7 @@ struct FmeSetup{
   TString			IdBranch;
   TString			PtBranch;
   TString			EtaBranch;
+  TString			PhiBranch;
   std::vector<std::string>	vMCs;
   Int_t				NCores;
   TString			PhSDrMethod;
@@ -44,6 +45,7 @@ struct FmeSetup{
   Float_t			MCLimit;
   Double_t			ScaledPt;
   Double_t			ScaledEta;
+  Double_t			scaledPhi;
   TString			FmeFile;
   std::vector<int>		SigData;
   std::vector<int>              BkgData;
@@ -62,6 +64,7 @@ static std::vector<std::string> fme_keywords = {
   "id_branch_name",
   "pt_branch_name",
   "eta_branch_name",
+  "phi_branch_name",
   "outfile_name",
   "outfile_path",
   "phs_dr_method",
@@ -71,6 +74,7 @@ static std::vector<std::string> fme_keywords = {
   "mc_limit",
   "scale_dPt",
   "scale_dEta",
+  "scale_dPhi",
   "fme_file",
   "sig_data",
   "bkg_data",
@@ -88,6 +92,7 @@ static std::vector<int> ksize = {
   15,	///id_branch_name
   15,	///pt_branch_name
   16,	///eta_branch_name
+  16,	///phi_branch_name
   13,	///outfile_name
   13,	///outfile_path
   14,	///phs_dr_method
@@ -97,6 +102,7 @@ static std::vector<int> ksize = {
   9,	///mc_limit
   10,	///scale_dPt
   11,	///scale_dEta
+  11,	///scale_dPhi
   9,	///fme_file
   9,	///sig_data
   9,	///bkg_data

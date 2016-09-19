@@ -39,11 +39,12 @@
 
 
 ///Compute scale factors to normalize the deltas
-void FindScaleFactors(std::vector<std::string> vMCs, TString TTreeName, TString PtBranch, TString EtaBranch, Double_t *ScaledPt, Double_t *ScaledEta){
+void FindScaleFactors(std::vector<std::string> vMCs, TString TTreeName, TString PtBranch, TString EtaBranch, 
+		      TString PhiBranch, Double_t *ScaledPt, Double_t *ScaledEta, Double_t *scale_dPhi){
   
   gROOT->SetBatch();
   TCanvas *temp = new TCanvas();
-  Double_t pt_sum = 0, eta_sum = 0;
+  Double_t pt_sum = 0, eta_sum = 0, phi_sum = 0;
   Int_t total = vMCs.size();
   for(Int_t isample = 0; isample < total; isample++){
 
@@ -64,12 +65,20 @@ void FindScaleFactors(std::vector<std::string> vMCs, TString TTreeName, TString 
       if( *ScaledEta == -1) eta_sum += fabs( stacketa->GetMean() );//Should be used only in case you are in region shifted from 0!
       if( *ScaledEta == -2) eta_sum += fabs( stacketa->GetBinCenter(stacketa->GetMinimum()) );
     }
+    if( *ScaledPhi < 0){
+      TString draw_phi = PhiBranch+" >> stackphi";
+      ttmp->Draw(draw_phi);
+      TH1D *stackphi = (TH1D*)gDirectory->Get("stackphi");
+      if( *ScaledPhi == -1) phi_sum += fabs( stackphi->GetMean() );//Should be used only in case you are in region shifted from 0!
+      if( *ScaledPhi == -2) phi_sum += fabs( stackphi->GetBinCenter(stackphi->GetMinimum()) );
+    }
    
     ftmp->Close();
   }
   
   if( *ScaledPt  < 0 )  *ScaledPt  = total/pt_sum;
   if( *ScaledEta < 0 )  *ScaledEta = total/eta_sum;
+  if( *ScaledPhi < 0 )  *ScaledPhi = total/phi_sum;
   
   temp->Close();
   
@@ -90,6 +99,7 @@ TTree *Cartographer(FmeSetup UserConfig){
   TString			IdBranch		= UserConfig.IdBranch;
   TString			PtBranch		= UserConfig.PtBranch;
   TString			EtaBranch		= UserConfig.EtaBranch;
+  TString			PhiBranch		= UserConfig.PhiBranch;
   std::vector<std::string>	vMCs			= UserConfig.vMCs;
   UInt_t			NCores			= UserConfig.NCores;
   TString			PhSDrMethod		= UserConfig.PhSDrMethod;
@@ -97,6 +107,7 @@ TTree *Cartographer(FmeSetup UserConfig){
   Float_t			MCLimit			= UserConfig.MCLimit;
   Double_t			ScaledPt		= UserConfig.ScaledPt;
   Double_t			ScaledEta		= UserConfig.ScaledEta;
+  Double_t			ScaledPhi		= UserConfig.ScaledPhi;
   Int_t				Verbose			= UserConfig.Verbose;
   //---------------------------------------------------------------------------------
   
@@ -104,10 +115,10 @@ TTree *Cartographer(FmeSetup UserConfig){
   
   
   ///Verifying the scale factors
-  if(ScaledPt < 0 || ScaledEta < 0){
-    std::cout<<":: ["<<ansi_yellow<<"Initials scale_dPt and scale_dEta -----> "<<ScaledPt<<", "<<ScaledEta<<" @@Computing new scale factors..."<<ansi_reset<<"]"<<std::endl;
-    FindScaleFactors(vMCs, TTreeName, PtBranch, EtaBranch, &ScaledPt, &ScaledEta);
-    std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f and scale_dEta = %.3f", ScaledPt, ScaledEta)<<std::endl;
+  if(ScaledPt < 0 || ScaledEta < 0 || scale_dPhi < 0){
+    std::cout<<":: ["<<ansi_yellow<<"Initials [scale_dPt/scale_dEta/scale_dPhi] -----> ["<<ScaledPt<<"/"<<ScaledEta<<"/"<<scale_dPhi<<"] @@Computing new scale factors..."<<ansi_reset<<"]"<<std::endl;
+    FindScaleFactors(vMCs, TTreeName, PtBranch, EtaBranch, PhiBranch, &ScaledPt, &ScaledEta, &scale_dPhi);
+    std::cout<<":: ["<<ansi_yellow<<"NOTE"<<ansi_reset<<Form("] Setting scale_dPt = %.3f, scale_dEta = %.3f, scale_dPhi = %.3f", ScaledPt, ScaledEta, ScaledPhi)<<std::endl;
   }
   
   
@@ -117,7 +128,8 @@ TTree *Cartographer(FmeSetup UserConfig){
   
   ///Definition of Minimum Particles Distance Method to map the events
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  auto MPD = [IdBranch, PtBranch, EtaBranch, vDatas, TTreeName, DTLimit, MCLimit, ScaledPt, ScaledEta, SetFlavorConstraint, Verbose](TTreeReader &tread)->TObject* {
+  auto MPD = [IdBranch, PtBranch, EtaBranch, PhiBranch, vDatas, TTreeName, DTLimit, MCLimit, ScaledPt, ScaledEta,
+	      ScaledPhi, SetFlavorConstraint, Verbose](TTreeReader &tread)->TObject* {
 		     
     std::cout<<"Starting MPD..."<<std::endl;
     TStopwatch t2;//put outside.. does it work?!
@@ -127,6 +139,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     TTreeReaderArray<int>	McId(tread, IdBranch);
     TTreeReaderArray<double>	McPt(tread, PtBranch);
     TTreeReaderArray<double>	McEta(tread, EtaBranch);
+    TTreeReaderArray<double>	McEta(tread, PhiBranch);
 
 
     ///Tree to store the results from analysis
@@ -156,6 +169,7 @@ TTree *Cartographer(FmeSetup UserConfig){
       TTreeReaderArray<int>      DataId(refReader, IdBranch);
       TTreeReaderArray<double>   DataPt(refReader, PtBranch);
       TTreeReaderArray<double>   DataEta(refReader, EtaBranch);
+      TTreeReaderArray<double>   DataEta(refReader, PhiBranch);
 
     
       ///Loop on Data events
@@ -196,7 +210,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  //Loop over the particles in the data event
 	  //std::cout<<"Going over data objects..."<<std::endl;
 	  Int_t n_matched_paticles = 0;
-	  Double_t Min_dPt2 = 0, Min_dEta2 = 0, Sum_dPt2_dEta2 = 0;
+	  Double_t Min_dPt2 = 0, Min_dEta2 = 0, Min_dPhi2 = 0, Sum_dPt2_dEta2_dPhi2 = 0;
 	  for(int idt = 0; idt < nDataParticles; ++idt){
 	    Double_t min_particles_distance = 1.e15;
 	    Int_t sel_mc_part = -1;
@@ -213,23 +227,18 @@ TTree *Cartographer(FmeSetup UserConfig){
 	      if(SetFlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
 
 	      ///Compute preliminary particles distance
-	      Double_t dPt2  = DataPt[idt]-McPt[imc];
-	      dPt2 *= DataPt[idt]-McPt[imc];
-	      dPt2 *= ScaledPt;
-	      dPt2 *= ScaledPt;
-	      
-	      Double_t dEta2 = DataEta[idt]-McEta[imc];
-	      dEta2 *= DataEta[idt]-McEta[imc];
-	      dEta2 *= ScaledEta;
-	      dEta2 *= ScaledEta;
-	      
-	      Double_t particles_distance = sqrt( dPt2 + dEta2 );
+	      Double_t dPt2  = pow( (DataPt[idt]-McPt[imc])/ScaledPt, 2 );	      
+	      Double_t dEta2 = pow( (DataEta[idt]-McEta[imc])/ScaledEta, 2 );
+	      Double_t dPhi2 = pow( (DataPhi[idt]-McPhi[imc])/ScaledPhi, 2 );
+
+	      Double_t particles_distance = sqrt( dPt2 + dEta2 + dPhi2 );
 	      //if( Verbose == 3 ) std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<sMcId[imc]<<"   part_dist: "<<particles_distance<<std::endl;
 	      if(particles_distance < min_particles_distance){
 		sel_mc_part = imc;
 		min_particles_distance = particles_distance;
 		Min_dPt2  = dPt2;
 		Min_dEta2 = dEta2;
+		Min_dPhi2 = dPhi2;
 	      }
 	    }///Ends loop over MC particles
 
@@ -239,14 +248,14 @@ TTree *Cartographer(FmeSetup UserConfig){
 	      McId[sel_mc_part] = 0;
 	      ++n_matched_paticles;
 	      //Start to sum for final event distance
-	      Sum_dPt2_dEta2 += Min_dPt2 + Min_dEta2;
+	      Sum_dPt2_dEta2_dPhi2 += Min_dPt2 + Min_dEta2 + Min_dPhi2;
 	    }
 	  }///Ends loop over DATA particles
 	
 	  
 	  //Computes the final event distance
-	  if(sqrt(Sum_dPt2_dEta2) < min_distance_Min && n_matched_paticles == nDataParticles){
-	    min_distance_Min = sqrt(Sum_dPt2_dEta2);
+	  if(sqrt(Sum_dPt2_dEta2_dPhi2) < min_distance_Min && n_matched_paticles == nDataParticles){
+	    min_distance_Min = sqrt(Sum_dPt2_dEta2_dPhi2);
 	    imc_min = mc;
 	    f_type = *McType;	
 	  }

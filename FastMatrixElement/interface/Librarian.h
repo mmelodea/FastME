@@ -37,6 +37,7 @@ void Indexer(FmeSetup *Setup){
     org_tree->SetBranchStatus(Setup->IdBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->PtBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->EtaBranch,kTRUE);
+    org_tree->SetBranchStatus(Setup->PhiBranch,kTRUE);
 
     TFile *fin_file = new TFile( Form("FME_USAGE/DATA/Reduced_file_from_original_data_file_%i.root",ifile), "recreate" );
     TTree *fin_tree = org_tree->CloneTree();
@@ -65,6 +66,7 @@ void Indexer(FmeSetup *Setup){
     org_tree->SetBranchStatus(Setup->IdBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->PtBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->EtaBranch,kTRUE);
+    org_tree->SetBranchStatus(Setup->PhiBranch,kTRUE);
 
     TFile *fin_file = new TFile( Form("FME_USAGE/MC_TEMPLATES/Indexed_file_from_original_MC_file_%i.root",ifile), "recreate" );
     TTree *fin_tree = org_tree->CloneTree();

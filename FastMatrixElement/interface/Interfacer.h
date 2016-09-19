@@ -111,6 +111,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	if(fme_keywords.at(k) ==        "id_branch_name")	Setup->IdBranch = line;
 	if(fme_keywords.at(k) ==        "pt_branch_name")	Setup->PtBranch = line;
 	if(fme_keywords.at(k) ==       "eta_branch_name")	Setup->EtaBranch = line;
+	if(fme_keywords.at(k) ==       "phi_branch_name")	Setup->PhiBranch = line;
 	if(fme_keywords.at(k) ==          "outfile_name")	Setup->OutName = line;
 	if(fme_keywords.at(k) ==          "outfile_path")	Setup->OutPath = line;
 	if(fme_keywords.at(k) ==         "phs_dr_method")	Setup->PhSDrMethod = line;
@@ -120,6 +121,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 	if(fme_keywords.at(k) ==              "mc_limit")	Setup->MCLimit = stof(line);
         if(fme_keywords.at(k) ==             "scale_dPt")	Setup->ScaledPt = stof(line);
         if(fme_keywords.at(k) ==            "scale_dEta")	Setup->ScaledEta = stof(line);
+        if(fme_keywords.at(k) ==            "scale_dPhi")	Setup->ScaledPhi = stof(line);
 	if(fme_keywords.at(k) ==              "fme_file")	Setup->FmeFile = line;
         if(fme_keywords.at(k) ==              "sig_data")       Setup->SigData.push_back(stoi(line));
         if(fme_keywords.at(k) ==              "bkg_data")       Setup->BkgData.push_back(stoi(line));
