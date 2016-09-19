@@ -205,7 +205,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  ///Avoid different final state comparison
 	  Int_t nMcParticles = McId.GetSize();
 	  if( nDataParticles != nMcParticles ) continue;
-	  std::vector<int> McFlag = (nMcParticles,0);
+	  std::vector<int> McFlag(nMcParticles,0);
 	  
 	  //Loop over the particles in the data event
 	  //std::cout<<"Going over data objects..."<<std::endl;
