@@ -227,9 +227,9 @@ TTree *Cartographer(FmeSetup UserConfig){
 	      if(SetFlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
 
 	      ///Compute preliminary particles distance
-	      Double_t dPt2  = pow( (DataPt[idt]-McPt[imc])/ScaledPt, 2 );	      
-	      Double_t dEta2 = pow( (DataEta[idt]-McEta[imc])/ScaledEta, 2 );
-	      Double_t dPhi2 = pow( (DataPhi[idt]-McPhi[imc])/ScaledPhi, 2 );
+	      Double_t dPt2  = pow( (DataPt[idt]-McPt[imc])*ScaledPt, 2 );	      
+	      Double_t dEta2 = pow( (DataEta[idt]-McEta[imc])*ScaledEta, 2 );
+	      Double_t dPhi2 = pow( (DataPhi[idt]-McPhi[imc])*ScaledPhi, 2 );
 
 	      Double_t particles_distance = sqrt( dPt2 + dEta2 + dPhi2 );
 	      //if( Verbose == 3 ) std::cout<<"DataPos: "<<idt<<"  ID: "<<DataId[idt]<<"  MCPos: "<<imc<<"   ID: "<<sMcId[imc]<<"   part_dist: "<<particles_distance<<std::endl;
