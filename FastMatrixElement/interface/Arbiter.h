@@ -120,14 +120,17 @@ void Arbiter(FmeSetup Setup){
 
          if(is_dsig == true && is_dbkg == false) fDtFile = 0;
     else if(is_dsig == false && is_dbkg == true) fDtFile = 1;
-    else std::cout<<"Something went wrong! Data mis-classified!"<<std::endl;
+    else{
+      std::cout<<"[NOTE: Skipping data from file "<<ifile<<"!]"<<std::endl;
+      continue;
+    }
     
 
 
     std::vector<Int_t> sig_mc_file, bkg_mc_file;
     std::vector<Double_t> local_min_dr_sig, local_min_dr_bkg;
     for(Int_t ievent = 0; ievent < nevents; ievent++){
-      if(ievent >= 10 && ievent%(nevents/2) == 0){
+      if(nevents-ievent  == 1){
         std::cout<<":: ["<<ansi_violet<<"Remaning DataFile/Events"<<ansi_reset<<"]:  "<<Form("%i/%i/ %.3fseg",ifile,nevents-ievent,t2.RealTime())<<std::endl;
         t2.Continue();
       }
