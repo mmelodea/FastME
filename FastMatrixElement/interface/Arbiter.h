@@ -141,13 +141,13 @@ void Arbiter(FmeSetup Setup){
         t2.Continue();
       }
       
-      refReader.SetEntry(ievent);
-      if(real_part_positions.size() < 100){
-      TGraph2D *tempGraph = new TGraph2D();
-      for(Int_t ipart=0; ipart<(Int_t)DataPt.GetSize(); ipart++)
-	tempGraph->SetPoint(ievent+1, DataEta[ipart], DataPhi[ipart], DataPt[ipart]);
-      real_part_positions.push_back( tempGraph );
-      }
+      //refReader.SetEntry(ievent);
+      //if(real_part_positions.size() < 100){
+      //TGraph2D *tempGraph = new TGraph2D();
+      //for(Int_t ipart=0; ipart<(Int_t)DataPt.GetSize(); ipart++)
+	//tempGraph->SetPoint(ievent+1, DataEta[ipart], DataPhi[ipart], DataPt[ipart]);
+      //real_part_positions.push_back( tempGraph );
+      //}
 
       //Reseting the storage
       sig_mc_file.clear();
@@ -251,10 +251,10 @@ void Arbiter(FmeSetup Setup){
   gStyle->SetPalette(10,palette);
 
   const Int_t Number = 3;
-  Double_t Red[Number]    = { 1.00, 0.00, 0.00};
-  Double_t Green[Number]  = { 0.00, 1.00, 0.00};
-  Double_t Blue[Number]   = { 1.00, 0.00, 1.00};
-  Double_t Length[Number] = { 0.00, 0.50, 1.00 };
+  Double_t Red[Number]    = {1.00, 0.00, 0.00};
+  Double_t Green[Number]  = {0.00, 1.00, 0.00};
+  Double_t Blue[Number]   = {1.00, 0.00, 1.00};
+  Double_t Length[Number] = {0.00, 0.50, 1.00};
   Int_t nb=50;
   TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);  
 
