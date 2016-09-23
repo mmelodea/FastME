@@ -27,7 +27,6 @@
 #include <TGraph.h>
 #include <TLine.h>
 #include <TLegend.h>
-#include <TGraph2D.h>
 
 
 
@@ -97,11 +96,7 @@ void Arbiter(FmeSetup Setup){
   TH2D *MinDistances = new TH2D("MinDistances","Minimum Distances",nDtFiles,0,nDtFiles,nMcFiles,0,nMcFiles);
   MinDistances->GetXaxis()->SetTitle("Input file");
   MinDistances->GetYaxis()->SetTitle("MC file");
-  
-  std::vector<TGraph2D*> real_part_positions;
-  //std::vector<TGraph2D*> sig_part_positions;
-  //std::vector<TGraph2D*> bkg_part_positions;
-  
+    
   
   ///Getting results from analysis
   ///Each tree row has all events from a data file
@@ -131,11 +126,11 @@ void Arbiter(FmeSetup Setup){
     }
     
     ///Accessing the data file to get particle coordinates
-    TFile *dt_file = TFile::Open((TString)Setup.vDatas[ifile]);
-    TTreeReader refReader(Setup.TTreeName, dt_file);
-    TTreeReaderArray<double>   DataPt(refReader, Setup.PtBranch);
-    TTreeReaderArray<double>   DataEta(refReader, Setup.EtaBranch);
-    TTreeReaderArray<double>   DataPhi(refReader, Setup.PhiBranch);
+    //TFile *dt_file = TFile::Open((TString)Setup.vDatas[ifile]);
+    //TTreeReader refReader(Setup.TTreeName, dt_file);
+    //TTreeReaderArray<double>   DataPt(refReader, Setup.PtBranch);
+    //TTreeReaderArray<double>   DataEta(refReader, Setup.EtaBranch);
+    //TTreeReaderArray<double>   DataPhi(refReader, Setup.PhiBranch);
 
 
     std::vector<Int_t> sig_mc_file, bkg_mc_file;
@@ -431,8 +426,8 @@ void Arbiter(FmeSetup Setup){
   ftree->Write();
 
   
-  for(int igraph=0; igraph<(int)real_part_positions.size(); igraph++)
-    real_part_positions[igraph]->Write();
+  //for(int igraph=0; igraph<(int)real_part_positions.size(); igraph++)
+    //real_part_positions[igraph]->Write();
   
 
   fmeFile->Close();
