@@ -27,6 +27,7 @@
 #include <TGraph.h>
 #include <TLine.h>
 #include <TLegend.h>
+#include <TGraph2D.h>
 
 
 
@@ -97,6 +98,10 @@ void Arbiter(FmeSetup Setup){
   MinDistances->GetXaxis()->SetTitle("Input file");
   MinDistances->GetYaxis()->SetTitle("MC file");
   
+  std::vector<TGraph2D*> real_part_positions;
+  //std::vector<TGraph2D*> sig_part_positions;
+  //std::vector<TGraph2D*> bkg_part_positions;
+  
   
   ///Getting results from analysis
   ///Each tree row has all events from a data file
@@ -125,6 +130,12 @@ void Arbiter(FmeSetup Setup){
       continue;
     }
     
+    ///Accessing the data file to get particle coordinates
+    TFile *dt_file = TFile::Open((TString)Setup.vDatas[ifile]);
+    TTreeReader refReader(Setup.TTreeName, dt_file);
+    TTreeReaderArray<double>   DataPt(refReader, Setup.PtBranch);
+    TTreeReaderArray<double>   DataEta(refReader, Setup.EtaBranch);
+    TTreeReaderArray<double>   DataPhi(refReader, Setup.PhiBranch);
 
 
     std::vector<Int_t> sig_mc_file, bkg_mc_file;
@@ -134,7 +145,14 @@ void Arbiter(FmeSetup Setup){
         std::cout<<":: ["<<ansi_violet<<"Remaning DataFile/Events"<<ansi_reset<<"]:  "<<Form("%i/%i/ %.3fseg",ifile,nevents-ievent,t2.RealTime())<<std::endl;
         t2.Continue();
       }
-    
+      
+      refReader.SetEntry(ievent);
+      if(real_part_positions.size() < 100){
+      TGraph2D *tempGraph = new TGraph2D();
+      for(Int_t ipart=0; ipart<(Int_t)DataPt.GetSize(); ipart++)
+	tempGraph->SetPoint(ievent+1, DataEta[ipart], DataPhi[ipart], DataPt[ipart]);
+      real_part_positions.push_back( tempGraph );
+      }
 
       //Reseting the storage
       sig_mc_file.clear();
@@ -411,6 +429,12 @@ void Arbiter(FmeSetup Setup){
   Local_BkgPsbDist->Write(); 
   MinDistances->Write();
   ftree->Write();
+
+  
+  for(int igraph=0; igraph<(int)real_part_positions.size(); igraph++)
+    real_part_positions[igraph]->Write();
+  
+
   fmeFile->Close();
 
 

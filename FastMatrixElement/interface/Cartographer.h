@@ -287,7 +287,7 @@ TTree *Cartographer(FmeSetup UserConfig){
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
   ///Definition of Mean of Similar Combinations Method to map the events
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  auto MSC = [IdBranch, PtBranch, EtaBranch, vDatas, TTreeName, DTLimit, MCLimit, ScaledPt, ScaledEta, SetFlavorConstraint, Verbose](TTreeReader &tread2)->TObject* {
+  auto MSC = [IdBranch, PtBranch, EtaBranch, PhiBranch, vDatas, TTreeName, DTLimit, MCLimit, ScaledPt, ScaledEta, ScaledPhi, SetFlavorConstraint, Verbose](TTreeReader &tread2)->TObject* {
 		     
     TStopwatch t2;//put outside.. does it work?!
         
@@ -296,6 +296,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     TTreeReaderArray<int>	McId(tread2, IdBranch);
     TTreeReaderArray<double>	McPt(tread2, PtBranch);
     TTreeReaderArray<double>	McEta(tread2, EtaBranch);
+    TTreeReaderArray<double>	McPhi(tread2, PhiBranch);
 
 
     ///Tree to store the results from analysis
@@ -322,6 +323,7 @@ TTree *Cartographer(FmeSetup UserConfig){
       TTreeReaderArray<int>      DataId(refReader, IdBranch);
       TTreeReaderArray<double>   DataPt(refReader, PtBranch);
       TTreeReaderArray<double>   DataEta(refReader, EtaBranch);
+      TTreeReaderArray<double>   DataPhi(refReader, PhiBranch);
 
     
       ///Loop on Data events
@@ -352,42 +354,47 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  if( nDataParticles != nMcParticles ) continue;
 
 	  Double_t event_distance_Med= -99;
-	  Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0;
+	  Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0, SumMed_dPhi2 = 0;
 
 	  for(int idt = 0; idt < nDataParticles; ++idt){
 	    bool repaired = false;    
 	    Int_t nsame_flavor = 0;
-	    Double_t tmp_dPt = 0, tmp_dEta = 0;
+	    Double_t tmp_dPt = 0, tmp_dEta = 0, tmp_dPhi = 0;
 
 	    for(Int_t imc = 0; imc < nMcParticles; ++imc){	      
 	      ///Avoid different Data-MC particles comparison
 	      if(SetFlavorConstraint == "true" && DataId[idt] != McId[imc]) continue;
 
 	      ///Compute preliminary particles distance
-	      Double_t dPt  = (DataPt[idt]-McPt[imc])*ScaledPt;
-	      Double_t dEta = (DataEta[idt]-McEta[imc])*ScaledEta;
+	      Double_t dPt  = fabs(DataPt[idt]-McPt[imc])*ScaledPt;
+	      Double_t dEta = fabs(DataEta[idt]-McEta[imc])*ScaledEta;
+	      Double_t dPhi = fabs(DataPhi[idt]-McPhi[imc])*ScaledPhi;
 
 	      if(SetFlavorConstraint == "true"){
 		if(nsame_flavor == 0){
 		  tmp_dPt  = dPt;
 		  tmp_dEta = dEta;
+		  tmp_dPhi = dPhi;
 		}
 		else{
 		  ///Repair the previous one
 		  if(repaired != true){
 		    tmp_dPt  = 0.5*tmp_dPt;
 		    tmp_dEta = 0.5*tmp_dEta;
+		    tmp_dPhi = 0.5*tmp_dPhi;
 		    repaired = true;
 		  }
 		  ///Append the new one
 		  tmp_dPt  += 0.5*dPt;
 		  tmp_dEta += 0.5*dEta;
+		  tmp_dPhi += 0.5*dPhi;
 		}
 		nsame_flavor++;
 	      }
 	      else{
 		tmp_dPt  += 0.5*dPt;
 		tmp_dEta += 0.5*dEta;
+		tmp_dPhi += 0.5*dPhi;
 	      }
 	      
 	      if( Verbose == 3 )
@@ -396,11 +403,12 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  
 	    SumMed_dPt2  += tmp_dPt*tmp_dPt;
 	    SumMed_dEta2 += tmp_dEta*tmp_dEta;
+	    SumMed_dPhi2 += tmp_dPhi*tmp_dPhi;
 	  }///Ends MC event loop
 	
 	  ///Compute final Data-MC events distance & searches for minimum distance
 	  if(SumMed_dPt2 > 0){
-	    event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2);
+	    event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2 + SumMed_dPhi2);
 	    if(event_distance_Med < min_distance_Med){
 	      min_distance_Med = event_distance_Med;
 	      imc_min = mc;
@@ -430,7 +438,7 @@ TTree *Cartographer(FmeSetup UserConfig){
   
   
   
-  ///Spliting samples in mini-batches
+  ///Spliting samples in mini-batches to comport them to the number of cores
   Int_t nMcSamples = vMCs.size();
   Int_t N_Cores = NCores;
   const Int_t PrimaryDivision = nMcSamples/N_Cores;
@@ -466,7 +474,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 
 
   ///Cleaning the temporary folder
-  gSystem->Exec("rm -r FME_USAGE");
+  //gSystem->Exec("rm -r FME_USAGE");
 
   
   ///Send final tree merged from trees coming from all used cores
