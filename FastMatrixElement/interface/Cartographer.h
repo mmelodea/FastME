@@ -289,6 +289,7 @@ TTree *Cartographer(FmeSetup UserConfig){
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
   auto MSC = [IdBranch, PtBranch, EtaBranch, PhiBranch, vDatas, TTreeName, DTLimit, MCLimit, ScaledPt, ScaledEta, ScaledPhi, SetFlavorConstraint, Verbose](TTreeReader &tread2)->TObject* {
 		     
+    std::cout<<"Starting MSC..."<<std::endl;
     TStopwatch t2;//put outside.. does it work?!
         
     ///Addresses the MC branches to be used
@@ -329,12 +330,13 @@ TTree *Cartographer(FmeSetup UserConfig){
       ///Loop on Data events
       Int_t nDataEvents = refReader.GetEntries(true);
       if(DTLimit >= 1 && DTLimit < nDataEvents) nDataEvents = DTLimit;
+      //std::cout<<"Going over data file "<<i_data_file<<" with "<<nDataEvents<<" events"<<std::endl;
       for(Int_t dt = 0; dt < nDataEvents; ++dt){
-	refReader.SetEntry(dt); ///Move on Data loop                                                              
+	refReader.SetEntry(dt); ///Move on Data loop
       
 	//if( Verbose != 0 && ((dt!= 0 && nDataEvents > 10 && dt%(nDataEvents/10) == 0) || (nDataEvents-dt) == 1) ){
 	  //std::string infos = Form("%i/%i/%i", i_data_file, *McType, nDataEvents-dt);
-	  //std::cout<<"\r:: DataFile/MC/Remaining: "<<infos<<std::flush;
+	  //std::cout<<":: DataFile/MC/Remaining: "<<infos<<std::endl;
 	//}
 
 
@@ -343,19 +345,21 @@ TTree *Cartographer(FmeSetup UserConfig){
 	Int_t f_type = -99;
 	Int_t nMonteCarlo = tread2.GetEntries(true);
 	if(MCLimit >= 1 && MCLimit <= nMonteCarlo) nMonteCarlo = MCLimit;
-	if(MCLimit < 1 && (Int_t)MCLimit*nMonteCarlo != 0) nMonteCarlo = MCLimit*nMonteCarlo;	
+	if(MCLimit > 0 && MCLimit < 1 && (Int_t)(MCLimit*nMonteCarlo) != 0) nMonteCarlo = MCLimit*nMonteCarlo;	
         
-
+        //std::cout<<"Throwing event "<<dt<<" into "<<nMonteCarlo<<" MC events"<<std::endl;
 	for(Int_t mc = 0; mc < nMonteCarlo; ++mc){
 	  tread2.SetEntry(mc); ///Move on MC loop
           Int_t nDataParticles = DataId.GetSize();
 	  Int_t nMcParticles   = McId.GetSize();
+          //std::cout<<"nDataParticles: "<<nDataParticles<<"   nMcParticles: "<<nMcParticles<<std::endl;
 	  ///Avoid different final state comparison
 	  if( nDataParticles != nMcParticles ) continue;
 
 	  Double_t event_distance_Med= -99;
 	  Double_t SumMed_dPt2 = 0, SumMed_dEta2 = 0, SumMed_dPhi2 = 0;
 
+          //std::cout<<"Starting particles matching"<<std::endl;
 	  for(int idt = 0; idt < nDataParticles; ++idt){
 	    bool repaired = false;    
 	    Int_t nsame_flavor = 0;
@@ -369,7 +373,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	      Double_t dPt  = fabs(DataPt[idt]-McPt[imc])*ScaledPt;
 	      Double_t dEta = fabs(DataEta[idt]-McEta[imc])*ScaledEta;
 	      Double_t dPhi = fabs(DataPhi[idt]-McPhi[imc])*ScaledPhi;
-
+              //std::cout<<"Deltas (Pt/Eta/Phi): "<<dPt<<"/"<<dEta<<"/"<<dPhi<<std::endl;
 	      if(SetFlavorConstraint == "true"){
 		if(nsame_flavor == 0){
 		  tmp_dPt  = dPt;
@@ -407,6 +411,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  }///Ends MC event loop
 	
 	  ///Compute final Data-MC events distance & searches for minimum distance
+          //std::cout<<"SumMedPt2: "<<SumMed_dPt2<<"  SumMedEta2: "<<SumMed_dEta2<<"   SumMedPhi2: "<<SumMed_dPhi2<<std::endl;
 	  if(SumMed_dPt2 > 0){
 	    event_distance_Med = sqrt(SumMed_dPt2 + SumMed_dEta2 + SumMed_dPhi2);
 	    if(event_distance_Med < min_distance_Med){
