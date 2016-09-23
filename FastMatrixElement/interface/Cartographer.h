@@ -474,7 +474,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 
 
   ///Cleaning the temporary folder
-  //gSystem->Exec("rm -r FME_USAGE");
+  gSystem->Exec("rm -r FME_USAGE");
 
   
   ///Send final tree merged from trees coming from all used cores
