@@ -25,6 +25,7 @@
 #include <TColor.h>
 #include <TStyle.h>
 #include <TGraph.h>
+#include <TMultiGraph.h>
 #include <TLine.h>
 #include <TLegend.h>
 
@@ -96,7 +97,7 @@ void Arbiter(FmeSetup Setup){
   TH2D *MinDistances = new TH2D("MinDistances","Minimum Distances",nDtFiles,0,nDtFiles,nMcFiles,0,nMcFiles);
   MinDistances->GetXaxis()->SetTitle("Input file");
   MinDistances->GetYaxis()->SetTitle("MC file");
-    
+  
   
   ///Getting results from analysis
   ///Each tree row has all events from a data file
@@ -125,14 +126,6 @@ void Arbiter(FmeSetup Setup){
       continue;
     }
     
-    ///Accessing the data file to get particle coordinates
-    //TFile *dt_file = TFile::Open((TString)Setup.vDatas[ifile]);
-    //TTreeReader refReader(Setup.TTreeName, dt_file);
-    //TTreeReaderArray<double>   DataPt(refReader, Setup.PtBranch);
-    //TTreeReaderArray<double>   DataEta(refReader, Setup.EtaBranch);
-    //TTreeReaderArray<double>   DataPhi(refReader, Setup.PhiBranch);
-
-
     std::vector<Int_t> sig_mc_file, bkg_mc_file;
     std::vector<Double_t> local_min_dr_sig, local_min_dr_bkg;
     for(Int_t ievent = 0; ievent < nevents; ievent++){
@@ -141,13 +134,6 @@ void Arbiter(FmeSetup Setup){
         t2.Continue();
       }
       
-      //refReader.SetEntry(ievent);
-      //if(real_part_positions.size() < 100){
-      //TGraph2D *tempGraph = new TGraph2D();
-      //for(Int_t ipart=0; ipart<(Int_t)DataPt.GetSize(); ipart++)
-	//tempGraph->SetPoint(ievent+1, DataEta[ipart], DataPhi[ipart], DataPt[ipart]);
-      //real_part_positions.push_back( tempGraph );
-      //}
 
       //Reseting the storage
       sig_mc_file.clear();
@@ -264,14 +250,14 @@ void Arbiter(FmeSetup Setup){
   hsig->SetFillColor(9);
   hsig->SetFillStyle(3001);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
-  hsig->GetYaxis()->SetTitle("Events/0.01");
+  hsig->GetYaxis()->SetTitle("Normalized");
 
   TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,-0.05,1.05);
   hbkg->SetLineColor(2);
   hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
   hbkg->GetXaxis()->SetTitle("P_{SB}(Distance)");
-  hbkg->GetYaxis()->SetTitle("Events/0.01");
+  hbkg->GetYaxis()->SetTitle("Normalized");
     
   TLegend *leg = new TLegend(0.57,0.77,0.87,0.87);
   leg->AddEntry(hsig,"Signal","f");
@@ -288,6 +274,7 @@ void Arbiter(FmeSetup Setup){
 
 
   ///------------- Plot ROC curve for all MCs -----------------------------  
+  Int_t total_events = ftree->GetEntries();
   Int_t jpoint = 0;
   Double_t cutoff, integral=0, max_sigma = 0, best_cut;
   const int discret = 1000;
@@ -297,38 +284,37 @@ void Arbiter(FmeSetup Setup){
     cutoff = j/float(discret);
     TP = FP = TN = FN = 0;
     for(Int_t i=0; i<(Int_t)ftree->GetEntries(); i++){
-      ftree->GetEntry(i);
-	  
+      ftree->GetEntry(i);  
       
 	if(fDtFile == 0){
 	  if( Global_PsbDist > cutoff ) TP++;
 	  if( Global_PsbDist < cutoff ) FN++;
 	  if( j == 0)
-	    hsig->Fill(Global_PsbDist);
+	    hsig->Fill(Global_PsbDist, 1./total_events);
 	}
       
-
-
 	if(fDtFile == 1){
 	  if( Global_PsbDist > cutoff ) FP++;
 	  if( Global_PsbDist < cutoff ) TN++;
 	  if( j == 0)
-	    hbkg->Fill(Global_PsbDist);
+	    hbkg->Fill(Global_PsbDist, 1./total_events);
 	}
       
-
     }//End loop over events
     TPR[j] = TP/float(TP + FN);
     FPR[j] = FP/float(FP + TN);
-    if(j>0)
+    if(j>0){
      integral += fabs(FPR[j-1]-FPR[j])*TPR[j];
+    }
 
     ///Computing significancy of best cut
     if(TP+FP != 0){
-      sigma->SetPoint(jpoint, cutoff, sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]));
+      float isigma = sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]);
+      //float isigma = TPR[j]/(TPR[j]+FPR[j]);
+      sigma->SetPoint(jpoint, cutoff, isigma);
       jpoint++;
-      if( (sqrt(TPR[j]+FPR[j])-sqrt(FPR[j])) > max_sigma ){
-        max_sigma = sqrt(TPR[j]+FPR[j])-sqrt(FPR[j]);
+      if( isigma > max_sigma ){
+        max_sigma = isigma;
 	best_cut = cutoff;
 	//std::cout<<"MaxS: "<<max_sigma<<"\tCut: "<<cutoff<<std::endl;
       }
@@ -337,47 +323,53 @@ void Arbiter(FmeSetup Setup){
   }//End loop over cuts
 
 
+  ///Computes signal probability for different cuts
+  Int_t f_s = hsig->GetEntries();
+  Int_t f_b = hbkg->GetEntries();
+  TGraph *sig_prob = new TGraph();
+  Int_t ipoint2 = 0;
+  for(Int_t ibin=0; ibin<hsig->GetNbinsX(); ibin++){
+     float p_s = hsig->GetBinContent(ibin+1);
+     float p_b = hbkg->GetBinContent(ibin+1);
+     if( (f_s*p_s + f_b*p_b) != 0 ){
+       sig_prob->SetPoint(ipoint2, hsig->GetBinLowEdge(ibin+1), f_s*p_s/(f_s*p_s + f_b*p_b));
+       ipoint2++;
+     }
+  }
+
   //Does not show on fly
   gROOT->SetBatch(kTRUE);
   gStyle->SetOptStat(0);
   TCanvas *c1 = new TCanvas("Discriminant_distributions","",0,0,800,800);
+  c1->Divide(1,2);
   ///----------- Discriminants plot -------------------
-  c1->cd();
-  TPad* pad1 = new TPad("pad1","1",0,0.4,1,0.95); pad1->Draw(); pad1->cd();
-  pad1->SetBottomMargin(0.);
+  c1->cd(1);
   if(hsig->GetMaximum() > hbkg->GetMaximum()){
-    hsig->Draw();
-    hbkg->Draw("same");
+    hsig->Draw("hist");
+    hbkg->Draw("hist,same");
   }
   else{
-    hbkg->Draw();
-    hsig->Draw("same");
+    hbkg->Draw("hist");
+    hsig->Draw("hist,same");
   }
   leg->Draw();
 
-  c1->cd();
-  TPad* pad2 = new TPad("pad2","2",0,0.05,1,0.396); pad2->Draw(); pad2->cd();
-  pad2->SetTopMargin(0.);
-  pad2 -> SetGridx(true);
-  pad2 -> SetGridy(true);
-  sigma->Draw("AP");
-  sigma->GetXaxis()->SetLimits(-0.05,1.05);
-  sigma->GetXaxis()->SetTitle("Cut Value");
-  sigma->GetXaxis()->SetTitleSize(0.1);
-  sigma->GetXaxis()->SetLabelSize(0.09);
-  sigma->GetYaxis()->SetTitle("Significance");
-  sigma->GetYaxis()->SetTitleSize(0.1);
-  sigma->GetYaxis()->SetTitleOffset(0.2);
-  sigma->GetYaxis()->SetLabelSize(0.);
+  c1->cd(2);
   sigma->SetLineColor(kViolet);
-  sigma->SetMarkerColor(kViolet);
+  sig_prob->SetLineColor(kCyan);
+  TMultiGraph *stat = new TMultiGraph();
+  stat->Add( sigma );
+  stat->Add( sig_prob );
+  stat->Draw("al");
+  stat->GetXaxis()->SetRangeUser(-0.05,1.05);
+  stat->GetXaxis()->SetTitle("Cut value");
+  stat->GetYaxis()->SetRangeUser(0,1);
+  
+  TLegend *leg2 = new TLegend(0.7,0.7,0.9,0.9);
+  leg2->AddEntry(sigma,"Significance","l");
+  leg2->AddEntry(sig_prob,"Sig Prob","l");
+  leg2->Draw();
 
-  TPaveText sigInfo(0.7,0.8,0.9,0.9,"NDC");
-  sigInfo.SetFillStyle(0);
-  sigInfo.SetBorderSize(0);
-  sigInfo.AddText(Form("Best: %.3f",best_cut));
-  sigInfo.Draw();
-  gPad->Update();  
   c1->Write();
   c1->Close();
 
@@ -424,11 +416,6 @@ void Arbiter(FmeSetup Setup){
   Local_BkgPsbDist->Write(); 
   MinDistances->Write();
   ftree->Write();
-
-  
-  //for(int igraph=0; igraph<(int)real_part_positions.size(); igraph++)
-    //real_part_positions[igraph]->Write();
-  
 
   fmeFile->Close();
 
