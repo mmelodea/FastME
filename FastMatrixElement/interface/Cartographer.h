@@ -182,7 +182,7 @@ TTree *Cartographer(FmeSetup UserConfig){
       for(Int_t dt = 0; dt < nDataEvents; dt++){
 	//std::cout<<"Pulling data entry: "<<dt<<std::endl;
 	refReader.SetEntry(dt); ///Move on Data loop     
-	Int_t nDataParticles = DataId.GetSize();
+	Int_t nDataParticles = DataPt.GetSize();
 	//std::cout<<"Pulled successfully..."<<std::endl;                                                         
       
 	//if( Verbose != 0 && ((dt!= 0 && nDataEvents > 10 && dt%(nDataEvents/10) == 0) || (nDataEvents-dt) == 1) ){
@@ -203,7 +203,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	  tread.SetEntry(mc); ///Move on MC loop
 	  //std::cout<<"Successfully pulled MC..."<<std::endl;
 	  ///Avoid different final state comparison
-	  Int_t nMcParticles = McId.GetSize();
+	  Int_t nMcParticles = McPt.GetSize();
 	  if( nDataParticles != nMcParticles ) continue;
 	  std::vector<int> McFlag(nMcParticles,0);
 	  
@@ -274,6 +274,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     
 
     t2.Stop();
+    std::cout<<"Finished MPD..."<<std::endl;
     return fme_tree;
   };
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -350,8 +351,8 @@ TTree *Cartographer(FmeSetup UserConfig){
         //std::cout<<"Throwing event "<<dt<<" into "<<nMonteCarlo<<" MC events"<<std::endl;
 	for(Int_t mc = 0; mc < nMonteCarlo; ++mc){
 	  tread2.SetEntry(mc); ///Move on MC loop
-          Int_t nDataParticles = DataId.GetSize();
-	  Int_t nMcParticles   = McId.GetSize();
+          Int_t nDataParticles = DataPt.GetSize();
+	  Int_t nMcParticles   = McPt.GetSize();
           //std::cout<<"nDataParticles: "<<nDataParticles<<"   nMcParticles: "<<nMcParticles<<std::endl;
 	  ///Avoid different final state comparison
 	  if( nDataParticles != nMcParticles ) continue;
@@ -435,6 +436,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     
 
     t2.Stop();
+    std::cout<<"Finished MSC..."<<std::endl;
     return fme_tree;
   };
   //===================================================================================================================================================================
