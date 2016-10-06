@@ -41,11 +41,11 @@ void Indexer(FmeSetup *Setup){
       std::cout<<"Computing scaling factors for each data file..."<<std::endl;
       int max_sig_xs_id = -1, max_bkg_xs_id = -1;
       for(Int_t ixs=0; ixs<(Int_t)DataXS.size(); ixs++){
-	if(ixs < SigData.size() && DataXS[ixs] > max_sig_xs_data){
+	if(ixs < (Int_t)SigData.size() && DataXS[ixs] > max_sig_xs_data){
 	  max_sig_xs_data = DataXS[ixs];
 	  max_sig_xs_id = ixs;
 	}
-	if(ixs >= SigData.size() && DataXS[ixs] > max_bkg_xs_data){
+	if(ixs >= (Int_t)SigData.size() && DataXS[ixs] > max_bkg_xs_data){
 	  max_bkg_xs_data = DataXS[ixs];
 	  max_bkg_xs_id = ixs;
 	}
@@ -66,11 +66,11 @@ void Indexer(FmeSetup *Setup){
       std::cout<<"Computing scaling factors for each mc file..."<<std::endl;
       int max_sig_xs_id = -1, max_bkg_xs_id = -1;
       for(Int_t ixs=0; ixs<(Int_t)McXS.size(); ixs++){
-	if(ixs < SigMC.size() && McXS[ixs] > max_sig_xs_mc){
+	if(ixs < (Int_t)SigMC.size() && McXS[ixs] > max_sig_xs_mc){
 	  max_sig_xs_mc = McXS[ixs];
 	  max_sig_xs_id = ixs;
 	}
-	if(ixs >= SigMC.size() && McXS[ixs] > max_bkg_xs_mc){
+	if(ixs >= (Int_t)SigMC.size() && McXS[ixs] > max_bkg_xs_mc){
 	  max_bkg_xs_mc = McXS[ixs];
 	  max_bkg_xs_id = ixs;
 	}
@@ -95,7 +95,7 @@ void Indexer(FmeSetup *Setup){
   Int_t nDataFiles = Setup->vDatas.size();
   for(Int_t ifile = 0; ifile < nDataFiles; ++ifile){
     Int_t limit;
-    if(ifile < Setup->SigData.size()) limit = (Setup->DataXS[ifile]/max_sig_xs_data)*max_sig_xs_data_ev;
+    if(ifile < (Int_t)Setup->SigData.size()) limit = (Setup->DataXS[ifile]/max_sig_xs_data)*max_sig_xs_data_ev;
     else limit = (Setup->DataXS[ifile]/max_bkg_xs_data)*max_bkg_xs_data_ev;
 
     TFile *org_file = TFile::Open( (TString)Setup->vDatas[ifile] );
@@ -131,7 +131,7 @@ void Indexer(FmeSetup *Setup){
   Int_t nMcFiles = Setup->vMCs.size();
   for(Int_t ifile = 0; ifile < nMcFiles; ++ifile){
     Int_t limit;
-    if(ifile < Setup->SigMC.size()) limit = (Setup->McXS[ifile]/max_sig_xs_mc)*max_sig_xs_mc_ev;
+    if(ifile < (Int_t)Setup->SigMC.size()) limit = (Setup->McXS[ifile]/max_sig_xs_mc)*max_sig_xs_mc_ev;
     else limit = (Setup->McXS[ifile]/max_bkg_xs_mc)*max_bkg_xs_mc_ev;
 
     TFile *org_file = TFile::Open( (TString)Setup->vMCs[ifile] );
