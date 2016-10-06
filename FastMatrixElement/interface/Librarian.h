@@ -34,6 +34,8 @@ void Indexer(FmeSetup *Setup){
   if(Setup->XSScale == "true"){    
     std::vector<int> SigData = Setup->SigData;
     std::vector<int> BkgData = Setup->BkgData;
+    std::vector<int> SigMC = Setup->SigMC;
+    std::vector<int> BkgMC = Setup->BkgMC;
     std::vector<float> DataXS = Setup->DataXS;
     std::vector<float> McXS = Setup->McXS;
     
@@ -51,15 +53,15 @@ void Indexer(FmeSetup *Setup){
 	}
       }
       
-      TFile *tmpfile = TFile::Open(Setup->vDatas[max_sig_xs_id]);
-      TTree *tmptree = (TTree*)tmpfile->Get(Setup->TTreeName);
-      max_sig_xs_data_ev = tmptree->GetEntries();
-      tmpfile->Close();
+      TFile *tmpfile0 = TFile::Open((TString)Setup->vDatas[max_sig_xs_id]);
+      TTree *tmptree0 = (TTree*)tmpfile0->Get(Setup->TTreeName);
+      max_sig_xs_data_ev = tmptree0->GetEntries();
+      tmpfile0->Close();
 
-      TFile *tmpfile = TFile::Open(Setup->vDatas[max_bkg_xs_id]);
-      TTree *tmptree = (TTree*)tmpfile->Get(Setup->TTreeName);
-      max_bkg_xs_data_ev = tmptree->GetEntries();
-      tmpfile->Close();      
+      TFile *tmpfile1 = TFile::Open((TString)Setup->vDatas[max_bkg_xs_id]);
+      TTree *tmptree1 = (TTree*)tmpfile1->Get(Setup->TTreeName);
+      max_bkg_xs_data_ev = tmptree1->GetEntries();
+      tmpfile1->Close();      
     }
 
     if(McXS.size() != 0){
@@ -76,15 +78,15 @@ void Indexer(FmeSetup *Setup){
 	}
       }
       
-      TFile *tmpfile = TFile::Open(Setup->vMCs[max_sig_xs_id]);
-      TTree *tmptree = (TTree*)tmpfile->Get(Setup->TTreeName);
-      max_sig_xs_mc_ev = tmptree->GetEntries();
-      tmpfile->Close();
+      TFile *tmpfile2 = TFile::Open((TString)Setup->vMCs[max_sig_xs_id]);
+      TTree *tmptree2 = (TTree*)tmpfile2->Get(Setup->TTreeName);
+      max_sig_xs_mc_ev = tmptree2->GetEntries();
+      tmpfile2->Close();
 
-      TFile *tmpfile = TFile::Open(Setup->vDatas[max_bkg_xs_id]);
-      TTree *tmptree = (TTree*)tmpfile->Get(Setup->TTreeName);
-      max_bkg_xs_mc_ev = tmptree->GetEntries();
-      tmpfile->Close();      
+      TFile *tmpfile3 = TFile::Open((TString)Setup->vDatas[max_bkg_xs_id]);
+      TTree *tmptree3 = (TTree*)tmpfile3->Get(Setup->TTreeName);
+      max_bkg_xs_mc_ev = tmptree3->GetEntries();
+      tmpfile3->Close();      
     }
     
   }
