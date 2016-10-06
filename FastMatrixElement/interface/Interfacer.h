@@ -127,6 +127,9 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords.at(k) ==              "bkg_data")       Setup->BkgData.push_back(stoi(line));
         if(fme_keywords.at(k) ==                "sig_mc")       Setup->SigMC.push_back(stoi(line));
         if(fme_keywords.at(k) ==                "bkg_mc")       Setup->BkgMC.push_back(stoi(line));
+        if(fme_keywords.at(k) ==              "xs_scale")       Setup->XSScale = line;
+        if(fme_keywords.at(k) ==               "data_xs")       Setup->DataXS.push_back(stof(line));
+        if(fme_keywords.at(k) ==                 "mc_xs")       Setup->McXS.push_back(stof(line));
 	if(fme_keywords.at(k) ==         "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
