@@ -51,6 +51,9 @@ struct FmeSetup{
   std::vector<int>              BkgData;
   std::vector<int>              SigMC;
   std::vector<int>              BkgMC;
+  TString			XSScale;
+  std::vector<float>		DataXS;
+  std::vector<float>		McXS;
   Int_t				Verbose = 1;
 };
 
@@ -80,6 +83,9 @@ static std::vector<std::string> fme_keywords = {
   "bkg_data",
   "sig_mc",
   "bkg_mc",
+  "xs_scale",
+  "data_xs",
+  "mc_xs",
   "verbose_level"
 };
 
@@ -108,6 +114,9 @@ static std::vector<int> ksize = {
   9,	///bkg_data
   7,	///sig_mc
   7,	///bkg_mc
+  9,	///xs_scale
+  8,	///data_xs
+  6,	///mc_xs
   14	///verbose_level
 };
 
