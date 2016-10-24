@@ -97,8 +97,10 @@ void Indexer(FmeSetup *Setup){
   Int_t nDataFiles = Setup->vDatas.size();
   for(Int_t ifile = 0; ifile < nDataFiles; ++ifile){
     Int_t limit;
-    if(ifile < (Int_t)Setup->SigData.size()) limit = (Setup->DataXS[ifile]/max_sig_xs_data)*max_sig_xs_data_ev;
-    else limit = (Setup->DataXS[ifile]/max_bkg_xs_data)*max_bkg_xs_data_ev;
+    if(Setup->XSScale == "true" && ifile < (Int_t)Setup->SigData.size())
+      limit = (Setup->DataXS[ifile]/max_sig_xs_data)*max_sig_xs_data_ev;
+    if(Setup->XSScale == "true" && ifile >= (Int_t)Setup->SigData.size())
+      limit = (Setup->DataXS[ifile]/max_bkg_xs_data)*max_bkg_xs_data_ev;
 
     TFile *org_file = TFile::Open( (TString)Setup->vDatas[ifile] );
     TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
@@ -111,6 +113,7 @@ void Indexer(FmeSetup *Setup){
       std::cout<<"File doesn't have envents enough to scale! Using all them."<<std::endl;
       limit = org_tree->GetEntries();
     }
+    if(Setup->XSScale == "false") limit = org_tree->GetEntries();
 
     TFile *fin_file = new TFile( Form("FME_USAGE/DATA/Reduced_file_from_original_data_file_%i.root",ifile), "recreate" );
     TTree *fin_tree = org_tree->CloneTree(limit);
@@ -133,8 +136,10 @@ void Indexer(FmeSetup *Setup){
   Int_t nMcFiles = Setup->vMCs.size();
   for(Int_t ifile = 0; ifile < nMcFiles; ++ifile){
     Int_t limit;
-    if(ifile < (Int_t)Setup->SigMC.size()) limit = (Setup->McXS[ifile]/max_sig_xs_mc)*max_sig_xs_mc_ev;
-    else limit = (Setup->McXS[ifile]/max_bkg_xs_mc)*max_bkg_xs_mc_ev;
+    if(Setup->XSScale == "true" && ifile < (Int_t)Setup->SigMC.size())
+      limit = (Setup->McXS[ifile]/max_sig_xs_mc)*max_sig_xs_mc_ev;
+    if(Setup->XSScale == "true" && ifile >= (Int_t)Setup->SigMC.size())
+      limit = (Setup->McXS[ifile]/max_bkg_xs_mc)*max_bkg_xs_mc_ev;
 
     TFile *org_file = TFile::Open( (TString)Setup->vMCs[ifile] );
     TTree *org_tree = (TTree*)org_file->Get(Setup->TTreeName);
@@ -143,10 +148,11 @@ void Indexer(FmeSetup *Setup){
     org_tree->SetBranchStatus(Setup->PtBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->EtaBranch,kTRUE);
     org_tree->SetBranchStatus(Setup->PhiBranch,kTRUE);
-    if(limit > org_tree->GetEntries()){
+    if(Setup->XSScale == "true" && limit > org_tree->GetEntries()){
       std::cout<<"File doesn't have envents enough to scale! Using all them."<<std::endl;
       limit = org_tree->GetEntries();
     }
+    if(Setup->XSScale == "false") limit = org_tree->GetEntries();
 
     TFile *fin_file = new TFile( Form("FME_USAGE/MC_TEMPLATES/Indexed_file_from_original_MC_file_%i.root",ifile), "recreate" );
     TTree *fin_tree = org_tree->CloneTree(limit);
