@@ -42,13 +42,14 @@ void file_check(std::string file_address){
 
 
 ///Contains the menu of available commands
-static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-d";
+static std::string help = "-help", sl = "-quiet", normal = "noprint", nc = "-c", fa = "-a", pr = "-d", ge = "-g";
 void Helper(void){
   std::cout<<"Usage: fastme [commands] config_file [flux options]"<<std::endl;
   std::cout<<"Commands:"<<std::endl;
   std::cout<<"\t-c\t\tInform how many cores are available in the machine"<<std::endl;
   std::cout<<"\t-a\t\tMake the FastME analysis over events"<<std::endl;
   std::cout<<"\t-d\t\tCompute discriminant and produce plots from the FastME results"<<std::endl;
+  std::cout<<"\t-g\t\tGenerate events using the minimum distance method"<<std::endl;
   std::cout<<"Flux options:"<<std::endl;
   std::cout<<"\t-quiet\t\tRun program without show the config file and avoid user check config file"<<std::endl;
   std::cout<<"\nFor more info access https://github.com/mmelodea/FastMatrixElement"<<std::endl;
@@ -130,18 +131,23 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords.at(k) ==              "xs_scale")       Setup->XSScale = line;
         if(fme_keywords.at(k) ==               "data_xs")       Setup->DataXS.push_back(stof(line));
         if(fme_keywords.at(k) ==                 "mc_xs")       Setup->McXS.push_back(stof(line));
+	if(fme_keywords.at(k) ==           "gen_nevents")	Setup->GenNEv = stoi(line);
+        if(fme_keywords.at(k) ==          "dr_condition")       Setup->DrCondition = stof(line);
+	if(fme_keywords.at(k) ==          "out_gen_name")       Setup->OutGenName = line;
 	if(fme_keywords.at(k) ==         "verbose_level")	Setup->Verbose = stoi(line);
       }
     }
   }//While's end
-  if(nkeys < ((int)fme_keywords.size()-2)){
-    std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" Missing key-word! Check your input file!";
-    throw std::exception();
-  }
+  //if(nkeys < ((int)fme_keywords.size()-2)){
+    //std::cout<<ansi_red<<"[ERROR]"<<ansi_reset<<" Missing key-word! Check your input file!";
+    //throw std::exception();
+  //}
   ///__________________________________________________________________________________________________________________
 
   
 
+  if(command == ge) return;
+  
   ///Getting some info
   std::cout<<"\n:: "<<ansi_yellow<<"Checking inputs..."<<ansi_reset<<std::endl;
   

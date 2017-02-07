@@ -54,6 +54,9 @@ struct FmeSetup{
   TString			XSScale;
   std::vector<float>		DataXS;
   std::vector<float>		McXS;
+  Int_t				GenNEv;
+  Double_t			DrCondition;
+  TString			OutGenName;
   Int_t				Verbose = 1;
 };
 
@@ -86,6 +89,9 @@ static std::vector<std::string> fme_keywords = {
   "xs_scale",
   "data_xs",
   "mc_xs",
+  "gen_nevents",
+  "dr_condition",
+  "out_gen_name",
   "verbose_level"
 };
 
@@ -117,6 +123,9 @@ static std::vector<int> ksize = {
   9,	///xs_scale
   8,	///data_xs
   6,	///mc_xs
+  12,	///gen_nevents
+  13,	///dr_condition
+  13,	///out_gen_name
   14	///verbose_level
 };
 

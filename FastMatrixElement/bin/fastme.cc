@@ -11,6 +11,7 @@
 #include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"      //Handle the original files for reduction and input order indexing
 #include "FastMatrixElement/FastMatrixElement/interface/Cartographer.h"   //Mapper real event to MC event
 #include "FastMatrixElement/FastMatrixElement/interface/Arbiter.h"        //Discriminator
+#include "FastMatrixElement/FastMatrixElement/interface/Generator.h"        //Event generator based on minimum distance method
 
 
 
@@ -118,6 +119,10 @@ int main(int argc, char *argv[]){
   ///Calls the Discriminator
   else if (argv[1] == pr){
     Arbiter(setup);
+  }
+  
+  else if (argv[1] == ge){
+    Generator(setup);
   }
 
   
