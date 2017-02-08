@@ -98,45 +98,68 @@ void Composer(FmeSetup UserConfig){
   Double_t EventDist;
   std::vector<Int_t> ParticleId;
   std::vector<Double_t> ParticlePt, ParticleEta, ParticlePhi;
-  TTree *fme_tree = new TTree(TTreeName,"Events generated from FastME Generator");
-  fme_tree->SetDirectory(0);
-  fme_tree->Branch("EventClass",&EventClass,"EventClass/I");
-  fme_tree->Branch("EventDist",&EventDist,"EventDist/D");
-  fme_tree->Branch("ParticleId",&ParticleId);
-  fme_tree->Branch("ParticlePt",&ParticlePt);
-  fme_tree->Branch("ParticleEta",&ParticleEta);
-  fme_tree->Branch("ParticlePhi",&ParticlePhi);
+  TTree *sfme_tree = new TTree(TTreeName,"Events generated from FastME Generator");
+  sfme_tree->SetDirectory(0);
+  sfme_tree->Branch("EventClass",&EventClass,"EventClass/I");
+  sfme_tree->Branch("EventDist",&EventDist,"EventDist/D");
+  sfme_tree->Branch("ParticleId",&ParticleId);
+  sfme_tree->Branch("ParticlePt",&ParticlePt);
+  sfme_tree->Branch("ParticleEta",&ParticleEta);
+  sfme_tree->Branch("ParticlePhi",&ParticlePhi);
+
+  TTree *bfme_tree = new TTree(TTreeName,"Events generated from FastME Generator");
+  bfme_tree->SetDirectory(0);
+  bfme_tree->Branch("EventClass",&EventClass,"EventClass/I");
+  bfme_tree->Branch("EventDist",&EventDist,"EventDist/D");
+  bfme_tree->Branch("ParticleId",&ParticleId);
+  bfme_tree->Branch("ParticlePt",&ParticlePt);
+  bfme_tree->Branch("ParticleEta",&ParticleEta);
+  bfme_tree->Branch("ParticlePhi",&ParticlePhi);
 
   
-  std::cout<<":: Defining the limits for generation..."<<std::endl;
+  std::cout<<":: Defining parameters for generation..."<<std::endl;
   Int_t nMonteCarlo = tread1.GetEntries(true);
   tread1.SetEntry(0);
   Int_t nMcParticles = McPt1.GetSize();
   Int_t nDataParticles = nMcParticles;
-  std::vector<float> lower_limit, upper_limit;
-  for(int b=0; b<nMcParticles*3; b++){
-    lower_limit.push_back(99);
-    upper_limit.push_back(-99);
-  }
+  //std::vector<float> lower_limit, upper_limit;
+  //for(int b=0; b<nMcParticles*3; b++){
+    //lower_limit.push_back(99);
+    //upper_limit.push_back(-99);
+  //}
+  TH1 *for_pt  = new TH1D("for_pt","for_pt",200,0,1000);
+  TH1 *for_eta = new TH1D("for_eta","for_eta",20,-10,10);
+  float phi_low_limit = 99, phi_high_limit = -99;
   for(Int_t mc = 0; mc < nMonteCarlo; ++mc){
     tread1.SetEntry(mc); ///Move on MC loop	
 
     for(Int_t imc = 0; imc < nMcParticles; ++imc){
-      if( McPt1[imc]  < lower_limit[3*imc] ) lower_limit[3*imc] = McPt1[imc];
-      if( McEta1[imc] < lower_limit[3*imc+1] ) lower_limit[3*imc+1] = McEta1[imc];
-      if( McPhi1[imc] < lower_limit[3*imc+2] ) lower_limit[3*imc+2] = McPhi1[imc];
-      if( McPt1[imc]  > upper_limit[3*imc] ) upper_limit[3*imc] = McPt1[imc];
-      if( McEta1[imc] > upper_limit[3*imc+1] ) upper_limit[3*imc+1] = McEta1[imc];
-      if( McPhi1[imc] > upper_limit[3*imc+2] ) upper_limit[3*imc+2] = McPhi1[imc];
+      //if( McPt1[imc]  < lower_limit[3*imc] ) lower_limit[3*imc] = McPt1[imc];
+      //if( McEta1[imc] < lower_limit[3*imc+1] ) lower_limit[3*imc+1] = McEta1[imc];
+      //if( McPhi1[imc] < lower_limit[3*imc+2] ) lower_limit[3*imc+2] = McPhi1[imc];
+      //if( McPt1[imc]  > upper_limit[3*imc] ) upper_limit[3*imc] = McPt1[imc];
+      //if( McEta1[imc] > upper_limit[3*imc+1] ) upper_limit[3*imc+1] = McEta1[imc];
+      //if( McPhi1[imc] > upper_limit[3*imc+2] ) upper_limit[3*imc+2] = McPhi1[imc];
+      for_pt->Fill( McPt1[imc] );
+      for_eta->Fill( McEta1[imc] );
+      phi_low_limit  = (McPhi1[imc] < phi_low_limit)? McPhi1[imc] : phi_low_limit;
+      phi_high_limit = (McPhi1[imc] > phi_high_limit)? McPhi1[imc] : phi_high_limit;
     }
   }
-  std::cout<<":: ---------- Limits -----------"<<std::endl;
-  for(int i=0; i<nMcParticles; i++){
-    std::cout<<":: Particle "<<i<<std::endl;
-    std::cout<<":: Lower Pt: "<<lower_limit[3*i]<<"\t\tUpper Pt: "<<upper_limit[3*i]<<std::endl;
-    std::cout<<":: Lower Eta: "<<lower_limit[3*i+1]<<"\t\tUpper Eta: "<<upper_limit[3*i+1]<<std::endl;
-    std::cout<<":: Lower Phi: "<<lower_limit[3*i+2]<<"\t\tUpper Phi: "<<upper_limit[3*i+2]<<std::endl;
-  }
+  std::cout<<":: ---------- Extracted Parameters -----------"<<std::endl;
+  //for(int i=0; i<nMcParticles; i++){
+    //std::cout<<":: Particle "<<i<<std::endl;
+    //std::cout<<":: Lower Pt: "<<lower_limit[3*i]<<"\t\tUpper Pt: "<<upper_limit[3*i]<<std::endl;
+    //std::cout<<":: Lower Eta: "<<lower_limit[3*i+1]<<"\t\tUpper Eta: "<<upper_limit[3*i+1]<<std::endl;
+    //std::cout<<":: Lower Phi: "<<lower_limit[3*i+2]<<"\t\tUpper Phi: "<<upper_limit[3*i+2]<<std::endl;
+  //}
+  float pt_mean  = for_pt->GetMean();
+  float pt_rms = for_pt->GetRMS();
+  float eta_mean  = for_eta->GetMean();
+  float eta_rms = for_eta->GetRMS();
+  std::cout<<":: PtMean:   "<<pt_mean<<"\tPtRMS:   "<<pt_rms<<std::endl;
+  std::cout<<":: EtaMean:  "<<eta_mean<<"\tEtaRMS:  "<<eta_rms<<std::endl;
+  std::cout<<":: LowerPhi: "<<phi_low_limit<<"\tUpperPhi: "<<phi_high_limit<<std::endl;
   std::cout<<":: -----------------------------"<<std::endl;  
   
   int SAcpdEvents = 0, BAcpdEvents = 0, itrial = 0;
@@ -155,11 +178,12 @@ void Composer(FmeSetup UserConfig){
   
     //std::cout<<":: Event gen..."<<std::endl;
     for(Int_t idt=0; idt<nMcParticles; idt++){
-      DataPt[idt]  = GenEngine[3*idt].Gaus(25,20);
-      DataEta[idt] = GenEngine[3*idt].Gaus(0,2.5);
+      DataPt[idt]  = fabs( GenEngine[3*idt].Gaus(pt_mean,pt_rms) );
+      DataEta[idt] = GenEngine[3*idt+1].Gaus(eta_mean,eta_rms);
+      DataPhi[idt] = gen_value( GenEngine[3*idt+2].Rndm(), phi_low_limit, phi_high_limit );
       //DataPt[idt] = gen_value(GenEngine[3*idt].Rndm(), lower_limit[3*idt], upper_limit[3*idt]);
       //DataEta[idt] = gen_value(GenEngine[3*idt+1].Rndm(), lower_limit[3*idt+1], upper_limit[3*idt+1]);
-      DataPhi[idt] = gen_value(GenEngine[3*idt+2].Rndm(), lower_limit[3*idt+2], upper_limit[3*idt+2]);
+      //DataPhi[idt] = gen_value(GenEngine[3*idt+2].Rndm(), lower_limit[3*idt+2], upper_limit[3*idt+2]);
 
       //std::cout<<":: Pt: "<<DataPt[idt]<<"\tEta: "<<DataEta[idt]<<"\tPhi: "<<DataPhi[idt]<<std::endl;
     }
@@ -254,9 +278,8 @@ void Composer(FmeSetup UserConfig){
     }///End loop over MC2 events
     
     float disc = min_distance_gen2/(min_distance_gen1 + min_distance_gen2);
-    if(fabs(disc - 0.5) > DrCondition){
-      if(disc > (0.5 + DrCondition)) SAcpdEvents++;
-      if(disc < (0.5 + DrCondition)) BAcpdEvents++;
+    float chirality = fabs(disc - 0.5);
+    if((min_distance_gen1 < min_distance_gen2 && chirality > DrCondition) || (min_distance_gen2 < min_distance_gen1 && chirality > DrCondition)){
       EventClass = (min_distance_gen1 < min_distance_gen2)? *McType1 : *McType2;
       EventDist = disc;
       for(Int_t idt=0; idt<nMcParticles; idt++){
@@ -266,8 +289,8 @@ void Composer(FmeSetup UserConfig){
 	ParticlePhi.push_back(DataPhi[idt]);
       }
 
-      if((SAcpdEvents > GenNEv && BAcpdEvents < GenNEv && EventClass == *McType1) || (SAcpdEvents < GenNEv && BAcpdEvents > GenNEv && EventClass == *McType2)) continue;
-      fme_tree->Fill();
+      if(SAcpdEvents <= GenNEv && EventClass == *McType1){ sfme_tree->Fill(); SAcpdEvents++; }
+      if(BAcpdEvents <= GenNEv && EventClass == *McType2){ bfme_tree->Fill(); BAcpdEvents++; }
       ParticleId.clear();
       ParticlePt.clear();
       ParticleEta.clear();
@@ -281,10 +304,15 @@ void Composer(FmeSetup UserConfig){
 
   t2.Stop();
   std::cout<<"[!Event generation finished!]"<<std::endl;
-  std::cout<<"[!Saving file "<<OutGenName<<"!]"<<std::endl;
-  TFile *outgen = new TFile(OutGenName,"recreate");
-  fme_tree->Write();
-  outgen->Close();
+  std::cout<<"[!Saving files "<<OutGenName<<"_sig.root & "<<OutGenName<<"_bkg.root!]"<<std::endl;
+  TFile *soutgen = new TFile(OutGenName + "_SIG.root","recreate");
+  sfme_tree->Write();
+  soutgen->Close();
+
+  TFile *boutgen = new TFile(OutGenName + "_BKG.root","recreate");
+  bfme_tree->Write();
+  boutgen->Close();
+
   
   return;
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------

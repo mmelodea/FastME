@@ -11,7 +11,7 @@
 #include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"      //Handle the original files for reduction and input order indexing
 #include "FastMatrixElement/FastMatrixElement/interface/Cartographer.h"   //Mapper real event to MC event
 #include "FastMatrixElement/FastMatrixElement/interface/Arbiter.h"        //Discriminator
-#include "FastMatrixElement/FastMatrixElement/interface/Generator.h"        //Event generator based on minimum distance method
+#include "FastMatrixElement/FastMatrixElement/interface/Composer.h"      //Event generator based on minimum distance method
 
 
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
     return -1;
   }
   ///Protection against wrong command spelling
-  if(argv[1] != help && argv[1] != sl && argv[1] != nc && argv[1] != fa && argv[1] != pr){
+  if(argv[1] != help && argv[1] != sl && argv[1] != nc && argv[1] != fa && argv[1] != pr && argv[1] != ge){
     std::cout<<"\nBad arguments...\n"<<std::endl;
     Helper();
     return -1;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
   }
   
   else if (argv[1] == ge){
-    Generator(setup);
+    Composer(setup);
   }
 
   
