@@ -1,0 +1,179 @@
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
+#::::::::::::::::::::::::::::::::::::::::::[ FastME config file ]:::::::::::::::::::::::::::::::::::::::::::::#
+#:::::::::::::::::::::::::::::::::::[ Code Designer: Miqueias M. Almeida ]::::::::::::::::::::::::::::::::::::#
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
+--General Instructions:
+--Left words are key-words;
+--Right sentences are its arguments:
+  -you must indicate arguments to key-words by simple space;
+  -don't write after them;
+--Comments can be done in any way since not after key-words or arguments:
+  -the executable input reader looks for key-words and its arguments;
+  -however, be carefull on comments;
+  -use # if you want to ignore some key-word configuration (or just remove it);
+--Currently are available 2 phase space dr methods (how to compare data-mc objects):
+  mindr and mean (when one has identical objects: compares the closest ones or get the media of combinations);
+--Number of final particles is in principle not restricted (but, only up to 6 was studied);
+--One can chose restrict (or not restrict) the comparison between leptons of same flavor;
+--There are 2 available methods to compute a scale factor: mean (option -1) and extrem (option -2, finds the maximum pT and minimum eta)
+--Verbose leves available: 0= quiet, 1= time proccessing, (for debug) 2= main info and 3= everything;
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#
+
+
+############# User config ############
+### Path of samples ###
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part1.root
+data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part1.root
+#data_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part1.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part2.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part2.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part2.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part3.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part4.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part5.root
+#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part6.root
+mc_path /eos/user/m/mmelodea/LXPLUS/gen_new_method_SIG.root
+mc_path /eos/user/m/mmelodea/LXPLUS/gen_new_method_BKG.root
+
+sig_data 0
+data_xs 1
+bkg_data 1
+data_xs 1
+#bkg_data 2
+sig_mc 0
+mc_xs 1
+bkg_mc 1
+mc_xs 1
+#bkg_mc 2
+
+
+
+#data_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_1_NewFormat.root
+#data_path ../../../../VBF_Samples_StdVectors/VBF_BKG_QED4_QCD0_plus_QED2_QCD2.root
+#mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_SIG_FastME_2_NewFormat.root
+#mc_path ../../../../VBF_Samples_StdVectors/VBF_QED4_QCD0_BKG_FastME_2_NewFormat.root
+#mc_path ../../../../VBF_Samples_StdVectors/VBF_QED2_QCD2_BKG_FastME_2_NewFormat.root
+#sig_data 0
+#bkg_data 1
+#sig_mc 0
+#bkg_mc 1
+#bkg_mc 2
+
+
+
+###### For Data emulation 3 final state #################################
+#sig_data 0
+#data_xs 0.01212
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
+#sig_data 1
+#data_xs 0.001034
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_VBF_HToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
+#sig_data 2
+#data_xs 0.0002339
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WplusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
+#sig_data 3
+##data_xs 0.0001471
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_WminusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
+#sig_data 4
+#data_xs 0.000652
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ZH_HToZZ_4LFilter_M125_13TeV_powheg2-minlo-HZJ_JHUgenV6_pythia8.root
+#sig_data 5
+#data_xs 0.000337
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUgenV6_pythia8.root
+#bkg_data 6
+#data_xs 1.256
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_ZZTo4L_13TeV_powheg_pythia8.root
+#bkg_data 7
+#data_xs 0.001586
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo4e_BackgroundOnly_13TeV_MCFM.root
+#bkg_data 8
+#data_xs 0.001586
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo4mu_BackgroundOnly_13TeV_MCFM.root
+#bkg_data 9
+#data_xs 0.001586
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo4tau_BackgroundOnly_13TeV_MCFM.root
+#bkg_data 10
+#data_xs 0.003194
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo2e2mu_BackgroundOnly_13TeV_MCFM.root
+#bkg_data 11
+#data_xs 0.003194
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo2e2tau_BackgroundOnly_13TeV_MCFM.root
+#bkg_data 12
+#data_xs 0.003194
+#data_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/EMUData/4l/output_GluGluToZZTo2mu2tau_BackgroundOnly_13TeV_MCFM.root#
+
+
+#### MC Templates ##########################################################
+#sig_mc 0
+#mc_xs 0.01212
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluHToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
+#sig_mc 1
+#mc_xs 0.001034
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_VBF_HToZZTo4L_M125_13TeV_powheg2_JHUgenV6_pythia8.root
+#sig_mc 2
+#mc_xs 0.0002339
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_WplusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
+#sig_mc 3
+#mc_xs 0.0001471
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_WminusH_HToZZTo4L_M125_13TeV_powheg2-minlo-HWJ_JHUgenV6_pythia8.root
+#sig_mc 4
+##mc_xs 0.000652
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_ZH_HToZZ_4LFilter_M125_13TeV_powheg2-minlo-HZJ_JHUgenV6_pythia8.root
+#sig_mc 5
+#mc_xs 0.000337
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUgenV6_pythia8.root
+#bkg_mc 6
+#mc_xs 1.256
+##mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_ZZTo4L_13TeV_powheg_pythia8.root
+#bkg_mc 7
+#mc_xs 0.001586
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluToZZTo4e_BackgroundOnly_13TeV_MCFM.root
+#bkg_mc 8
+#mc_xs 0.001586
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluToZZTo4mu_BackgroundOnly_13TeV_MCFM.root
+#bkg_mc 9
+#mc_xs 0.001586
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluToZZTo4tau_BackgroundOnly_13TeV_MCFM.root
+#bkg_mc 10
+#mc_xs 0.003194
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluToZZTo2e2mu_BackgroundOnly_13TeV_MCFM.root
+##bkg_mc 11
+#mc_xs 0.003194
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluToZZTo2e2tau_BackgroundOnly_13TeV_MCFM.root
+#bkg_mc 12
+#mc_xs 0.003194
+#mc_path ../../../../Higgs_Ntuples/Higgs13TeVtoFastME/MCTemplate/4l/output_GluGluToZZTo2mu2tau_BackgroundOnly_13TeV_MCFM.root
+
+
+
+### Tree info ###
+tree_name Higgs
+id_branch_name ParticleId
+pt_branch_name ParticlePt
+eta_branch_name ParticleEta
+phi_branch_name ParticlePhi
+
+
+############ FastME configs ##########
+##NOTE
+#MC quantity is by default based on fraction to mantain cross section relation
+#If mc_limit is flaged as large than 1, then all MC, if they have events enough, will be used up to that value
+#If a MC doesn't have events enough, then all the available events in that sample is used
+#If xs_scale is set to true, then data_limit and mc_limit must be set as -1
+
+outfile_name ggh_ggzz_gen
+outfile_path /eos/user/m/mmelodea/LXPLUS
+phs_dr_method mindr
+flavor_constraint false
+n_cores 2
+data_limit 1000
+mc_limit 10000
+scale_dPt -2
+scale_dEta -2
+scale_dPhi 0.318
+fme_file /eos/user/m/mmelodea/LXPLUS/ggh_ggzz_gen.root
+xs_scale false
+gen_nevents 500
+dr_condition 0.01
+out_gen_name /eos/user/m/mmelodea/LXPLUS/gen_new_method
+verbose_level 1
