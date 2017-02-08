@@ -245,14 +245,14 @@ void Arbiter(FmeSetup Setup){
   TColor::CreateGradientColorTable(Number,Length,Red,Green,Blue,nb);  
 
   //----------------------------------------------------------------
-  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",100,-0.05,1.05);
+  TH1D *hsig = new TH1D("hsig","Discriminant Based on Distance",500,-0.05,1.05);
   hsig->SetLineColor(9);
   hsig->SetFillColor(9);
   hsig->SetFillStyle(3001);
   hsig->GetXaxis()->SetTitle("P_{SB}(Distance)");
   hsig->GetYaxis()->SetTitle("Normalized");
 
-  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",100,-0.05,1.05);
+  TH1D *hbkg = new TH1D("hbkg","Discriminant Based on Distance",500,-0.05,1.05);
   hbkg->SetLineColor(2);
   hbkg->SetFillColor(2);
   hbkg->SetFillStyle(3001);
@@ -277,7 +277,7 @@ void Arbiter(FmeSetup Setup){
   Int_t total_events = ftree->GetEntries();
   Int_t jpoint = 0;
   Double_t cutoff, integral=0, max_sigma = 0, best_cut;
-  const int discret = 1000;
+  const int discret = 10000;
   float TPR[discret], FPR[discret], TP, FP, TN, FN;
   std::cout<<"Performing results..."<<std::endl;
   for(int j=0; j<discret; j++){
