@@ -175,7 +175,8 @@ void Composer(FmeSetup UserConfig){
   }
 
   std::cout<<":: "<<ansi_yellow<<">>>>> SAMPLING <<<<<"<<ansi_reset<<std::endl;
-  while(SAcpdEvents < GenNEv || BAcpdEvents < GenNEv || itrial < MaxGenTrials){
+  while(SAcpdEvents < GenNEv || BAcpdEvents < GenNEv){
+    if(itrial > MaxGenTrials) break;
     itrial++;
   
     //std::cout<<":: Event gen..."<<std::endl;
