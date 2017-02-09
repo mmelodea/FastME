@@ -132,7 +132,9 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords.at(k) ==               "data_xs")       Setup->DataXS.push_back(stof(line));
         if(fme_keywords.at(k) ==                 "mc_xs")       Setup->McXS.push_back(stof(line));
 	if(fme_keywords.at(k) ==           "gen_nevents")	Setup->GenNEv = stoi(line);
-        if(fme_keywords.at(k) ==          "dr_condition")       Setup->DrCondition = stof(line);
+        if(fme_keywords.at(k) ==         "sdr_condition")       Setup->SDrCondition = stof(line);
+        if(fme_keywords.at(k) ==         "bdr_condition")       Setup->BDrCondition = stof(line);
+        if(fme_keywords.at(k) ==        "max_gen_trials")       Setup->MaxGenTrials = stoi(line);
 	if(fme_keywords.at(k) ==          "out_gen_name")       Setup->OutGenName = line;
 	if(fme_keywords.at(k) ==         "verbose_level")	Setup->Verbose = stoi(line);
       }

@@ -57,7 +57,9 @@ void Composer(FmeSetup UserConfig){
   Double_t			ScaledEta		= UserConfig.ScaledEta;
   Double_t			ScaledPhi		= UserConfig.ScaledPhi;
   Int_t				GenNEv			= UserConfig.GenNEv;
-  Double_t			DrCondition		= UserConfig.DrCondition;
+  Double_t			SDrCondition		= UserConfig.SDrCondition;
+  Double_t                      BDrCondition            = UserConfig.BDrCondition;
+  Int_t 	                MaxGenTrials            = UserConfig.MaxGenTrials;
   TString			OutGenName		= UserConfig.OutGenName;
   Float_t			MCLimit			= UserConfig.MCLimit;
   //---------------------------------------------------------------------------------
@@ -172,8 +174,8 @@ void Composer(FmeSetup UserConfig){
     DataPhi.push_back(0);
   }
 
-  std::cout<<":: SAMPLING..."<<std::endl;
-  while(SAcpdEvents < GenNEv || BAcpdEvents < GenNEv){
+  std::cout<<":: "<<ansi_yellow<<">>>>> SAMPLING <<<<<"<<ansi_reset<<std::endl;
+  while(SAcpdEvents < GenNEv || BAcpdEvents < GenNEv || itrial < MaxGenTrials){
     itrial++;
   
     //std::cout<<":: Event gen..."<<std::endl;
@@ -278,9 +280,8 @@ void Composer(FmeSetup UserConfig){
     }///End loop over MC2 events
     
     float disc = min_distance_gen2/(min_distance_gen1 + min_distance_gen2);
-    float chirality = fabs(disc - 0.5);
-    if((min_distance_gen1 < min_distance_gen2 && chirality > DrCondition) || (min_distance_gen2 < min_distance_gen1 && chirality > DrCondition)){
-      EventClass = (min_distance_gen1 < min_distance_gen2)? *McType1 : *McType2;
+    EventClass = (min_distance_gen1 < min_distance_gen2)? *McType1 : *McType2;
+    if( disc < BDrCondition || disc > SDrCondition){
       EventDist = disc;
       for(Int_t idt=0; idt<nMcParticles; idt++){
 	ParticleId.push_back(-1);

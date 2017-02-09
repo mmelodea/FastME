@@ -55,7 +55,9 @@ struct FmeSetup{
   std::vector<float>		DataXS;
   std::vector<float>		McXS;
   Int_t				GenNEv;
-  Double_t			DrCondition;
+  Double_t			SDrCondition;
+  Double_t                      BDrCondition;
+  Int_t 			MaxGenTrials;
   TString			OutGenName;
   Int_t				Verbose = 1;
 };
@@ -90,7 +92,9 @@ static std::vector<std::string> fme_keywords = {
   "data_xs",
   "mc_xs",
   "gen_nevents",
-  "dr_condition",
+  "sdr_condition",
+  "bdr_condition",
+  "max_gen_trials",
   "out_gen_name",
   "verbose_level"
 };
@@ -124,7 +128,9 @@ static std::vector<int> ksize = {
   8,	///data_xs
   6,	///mc_xs
   12,	///gen_nevents
-  13,	///dr_condition
+  14,	///sdr_condition
+  14,   ///bdr_condition
+  15,	///max_gen_trials
   13,	///out_gen_name
   14	///verbose_level
 };
