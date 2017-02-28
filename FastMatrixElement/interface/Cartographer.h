@@ -136,10 +136,10 @@ TTree *Cartographer(FmeSetup UserConfig){
 	Int_t nDataParticles = DataPt.GetSize();
 	//std::cout<<"Pulled successfully..."<<std::endl;                                                         
       
-	//if( Verbose != 0 && ((dt!= 0 && nDataEvents > 10 && dt%(nDataEvents/10) == 0) || (nDataEvents-dt) == 1) ){
-	  //std::string infos = Form("%i/%i/%i", i_data_file, *McType, nDataEvents-dt);
-	  //std::cout<<"\r:: DataFile/MC/Remaining: "<<std::endl;
-	//}
+	if( Verbose != 0 && ((dt!= 0 && nDataEvents > 10 && dt%(nDataEvents/10) == 0) || (nDataEvents-dt) == 1) ){
+	  std::string infos = Form("%i/%i/%i", i_data_file, *McType, nDataEvents-dt);
+	  std::cout<<"\r:: DataFile/MC/Remaining: "<<infos<<std::endl;
+	}
 
 
 	Double_t min_distance_Min = 1.e15;
@@ -194,7 +194,7 @@ TTree *Cartographer(FmeSetup UserConfig){
 	    //Flags a chosen MC as "used" and saves deltas
 	    //std::cout<<"Selected MC "<<sel_mc_part<<std::endl;
 	    if(sel_mc_part != -1){
-	      McFlag[sel_mc_part] = 0;
+	      McFlag[sel_mc_part] = 1;
 	      ++n_matched_particles;
 	      //Start to sum for final event distance
 	      Sum_dPt2_dEta2_dPhi2 += Min_dPt2_dEta2_dPhi2;
@@ -286,10 +286,10 @@ TTree *Cartographer(FmeSetup UserConfig){
       for(Int_t dt = 0; dt < nDataEvents; ++dt){
 	refReader.SetEntry(dt); ///Move on Data loop
       
-	//if( Verbose != 0 && ((dt!= 0 && nDataEvents > 10 && dt%(nDataEvents/10) == 0) || (nDataEvents-dt) == 1) ){
-	  //std::string infos = Form("%i/%i/%i", i_data_file, *McType, nDataEvents-dt);
-	  //std::cout<<":: DataFile/MC/Remaining: "<<infos<<std::endl;
-	//}
+	if( Verbose != 0 && ((dt!= 0 && nDataEvents > 10 && dt%(nDataEvents/10) == 0) || (nDataEvents-dt) == 1) ){
+	  std::string infos = Form("%i/%i/%i", i_data_file, *McType, nDataEvents-dt);
+	  std::cout<<":: DataFile/MC/Remaining: "<<infos<<std::endl;
+	}
 
 
 	Double_t min_distance_Med = 1.e15;

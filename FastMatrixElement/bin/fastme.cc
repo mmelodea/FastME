@@ -7,7 +7,7 @@
 
 ///My Own headers
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h" //Basic FastME private variables
-#include "FastMatrixElement/FastMatrixElement/interface/Interfacer.h"     //Config file handler
+#include "FastMatrixElement/FastMatrixElement/interface/Cortana.h"     //Config file handler
 #include "FastMatrixElement/FastMatrixElement/interface/Librarian.h"      //Handle the original files for reduction and input order indexing
 #include "FastMatrixElement/FastMatrixElement/interface/Cartographer.h"   //Mapper real event to MC event
 #include "FastMatrixElement/FastMatrixElement/interface/Arbiter.h"        //Discriminator
@@ -63,10 +63,10 @@ int main(int argc, char *argv[]){
       ConfigReader((std::string)argv[2], &setup, (std::string)argv[1]);
     
       ///User can abort analysis if something is wrong in his config file
-      //std::cout<<ansi_yellow<<" Proceed?(y/n) "<<ansi_reset;
-      //std::string aws3;
-      //std::cin >> aws3;
-      //if(aws3 != "y") return -1;  
+      std::cout<<ansi_yellow<<" Proceed?(y/n) "<<ansi_reset;
+      std::string aws3;
+      std::cin >> aws3;
+      if(aws3 != "y") return -1;  
     }
     else ConfigReader((std::string)argv[2], &setup, (std::string)argv[1], (std::string)argv[3]);
   }

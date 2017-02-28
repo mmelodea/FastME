@@ -5,8 +5,8 @@
 
 
 
-#ifndef Interfacer_h
-#define Interfacer_h
+#ifndef Cortana_h
+#define Cortana_h
 
 
 #include "FastMatrixElement/FastMatrixElement/interface/FmeDefinitions.h"
@@ -131,7 +131,11 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
         if(fme_keywords.at(k) ==              "xs_scale")       Setup->XSScale = line;
         if(fme_keywords.at(k) ==               "data_xs")       Setup->DataXS.push_back(stof(line));
         if(fme_keywords.at(k) ==                 "mc_xs")       Setup->McXS.push_back(stof(line));
-	if(fme_keywords.at(k) ==           "gen_nevents")	Setup->GenNEv = stoi(line);
+	if(fme_keywords.at(k) ==            "gen_factor")	Setup->GenFactor = stoi(line);
+	if(fme_keywords.at(k) ==               "dist_pt")	Setup->DistPt = line;
+	if(fme_keywords.at(k) ==              "dist_eta")	Setup->DistEta = line;
+	if(fme_keywords.at(k) ==              "dist_phi")	Setup->DistPhi = line;
+	if(fme_keywords.at(k) ==         "gaussian_mean")	Setup->GaussianMean = stof(line);
         if(fme_keywords.at(k) ==         "sdr_condition")       Setup->SDrCondition = stof(line);
         if(fme_keywords.at(k) ==         "bdr_condition")       Setup->BDrCondition = stof(line);
         if(fme_keywords.at(k) ==        "max_gen_trials")       Setup->MaxGenTrials = stoi(line);

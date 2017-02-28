@@ -54,7 +54,11 @@ struct FmeSetup{
   TString			XSScale;
   std::vector<float>		DataXS;
   std::vector<float>		McXS;
-  Int_t				GenNEv;
+  Int_t				GenFactor;
+  TString			DistPt;
+  TString			DistEta;
+  TString			DistPhi;
+  Double_t			GaussianMean;
   Double_t			SDrCondition;
   Double_t                      BDrCondition;
   Int_t 			MaxGenTrials;
@@ -91,7 +95,11 @@ static std::vector<std::string> fme_keywords = {
   "xs_scale",
   "data_xs",
   "mc_xs",
-  "gen_nevents",
+  "gen_factor",
+  "dist_pt",
+  "dist_eta",
+  "dist_phi",
+  "gaussian_mean",
   "sdr_condition",
   "bdr_condition",
   "max_gen_trials",
@@ -127,7 +135,11 @@ static std::vector<int> ksize = {
   9,	///xs_scale
   8,	///data_xs
   6,	///mc_xs
-  12,	///gen_nevents
+  11,	///gen_factor
+  8,	///dist_pt
+  9,	///dist_eta
+  9,	///dist_phi
+  14,	///gaussian_mean
   14,	///sdr_condition
   14,   ///bdr_condition
   15,	///max_gen_trials
