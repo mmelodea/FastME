@@ -221,7 +221,7 @@ void ConfigReader(std::string UserConfig, FmeSetup *Setup, std::string command, 
 
   ///Get files order and insert a branch inside them to handle in different CPU cores
   ///Indexer function defined into Librarian header
-  if(run_mode == normal && command != pr)  Indexer(Setup);
+  if(command != pr)  Indexer(Setup);
 
   
   return;

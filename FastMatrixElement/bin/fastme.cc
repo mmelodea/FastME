@@ -67,6 +67,7 @@ int main(int argc, char *argv[]){
       std::string aws3;
       std::cin >> aws3;
       if(aws3 != "y") return -1;  
+      
     }
     else ConfigReader((std::string)argv[2], &setup, (std::string)argv[1], (std::string)argv[3]);
   }

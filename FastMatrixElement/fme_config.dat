@@ -22,19 +22,14 @@
 
 ############# User config ############
 ### Path of samples ###
-data_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part1.root
-data_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part1.root
-#data_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part1.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_SM_Higgs126_part2.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_ggZZ_part2.root
+data_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/Higgs13TeV_ftest_118_130_vbf.root
+data_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/Higgs13TeV_ftest_118_130_gghjj.root
 
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part2.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part3.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part4.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part5.root
-#mc_path ../../../../CMS_Ntuples/FastME2_format/4l_qqZZ_part6.root
-mc_path /eos/user/m/mmelodea/LXPLUS/FmeStudies/checking_5/data_aug_method_dfull_gm0p01_gf10_mc10k_SIG.root
-mc_path /eos/user/m/mmelodea/LXPLUS/FmeStudies/checking_5/data_aug_method_dfull_gm0p01_gf10_mc10k_BKG.root
+#mc_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/Higgs13TeV_train_118_130_vbf.root
+#mc_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/Higgs13TeV_train_118_130_gghjj.root
+mc_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/gen_gf100_gm0p04_SIG.root
+mc_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/gen_gf100_gm0p04_BKG.root
+
 
 sig_data 0
 data_xs 1
@@ -49,7 +44,7 @@ mc_xs 1
 
 
 ### Tree info ###
-tree_name Higgs
+tree_name csv
 id_branch_name ParticleId
 pt_branch_name ParticlePt
 eta_branch_name ParticleEta
@@ -63,24 +58,24 @@ phi_branch_name ParticlePhi
 #If a MC doesn't have events enough, then all the available events in that sample is used
 #If xs_scale is set to true, then data_limit and mc_limit must be set as -1
 
-outfile_name ggh_ggzz_gen_dfull_gf10_mc10k_gm0p01
-outfile_path /eos/user/m/mmelodea/LXPLUS/FmeStudies/checking_5
+outfile_name vbf_gghjj_gen_mc_gf10_gm0p05
+outfile_path /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/
 phs_dr_method mindr
 flavor_constraint false
 n_cores 2
-data_limit 1000
+data_limit 10
 mc_limit -1
-scale_dPt 1
-scale_dEta 1
-scale_dPhi 1
-fme_file /eos/user/m/mmelodea/LXPLUS/FmeStudies/checking_5/ggh_ggzz_gen_dfull_gf10_mc10k_gm0p01.root
+scale_dPt -2
+scale_dEta -2
+scale_dPhi -2
+fme_file /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/vbf_gghjj_gen_mc_gf10_gm0p05.root
 xs_scale false
 dist_pt true
 dist_eta true
 dist_phi true
-gen_factor 10
-gaussian_mean 0.01
-out_gen_name /eos/user/m/mmelodea/LXPLUS/FmeStudies/checking_5/data_aug_method_dfull_gm0p01_gf10_mc10k
+gen_factor 100
+gaussian_mean 0.04
+out_gen_name /eos/user/m/mmelodea/Keras/HiggsAnalysis/run2/KerasVBF/DNN_optimized_results/DataAugmentation/RootFiles/gen_gf100_gm0p04
 sdr_condition 0.52
 bdr_condition 0.40
 max_gen_trials 100000

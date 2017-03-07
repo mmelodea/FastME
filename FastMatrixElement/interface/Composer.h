@@ -161,7 +161,7 @@ void Composer(FmeSetup UserConfig){
   
   Int_t oEventClass;
   std::vector<Double_t> *oParticlePt=0, *oParticleEta=0, *oParticlePhi=0;
-  orig_full_events->SetBranchAddress("McFileIndex",&oEventClass);
+  orig_full_events->SetBranchAddress("EventClass",&oEventClass);
   orig_full_events->SetBranchAddress("ParticlePt",&oParticlePt);
   orig_full_events->SetBranchAddress("ParticleEta",&oParticleEta);
   orig_full_events->SetBranchAddress("ParticlePhi",&oParticlePhi);
