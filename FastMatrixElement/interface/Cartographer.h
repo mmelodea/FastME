@@ -151,6 +151,9 @@ TTree *Cartographer(FmeSetup UserConfig){
         
 	//std::cout<<"Going over MC loop..."<<std::endl;
 	for(Int_t mc = 0; mc < nMonteCarlo; ++mc){
+	  //Avoid same event match when classifying pure MC
+	  if(mc == dt) continue;
+		
 	  tread.SetEntry(mc); ///Move on MC loop
 	  //std::cout<<"Successfully pulled MC..."<<std::endl;
 	  ///Avoid different final state comparison
@@ -301,6 +304,9 @@ TTree *Cartographer(FmeSetup UserConfig){
         
         //std::cout<<"Throwing event "<<dt<<" into "<<nMonteCarlo<<" MC events"<<std::endl;
 	for(Int_t mc = 0; mc < nMonteCarlo; ++mc){
+          //Avoid same event match when classifying pure MC
+	  if(mc == dt) continue;
+		
 	  tread2.SetEntry(mc); ///Move on MC loop
           Int_t nDataParticles = DataPt.GetSize();
 	  Int_t nMcParticles   = McPt.GetSize();
