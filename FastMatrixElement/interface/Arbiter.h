@@ -58,7 +58,7 @@ void Arbiter(FmeSetup Setup){
   Int_t DtFile;
   std::vector<int> *McFile=0;
   std::vector<double> *Mdist=0;
-  TFile *fmeFile = TFile::Open(Setup.FmeFile,"update");
+  TFile *fmeFile = TFile::Open(Setup.FmeFile+".root","update");
   TTree *mtree = (TTree*)fmeFile->Get("CartographerResults");
   mtree->SetBranchAddress("DataFile",&DtFile);
   mtree->SetBranchAddress("MinDistance",&Mdist);
@@ -119,11 +119,19 @@ void Arbiter(FmeSetup Setup){
       //std::cout<<"DtFile/bkgData: "<<DtFile<<"/"<<Setup.BkgData.at(idbkg)<<std::endl;
     }
 
-         if(is_dsig == true && is_dbkg == false) fDtFile = 0;
-    else if(is_dsig == false && is_dbkg == true) fDtFile = 1;
+    if(is_dsig == true && is_dbkg == false){
+      std::cout<<"[Characterizing MC, file "<<ifile<<" is SIG type]"<<std::endl;
+      fDtFile = 0;
+    }
+    else if(is_dsig == false && is_dbkg == true){
+      std::cout<<"[Characterizing MC, file "<<ifile<<" is BKG type]"<<std::endl;
+      fDtFile = 1;
+    }
+    else if(is_dsig == false && is_dbkg == false){
+      std::cout<<"[Observed data file "<<ifile<<"!]"<<std::endl;
+    }
     else{
-      std::cout<<"[NOTE: Skipping data from file "<<ifile<<"!]"<<std::endl;
-      continue;
+      std::cout<<"[ERROR: File not well labeled "<<ifile<<std::endl;
     }
     
     std::vector<Int_t> sig_mc_file, bkg_mc_file;
