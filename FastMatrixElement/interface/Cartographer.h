@@ -228,7 +228,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     
 
     t2.Stop();
-    std::cout<<"Finished MPD..."<<std::endl;
+    std::cout<<ansi_green<<"Finished MPD..."<<ansi_reset<<std::endl;
     return fme_tree;
   };
   //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -393,7 +393,7 @@ TTree *Cartographer(FmeSetup UserConfig){
     
 
     t2.Stop();
-    std::cout<<"Finished MSC..."<<std::endl;
+    std::cout<<ansi_green<<"Finished MSC..."<<ansi_reset<<std::endl;
     return fme_tree;
   };
   //===================================================================================================================================================================
