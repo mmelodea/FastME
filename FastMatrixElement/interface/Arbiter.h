@@ -65,11 +65,12 @@ void Arbiter(FmeSetup Setup){
   mtree->SetBranchAddress("McFile",&McFile);
   Int_t fentries = mtree->GetEntries();
 
-  Int_t fDtFile;
+  Int_t fDtFile, fMcFile;
   Double_t Global_PsbDist;
   TTree *ftree = new TTree("Discriminant","Discriminant from FastME");
   ftree->SetDirectory(0);
   ftree->Branch("DataFile",&fDtFile,"DataFile/I");
+  ftree->Branch("McFile",&fMcFile,"McFile/I");
   ftree->Branch("Global_PsbDist",&Global_PsbDist,"Global_PsbDist/D");
 
   ///Find the tree sectors (sections of tree for each MC)
@@ -151,6 +152,7 @@ void Arbiter(FmeSetup Setup){
 
 
       Double_t global_min_dr_sig = 1.e15, global_min_dr_bkg = 1.e15;
+      Int_t paired_sig_mc_file = -1, paired_bkg_mc_file = -1;
       ///Looping over the MC sectors
       for(Int_t ic = 0; ic < (Int_t)nMcFiles; ic++){
         mtree->GetEntry(ifile + TreeSectors[ic]); //TreeSectors aligns the results from different MCs
@@ -174,6 +176,7 @@ void Arbiter(FmeSetup Setup){
           local_min_dr_sig.push_back( (*Mdist).at(ievent) );
    	  if( (*Mdist).at(ievent) < global_min_dr_sig ){
 	    global_min_dr_sig = (*Mdist).at(ievent);
+            paired_sig_mc_file = (*McFile).at(ievent);
 	  }
         }
 
@@ -183,6 +186,7 @@ void Arbiter(FmeSetup Setup){
           local_min_dr_bkg.push_back( (*Mdist).at(ievent) );
           if( (*Mdist).at(ievent) < global_min_dr_bkg ){
             global_min_dr_bkg = (*Mdist).at(ievent);
+            paired_bkg_mc_file = (*McFile).at(ievent);
 	  }
         }
 
@@ -191,6 +195,7 @@ void Arbiter(FmeSetup Setup){
       }//Ending the full verification for a event
 
       Global_PsbDist = GetPsbD(global_min_dr_sig, global_min_dr_bkg);
+      fMcFile = (global_min_dr_sig < global_min_dr_bkg)? paired_sig_mc_file : paired_bkg_mc_file;
       //if( Global_PsbDist == 0) std::cout<<"@@@@@@@@@ ifile/ievent/min_dr_sig/min_dr_bkg: "<<ifile<<"/"<<ievent<<"/"<<global_min_dr_sig<<"/"<<global_min_dr_bkg<<std::endl;
 
       if(fDtFile == 0){
