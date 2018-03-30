@@ -21,3 +21,7 @@ This option will run the software to find the closest MC events to each data eve
 
 <h6> fastme -d fme_config.dat</h6>
 This option will take the previous file created and the tree stored in it and it will compute the discriminant acording to the scheme defined by the user (set of sig/bkg_data and sig/bkg_mc). It also will provide the discriminant variation for each MC file, which allows one to know which of the MC is more similar/different to the analised data.
+
+
+<h6> Here is a view of a run of the package </h6>
+<img align="left" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/.fme_run_view.png" width="180">
