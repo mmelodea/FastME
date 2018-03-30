@@ -24,4 +24,4 @@ This option will take the previous file created and the tree stored in it and it
 
 
 <h6> Here is a view of a run of the package </h6>
-<img align="left" src="https://github.com/mmelodea/FastMatrixElement/blob/master/FastMatrixElement/fme_running.png" width="180">
+<img align="left" src="https://github.com/mmelodea/FastMatrixElement/blob/master/fme_running.png" width="780">
